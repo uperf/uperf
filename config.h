@@ -2,10 +2,10 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
 /* Built on */
-#define BUILD_DATE "Tue May  6 12:17:56 PDT 2008"
+#define BUILD_DATE "Tue May  6 13:27:29 PDT 2008"
 
 /* Configured on */
-#define CONFIGURED_ON "Tue May  6 12:17:56 PDT 2008"
+#define CONFIGURED_ON "Tue May  6 13:27:29 PDT 2008"
 
 /* Debug */
 /* #undef DEBUG */

@@ -110,7 +110,7 @@ uperf_version()
 
 	(void) printf("Copyright (C) 2008 Sun Microsystems\n");
 	(void) printf(
-	    "License: GNU GPL Version 2 http://gnu.org/licenses/gpl.html\n");
+	    "License: GNU GPL Version 3 http://gnu.org/licenses/gpl.html\n");
 	for (i = 0; proto[i] != NULL; i++) {
 		(void) printf("%s", proto[i]);
 	}

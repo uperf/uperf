@@ -490,12 +490,12 @@ s,@INSTALL_DATA@,${INSTALL} -m 644,;t t
 s,@CYGPATH_W@,echo,;t t
 s,@PACKAGE@,uperf,;t t
 s,@VERSION@,0.2.1,;t t
-s,@ACLOCAL@,${SHELL} /tmp/neel/uperf/missing --run aclocal-1.9,;t t
-s,@AUTOCONF@,${SHELL} /tmp/neel/uperf/missing --run autoconf,;t t
-s,@AUTOMAKE@,${SHELL} /tmp/neel/uperf/missing --run automake-1.9,;t t
-s,@AUTOHEADER@,${SHELL} /tmp/neel/uperf/missing --run autoheader,;t t
-s,@MAKEINFO@,${SHELL} /tmp/neel/uperf/missing --run makeinfo,;t t
-s,@install_sh@,/tmp/neel/uperf/install-sh,;t t
+s,@ACLOCAL@,${SHELL} /tmp/neel/a/uperf/missing --run aclocal-1.9,;t t
+s,@AUTOCONF@,${SHELL} /tmp/neel/a/uperf/missing --run autoconf,;t t
+s,@AUTOMAKE@,${SHELL} /tmp/neel/a/uperf/missing --run automake-1.9,;t t
+s,@AUTOHEADER@,${SHELL} /tmp/neel/a/uperf/missing --run autoheader,;t t
+s,@MAKEINFO@,${SHELL} /tmp/neel/a/uperf/missing --run makeinfo,;t t
+s,@install_sh@,/tmp/neel/a/uperf/install-sh,;t t
 s,@STRIP@,,;t t
 s,@ac_ct_STRIP@,,;t t
 s,@INSTALL_STRIP_PROGRAM@,${SHELL} $(install_sh) -c -s,;t t
@@ -503,7 +503,7 @@ s,@mkdir_p@,$(mkinstalldirs),;t t
 s,@AWK@,nawk,;t t
 s,@SET_MAKE@,,;t t
 s,@am__leading_dot@,.,;t t
-s,@AMTAR@,${SHELL} /tmp/neel/uperf/missing --run tar,;t t
+s,@AMTAR@,${SHELL} /tmp/neel/a/uperf/missing --run tar,;t t
 s,@am__tar@,${AMTAR} chof - "$$tardir",;t t
 s,@am__untar@,${AMTAR} xf -,;t t
 s,@CC@,gcc,;t t
@@ -900,8 +900,8 @@ t clr
 : clr
 ${ac_dA}HAVE_LIBSSL${ac_dB}HAVE_LIBSSL${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_SSL${ac_dB}HAVE_SSL${ac_dC}1${ac_dD}
-${ac_dA}CONFIGURED_ON${ac_dB}CONFIGURED_ON${ac_dC}"Tue May  6 12:17:56 PDT 2008"${ac_dD}
-${ac_dA}BUILD_DATE${ac_dB}BUILD_DATE${ac_dC}"Tue May  6 12:17:56 PDT 2008"${ac_dD}
+${ac_dA}CONFIGURED_ON${ac_dB}CONFIGURED_ON${ac_dC}"Tue May  6 13:27:29 PDT 2008"${ac_dD}
+${ac_dA}BUILD_DATE${ac_dB}BUILD_DATE${ac_dC}"Tue May  6 13:27:29 PDT 2008"${ac_dD}
 CEOF
   sed -f $tmp/defines.sed $tmp/in >$tmp/out
   rm -f $tmp/in
@@ -963,8 +963,8 @@ t clr
 : clr
 ${ac_uA}HAVE_LIBSSL${ac_uB}HAVE_LIBSSL${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_SSL${ac_uB}HAVE_SSL${ac_uC}1${ac_uD}
-${ac_uA}CONFIGURED_ON${ac_uB}CONFIGURED_ON${ac_uC}"Tue May  6 12:17:56 PDT 2008"${ac_uD}
-${ac_uA}BUILD_DATE${ac_uB}BUILD_DATE${ac_uC}"Tue May  6 12:17:56 PDT 2008"${ac_uD}
+${ac_uA}CONFIGURED_ON${ac_uB}CONFIGURED_ON${ac_uC}"Tue May  6 13:27:29 PDT 2008"${ac_uD}
+${ac_uA}BUILD_DATE${ac_uB}BUILD_DATE${ac_uC}"Tue May  6 13:27:29 PDT 2008"${ac_uD}
 s,^[	 ]*#[	 ]*undef[	 ][	 ]*[a-zA-Z_][a-zA-Z_0-9]*,/* & */,
 CEOF
   sed -f $tmp/undefs.sed $tmp/in >$tmp/out
