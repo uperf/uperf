@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<profile name="specweb">
+
+<group nthreads="2">
+	<transaction>
+	  	<flowop type="connect" options="remotehost=$h protocol=tcp" />
+	</transaction>
+	<transaction iterations="35">
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=100"/>
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=200"/>
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=300"/>
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=400"/>
+		
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=500"/>
+		
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=500"/>
+		
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=600"/>
+		
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=700"/>
+		
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=800"/>
+		
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=900"/>
+		
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=1000"/>
+	</transaction>
+	<transaction iterations="35">
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=2k" />
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=3k" />
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=4k" />
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=5k" />
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=6k" />
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=7k" />
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=8k" />
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=9k" />
+
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=10"/>
+	</transaction>
+	<transaction iterations="50">
+		<flowop type="write" options="size=300" />
+		<flowop type="read"  options="size=20"/>
+	</transaction>
+	<transaction>
+	  	<flowop type="disconnect" options="remotehost=$h protocol=tcp"/>
+	</transaction>
+
+</group>
+
+</profile>

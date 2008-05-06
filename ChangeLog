@@ -1,0 +1,96 @@
+Feb 26 2008
+* Use flowop->options.flag for various binary flags(tcp_nodelay, canfail)
+Feb 19 2008
+* Add support for send and recv flowops
+Feb 12 2008
+* FLOWOP_WAIT is now deprecated (it never did anything for non-udapl protocols)
+
+Feb 8 2008
+* Add support for asymmetric operations (rsize feature)
+
+Jan 2008 neel
+* SSL is now mt-safe
+* Removed support for duration in flowop (decrease code complexity)
+* Flowops do not support rate (Transactions do)
+
+Aug 20 2007 neel
+* Implement named connections (Each connection could be anonymous or have
+  a "id" associated with it.)
+Jun 27 2007 neel
+* Disable socket buffer warning if requested/set off by 10%
+* Fix bug where non_blocking was not being set if wndsz was not set
+* Clean up configure.in and add check for stdint.h (not there on s9)
+
+Jun 12 2007 Eric
+* Bump up version to 0.2.6
+* Disable version check during handshaking
+* Fix bug "uPerf cannot terminate when time is up"
+
+Jan 17 2007 Neel
+* Added support for rate keyword in transactions. This is a per thread
+  value. For ex
+  <transaction duration="200s" rate="1000">
+  Each thread will execute the above transaction for 200s at a rate 
+  of 1000 per second.
+* Code cleanup
+
+Jan 10 2007 Neel
+* Bump up version to 0.2.3
+* Add custom parser (uPerf does not need libxml now)
+* uPerf now supports 64-bit master with 32bit slave and vice-versa.
+* duration (for think flowop, and others) is now tracked in nanosecs
+
+Dec 14 2006
+* Fix bug "uPerf slave will fork multiple processes and use 100% cpu on x86"
+* Bump up version to 0.2.2
+
+Sep 15 2006
+* Bump version to 0.2.1
+
+Sep 7 2006
+* Add support for transaction duration
+* Add support for slave stat collection
+* Fix configure.in to add thread-safety compiler flags
+
+May 8 2006 neel <neel@sun.com>
+* Support for per thread aggregate and instantaneous throughput
+* Support for calculating the tail (little's law) in the
+  xanadu format
+
+Apr 24 2006 Neel<neel@sun.com> 
+* Progress indicator
+* Support for accept() on the master side.
+
+Apr 20 2006 Neel <neel@sun.com> version 0.1.9-beta
+* Refactored handshake between master/slave
+* Error handling improvements
+* Reporting improvements
+* Timeout for udp to recover from lost packets
+
+Mar 28 2006 Neel <neel@sun.com> version 0.1.8
+* Support for SCTP
+* Added autoconf/automake/gnu build tools support
+* Support for "think" flowop. You can either think
+	and burn cpu, or think while sleeping
+* support for 32 bit version
+* Support for processes via the nprocs keyword
+* Fixed udp deadlock bug
+
+21 Nov 2005 Neel <neel@sun.com> 0.1.7  (tag: v_0_1_7)
+* Cross platform support (slave and master can run on different
+  architectures (for ex sparc and intel)
+* The profile file can now get values from the program environment.
+  For ex, $host will be expanded to getenv(host)
+* Master and slave now only exchange only data that is relevent to
+  them.
+
+0.1.6  (tag: v_0_1_6)
+* Support for /proc collection at the transaction, thread and overall levels.
+* Support for kstat statistics
+* Improved statistics collections
+* new options
+	
+0.1.5 (tag: v0_1_5)
+* Improved statistic reporting. 
+* Ability to control whether to collect /proc statistics (-n flag)
+

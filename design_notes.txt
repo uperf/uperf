@@ -1,0 +1,105 @@
+
+
+Master
+1. Parse workload profile
+2. For each unique remote host
+   * handshake start
+   * workorder transfer
+   * send port numbers (for ex if master has to do accept())
+   * get port numbers (used when master needs to connect())
+   * get confirmation that all remote strands started
+   * handshake end
+3. Create per strand data structures
+3.1 Init barriers
+4. Create strands
+4.1 send handshake_end message to slave
+4.2 open begin_run barrier
+5. Wait for strands to finish
+6. Statistics gathering/reporting
+
+
+Slave
+1. Wait for connection, fork to handle it.
+2. Communicate with master
+   * handshake_begin
+   * get workorder
+   * get ports
+   * byteswap if necessary
+   * create per thread data structures
+   * create strands with handle to workorder
+3. Wait for handshake_end msg from master
+4. Reply with confirmation that strands have started
+5. Open begin_run barrier
+6. Wait for strands to finish
+
+
+At the end of every transaction, master sends a message to all
+slaves, requesting them to move on to the next transaction. The
+slave will wait for all threads to reach a barrier, and then open
+it. See wait_unlock_barrier
+
+workorder
+=========
+workorder takes care of actually executing the workorder.
+getnogroups()
+getnotransactions(groupno)
+getnoflowops(groupno, txnno)
+getnostats(groupno)
+getmaxbuffersize(group no)
+getnoconnections(group no)
+
+group_execute()
+   txn_execute()
+     flowop_execute
+       flowop_execute_count
+       flowop_execute_duration
+
+
+What is stored in the global shm
+================================
+* barriers
+* global error
+* slave list
+  * name
+  * port
+  * control connection
+* Workorder
+* strand_state_summary
+* per-strand structures
+  * array of stat_t
+  * per_strand state
+  * slave list
+    * connection array
+  * strand_id
+  * buffer
+  * hardware counter structure
+
+
+Rate Limiter
+=============
+Each transaction has a rate limiter. It can either be a count per sec
+or MB/s. If it is count per second, we can break count into
+100 equal parts, and execute them every 10ms. This also works if
+the transaction is of type duration.  we then sleep for the remainder
+of the interval.
+
+If the rate is of type MB/s then we do the following. Let us assume 
+the rate is 128Mb/s. This means that in one second we can only transmit
+16MB. Let us assume that each iteration of the transaction, we transmit
+8k, we can only do 2048 iterations. Assuming we breakdown 1 sec
+into 100 intervals, we can only do 204.8 iterations per interval.
+
+We also need to account for the scenario where the time taken to do
+"count" number of iterations is greater than 1/100 of a second. In this
+case, we do not sleep.
+
+
+Adding a new flowop type
+========================
+1. Update flowop_type_t in flowops.h
+2. Update flowops[] to add new flowop
+3. Update opp_flowopspp[] 
+3. Implement the flowop stub in flowops_library.c
+4. Update flowop_get_execute_func() in flowops_library.c
+6. Update the protocol structure to add the new flowop
+7. Implement the flowop for each protocol

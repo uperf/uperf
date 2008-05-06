@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<profile name="high_connection_count.xml">
+  <group nthreads="10">
+        <transaction iterations="10000">
+            <flowop type="connect" options="remotehost=$h protocol=tcp
+	    canfail wndsz=200k tcp_nodelay"/>
+
+        </transaction>
+        </transaction>
+        <transaction iterations="10000">
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+
+</profile>

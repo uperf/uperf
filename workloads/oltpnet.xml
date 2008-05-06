@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<profile name="oltpnet">
+  <group nthreads="1000">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=tcp 
+	    	tcp_nodelay "/>
+	</transaction>
+	<transaction iterations="1000">
+            <flowop type="read" options="size=73"/>
+            <flowop type="read" options="size=415"/>
+            <flowop type="read" options="size=35"/>
+            <flowop type="write" options="size=170"/>
+            <flowop type="read" options="size=35"/>
+            <flowop type="write" options="size=170"/>
+            <flowop type="read" options="size=35"/>
+            <flowop type="write" options="size=170"/>
+            <flowop type="read" options="size=35"/>
+            <flowop type="write" options="size=170"/>
+            <flowop type="read" options="size=35"/>
+            <flowop type="write" options="size=170"/>
+            <flowop type="read" options="size=35"/>
+            <flowop type="write" options="size=170"/>
+            <flowop type="read" options="size=35"/>
+            <flowop type="write" options="size=170"/>
+            <flowop type="read" options="size=35"/>
+            <flowop type="write" options="size=170"/>
+            <flowop type="read" options="size=73"/>
+            <flowop type="read" options="size=415"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+            <flowop type="read" options="size=220"/>
+            <flowop type="write" options="size=220"/>
+	</transaction>
+	<transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+</profile>

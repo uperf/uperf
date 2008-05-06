@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<profile name="sctp netperf">
+  <group nthreads="100">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=sctp
+	    wndsz=48k"/>
+        </transaction>
+        <transaction iterations="1000">
+            <flowop type="write" options="count=1 size=256"/>
+            <flowop type="read" options="count=1 size=900"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+</profile>

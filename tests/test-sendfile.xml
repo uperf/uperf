@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<profile name="sendfilev">
+  <group nthreads="$nthr">
+        <transaction iterations="1">
+            <flowop type="accept" options="remotehost=$h protocol=$proto
+	    wndsz=50k  tcp_nodelay"/>
+        </transaction>
+        <transaction duration="30s">
+            <flowop type="sendfile" options="dir=/export/home/neel/dump nfiles=10"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+
+</profile>

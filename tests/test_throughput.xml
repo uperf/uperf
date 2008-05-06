@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<profile name="test_throughput.xml">
+  <group nthreads="4">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=udp
+	    wndsz=200k tcp_nodelay"/>
+        </transaction>
+        <transaction duration="10s" rate="1000">
+            <flowop type="write" options="size=1400"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+</profile>

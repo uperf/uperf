@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<profile name="oraclerac">
+	<group nthreads="1">
+		<transaction iterations="1">
+			<flowop type="connect" options="remotehost=clear21-ib1 protocol=udapl"/>
+		</transaction>
+		<transaction iterations="1000">
+			<flowop type="write" options="count=32 async subtype=rdma size=100"/>
+			<flowop type="wait" options="count=32 waittype=dequeue waitfor=write"/>
+		</transaction>
+		<transaction iterations="1">
+			<flowop type="disconnect"/>
+		</transaction>
+	</group>
+</profile>

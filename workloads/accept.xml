@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<profile name="connect-test">
+  <group nthreads="$nthr">
+    <transaction iterations="$iter">
+       <flowop type="accept" options="remotehost=$h protocol=tcp"/>
+       <flowop type="disconnect" />
+    </transaction>
+  </group>
+</profile>

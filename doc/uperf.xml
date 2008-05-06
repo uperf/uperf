@@ -1,0 +1,619 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<article>
+  
+  <artheader>
+    <title>Unified Performance tool for networking (uperf)</title>
+    <!--
+    <author>
+      <firstname>Neelakanth</firstname><surname>Nadgir</surname>
+      <email>neel@sun.com</email>
+    </author>
+    and
+    <author>
+      <firstname>SIP Team, PAE Sun Microsystems</firstname>      
+    </author>
+    -->
+    <abstract>
+      <para>
+        Unified Performance Tool or uperf for short, is a network
+        performance measurement tool that supports execution of
+        workload profiles
+      </para>
+    </abstract>
+  </artheader>
+  
+  <sect1 id="intro">
+    <title>Introduction</title>
+    <para>
+      Microbenchmarks rarely measure real world performance. This
+      is especially true in networking where applications can use
+      multiple protocols, use different types of communication,
+      interleave CPU processing with communication, etc. However,
+      popular microbenchmarks like iPerf and netperf are very
+      simplistic, supporting only one protocol at a time, fixed
+      message sized communication, no support for interleaving CPU
+      processing between communication, and so on. Thus there is a need for
+      a tool to closely model real world performance.
+    </para>
+    <para>
+      Uperf (Unifed performance tool for networking) solves this
+      problem by allowing the user to model the real world
+      application using a very high level language (called
+      profile) and running this over the network. It allows the
+      user to use multiple protocols, varying message sizes for
+      communication, a 1xN communication model, support for
+      collection of CPU counter statistics, and much more. 
+    </para>
+    <sect2>
+      <title>Authors</title>
+      <para>
+        uperf was developed by the Performance Availablity Engineering 
+        group at Sun Microsystems. It was originally developed by
+        <ulink url="http://blogs.sun.com/realneel">Neelakanth Nadgir</ulink>
+        and <ulink url="mailto:nitin.rammanavar@sun.com">Nitin Rammanavar</ulink>.
+        <ulink url="mailto:J.Zhang@sun.com">Jing Zhang</ulink> added support 
+        for the uperf harness. <ulink url="mailto:Chaoyue.Xiong">Joy</ulink>
+        added SSL support, and <ulink url="mailto:ding.he@sun.com">Eric He</ulink>
+        ported it to windows and is currently a core contributer. 
+        <ulink url="mailto:charles.suresh@sun.com">Charles Suresh</ulink>,
+        <ulink url="mailto:alan.chiu@sun.com">Alan Chiu</ulink>, 
+        <ulink url="mailto:janlung.sung@sun.com">Jan-Lung Sung</ulink> have 
+        contributed significantly to its design and development.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Features</title>
+      <para> 
+        The following list is a short overview of some of the features supported
+        by uperf:
+        <itemizedlist>
+          <listitem>Support modeling of workloads using profiles</listitem>
+          <listitem>Support for Multiple protocols (new protocols can 
+            be easily integrated). Currently the following protocols
+            are supported.
+            <itemizedlist>
+              <listitem>TCP</listitem>
+              <listitem>UDP</listitem>
+              <listitem>SCTP</listitem>
+              <listitem>SSL</listitem>
+            </itemizedlist>
+          </listitem>
+          <listitem>1-Many hosts</listitem>
+          <listitem>Support for CPU counters and lots of other detailed
+          statistics</listitem>
+          <listitem>
+            <ulink url="http://fenxi.dev.java.net">Fenxi</ulink>
+            integration (Cool graphs!).
+          </listitem>
+          <listitem>Ability to choose whether to use processes or threads</listitem>
+          <listitem>Runs on Solaris, Linux and windows
+            <footnote><para>Currently unsupported</para></footnote>
+          </listitem>
+        </itemizedlist>
+      </para>
+    </sect2>
+  </sect1>
+  
+  <sect1><title>Using uperf</title>
+    <sect2><title>Getting uperf</title>
+      <para>
+        uperf is opensource software using the 
+        <ulink url="http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt">
+          GNU General Public License v2
+        </ulink>.
+        You can download it from <ulink url="http://uperf.org" />. Binaries are 
+        available for Solaris and Linux.
+      </para>
+    </sect2>
+    
+    <sect2><title>Running uperf</title>
+      <para>
+        uperf can be run as either a master(active) or a slave(passive).
+        When run as active it needs master flag(-m) with a profile
+        describing the test application. 
+        <programlisting><xi:include  href="uperf-help.txt"  parse="text"  
+                                       xmlns:xi="http://www.w3.org/2001/XInclude" />
+        </programlisting>
+      </para>
+      <para>
+	uperf comes bundled with quite a few sample profiles in the
+	<filename class="directory">workloads</filename> directory. You
+	can always tweak them to suit your needs or write your own
+	profile. Several of these profiles pick up values (like
+	<parameter>remotehost</parameter>, or
+	<parameter>protocol</parameter>) from the ENVIRONMENT. These
+	variables begin with the $ sign in the profile. You can either
+	set these (via <code>export h=192.168.1.4</code>) or hardcode
+	them in the profile.
+      </para>
+      <para>
+        The list of profiles included by uperf is as follows
+        
+        <variablelist>
+          <varlistentry>
+            <term>netperf.xml</term>
+            <listitem><para>
+		This profile represents the request-response kind of
+		traffic.  One thread on the master is reading and
+		writing 90 bytes of data from the slave. The remote end
+		(slave) address is specified via the
+		<parameter>$h</parameter> environment variable.
+		<parameter>$proto</parameter> specifies the protocol to
+		be used.
+		</para>
+            </listitem>
+          </varlistentry>
+          
+          <varlistentry>
+            <term>iperf.xml</term>
+            <listitem>
+              <para>
+		In this profile, multiple threads simulates one way
+		traffic (8K size) between two hosts (similar to the
+		iperf networking tool) for 30 seconds.
+                <parameter>$h</parameter> specifies the remote host, 
+                <parameter>$proto</parameter> specifies the protocol, and
+                <parameter>$nthr</parameter> specifies the numnber of threads.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>connect.xml</term>
+            <listitem>
+              <para>
+		In this profile, multiple threads try to connect and
+		disconnect from the remote host. This can be used to
+		measure the connection setup performance.
+		<parameter>$nthr</parameter> specifies the numnber of
+		threads, and <parameter>$iter</parameter> determines
+		number of connects and disconnects each thread will do.
+              </para>
+            </listitem>
+          </varlistentry> 
+          <varlistentry>
+            <term>two-hosts.xml</term>
+            <listitem>
+              <para>
+		This profile demonstrates an application in which each
+		thread opens a connection each to two hosts, and then
+		reads 200 bytes from the first connection and writes it
+		to the other connection.
+              </para>
+            </listitem>
+          </varlistentry>
+          <!--
+          <varlistentry>
+            <term>SAM.xml</term>
+            <listitem>
+              <para>
+                
+              </para>
+            </listitem>
+          </varlistentry>
+          -->
+          
+          
+        </variablelist>
+      </para>
+    </sect2>
+  </sect1>
+  
+  <sect1><title>Uperf profiles</title>
+    <para>
+      uperf is based on the idea that you can describe your
+      application or workload in very general terms and the
+      framework will run that application or workload for you. For
+      example, if you are familiar with netperf or
+      request-response microbenchmarks, this general description
+      would be 
+      <emphasis>"each thread sends 100bytes and receives 100 bytes using
+      UDP"</emphasis>. For a more complex application, we may have to
+      specify the number of connections, and/or the number of threads,
+      are the threads all doing the same kind of operation, what
+      protocols are being used, Is the traffic bursty?, etc. As you can
+      see, it gets quite complicated for any real-world application.
+      uperf defines a language to specify all of these information in a
+      machine-understandable format (xml) called a
+      <emphasis>profile</emphasis>. uperf then parses and runs whatever
+      the profile specifies. The user has to specify the profile for the
+      master only. uperf automatically transforms the profile for the
+      slaves and uses it.
+    </para>
+    
+    <para>
+      The profile needs to be a valid XML file. Variables that begin with a 
+      '<emphasis>$</emphasis>' are picked up from the ENVIRONMENT.
+    </para>
+    <sect2><title>Sample Profile</title>
+      <para>
+        A sample profile for the request-response microbenchmark
+        is shown below.
+        <programlisting><xi:include  href="netperf.xml.txt"  parse="text"  
+                           xmlns:xi="http://www.w3.org/2001/XInclude" />
+        </programlisting>
+      </para>
+    </sect2>
+    
+    <sect2><title>Explanation of profile</title>
+      <para>
+        Every profile begins with a xml header that specifies that
+        it is a XML file. A profile has <emphasis>name</emphasis>.
+        This is used to identify the name of the profile, and is not
+        used by uperf. 
+        The major parts of a profile are
+        <itemizedlist>
+          <listitem>group</listitem>
+          <listitem>transaction</listitem>
+          <listitem>flowop</listitem>
+        </itemizedlist>
+      </para>
+      Lets look at each of these in detail.
+      
+      <sect3><title>Group</title>
+        A profile can have multiple
+        <emphasis>group</emphasis>s. A <emphasis>group</emphasis> is
+        a collection of threads or processes that execute
+        <emphasis>transaction</emphasis>s contained in that group.
+      </sect3>
+      
+      <sect3><title>Transaction</title>
+        A <emphasis>transaction</emphasis> is a unit of work.
+        Transactions have either an <emphasis>iteration</emphasis>
+        or a <emphasis>duration</emphasis> associated with it. If
+        <code>&lt;transaction iteration=1000&gt;</code> is specified,
+        the contents of the transactions are executed 1000 times. If
+        <code>&lt;transaction duration=30s&gt;</code> is specified,
+        the contents of the transaction are executed for 30 seconds.
+        By default, the transaction executes its contents only once.
+        All threads or processes start executing transactions at the
+        same time.
+      </sect3>
+      
+      <sect3 id="flowop_desc"><title>Flowop</title>
+        The contents of the transaction are called
+        <emphasis>flowop</emphasis>s. These basic operations
+        (building blocks) are used to define a workload. Current
+        supported flowps are 
+        <itemizedlist>
+          <listitem>Connect</listitem>
+          <listitem>Accept</listitem>
+          <listitem>disconnect</listitem>
+          <listitem>read</listitem>
+          <listitem>write</listitem>
+          <listitem>redv</listitem>
+          <listitem>sendto</listitem>
+          <listitem>sendfilev</listitem>
+          <listitem>NOP</listitem>
+          <listitem>think</listitem>
+        </itemizedlist>
+       	<para>
+	  Every Flowop has a set of options. In the XML file, these are space
+	  seperated. The supported options are listed below.
+	</para> 
+        <variablelist>
+          <varlistentry>
+            <term>Common options</term>
+            <listitem>
+              <para>
+                <table class="options">
+                  <tr><td class="fixed">count</td>
+                    <td>The number of times this flowop will be
+                      executed
+                    </td>
+                  </tr>
+                  <tr><td class="fixed">duration</td>
+                    <td>The amount of time this flowop will be executed.
+                      Example: <code>duration=100ms</code>. 
+		      <emphasis role="strong">This option will no longer be
+		      supported in future versions of uperf. Specify the
+		      duration in the transaction</emphasis>
+                    </td>
+                  </tr>
+                  <tr><td class="fixed">rate</td>
+                    <td><emphasis role="strong">Experimental:</emphasis>
+                      This option causes uperf to execute this flowop at the
+                      specified rate for <code>iterations</code> or
+                      <code>duration</code> seconds.
+                    </td>
+                  </tr>
+                </table>
+              </para>
+            </listitem>
+          </varlistentry>
+          
+          <varlistentry>
+            <term>Connect/Accept</term>
+            <listitem>
+              <para>writerse_option
+                The connect flowop specifies that a connection needs to
+                be opened. The <parameter>options</parameter> parameter
+                specifies more details regaring the connection. The
+                following keys are supported
+                <table class="options">
+                  <tr><td class="fixed">remotehost</td>
+                    <td>The remote host that we need to connect or accept
+                    connection from</td>
+                  </tr>
+                  <tr><td class="fixed">protocol</td>
+                    <td>The protocol used to connect to the remote host.
+                    Valid values are tcp, udp, ssl, and sctp</td>
+                  </tr>
+                  <tr><td class="fixed">tcp_nodelay</td>
+                    <td>Controls whether
+                      <parameter>TCP_NODELAY</parameter> is set or not
+                    </td>
+                  </tr>
+                  <tr><td class="fixed">wndsz</td>
+                    <td>Size of the socket send and receive buffer. This
+                      parameter is used to set <code>SO_SNDBUF, SO_RCVBUF</code> 
+                      flags using  <code>setsocktopt()</code>                    
+                    </td>
+                  </tr>
+                  <tr><td class="fixed">engine</td>
+                    <td>
+                      SSL Engine.
+                    </td>
+                  </tr>
+                </table>                
+              </para>
+            </listitem>
+          </varlistentry>
+          
+          <varlistentry>
+            <term>Read, Write, Sendto and Recv flowops</term>
+            <listitem>
+              <para>
+                <table class="options">
+                  <tr><td class="fixed">size</td>
+                    <td>Amount of data that is either read or written.
+		      Uperf supports exchange of 
+		     	<itemizedlist>
+			  <listitem>Fixed size messages</listitem>
+			  <listitem>Asymmetrical size messages</listitem>
+			  <listitem>Random size messages</listitem>
+			</itemizedlist> 
+		      
+		      For fixed size messages, the master and all slaves
+		      used a fixed size for receives and transmits. For
+		      asymmetrical sized messages, the slaves use the
+		      size specified by the <code>rszize</code>
+		      parameter. The master still uses the
+		      <code>size</code> parameter.  For a random sized
+		      message, the a uniformly distributed value between
+		      the user specifed min and max is used by the
+		      transmitting side, and the receiving side uses the
+		      <emphasis>max</emphasis> as the message size.
+		      Example: <code>size=64k</code> or
+		      <code>size=rand(4k,8k)</code>
+                    </td>
+                  </tr>
+
+		  <tr><td class="fixed">rsize</td>
+                    <td>See description of asymmetrical messages above.</td>
+                  </tr>
+
+                  <tr><td class="fixed">canfail</td>
+		    <td>Indicates that a failure for this flowop will
+		    not cause uperf to abort. This is espcially useful
+		    in UDP where a packet drop does not constitue a
+		    fatal error.  This can be also be used for example,
+		    to test a SYN flood attack (Threads
+		    <code>connect()</code> repeatedly ignoring errors).
+                    </td>
+                  </tr>
+                  <tr><td class="fixed">non_blocking</td>
+                    <td>Use non-blocking IO. The socket/file descriptor is
+                      set the NO_BLOCK flag.
+                    </td>
+                  </tr>
+                  <tr><td class="fixed">poll_timeout</td>
+                    <td>If this option is set, the thread will first
+                      <code>poll</code> for specified duration before trying
+                      to carry out the operation. A <code>poll</code> timeout
+                      is returned as an error back to uperf.
+                    </td>
+                  </tr>
+                  <tr><td class="fixed">conn</td>
+                    <td>Every open connection is assigned a connection name.
+		    Currently, the name can be any valid integer, however, uperf
+		    could take a string in the future.  <code>conn</code>
+		    identifies the connection to use with this flowop. This
+		    connection name is thread private.
+                    </td>
+                  </tr>
+                </table>
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Sendfile and Sendfilev flowops</term>
+            <listitem>
+              <para>The sendfile flowop uses the
+		   <code>sendfile(3EXT)</code> function call to transfer
+		   a single file.  The sendfilev flowop transfers a set
+		   of files using the <code>sendfilev(3EXT)</code>
+		   interface.  Multiple files are randomly picked from
+		   all transferrable files (see dir below) and
+		   tranferred to the slave.
+                <table class="options">
+                  <tr><td class="fixed">dir</td>
+                    <td>This parameter identifies the directory from
+		    which the files will be transferred. The directory
+		    is search recursively to generate a list of all
+		    readable files.  Example: <code>dir=/space</code>
+		    </td>
+                   </tr>
+                  <tr><td class="fixed">nfiles</td>
+                    <td>This parameter identifies the number of files
+		    that will be transferred with each call to
+		    <code>sendfilev(3EXT)</code>. This is used as the
+		    3rd argument to the <code>sendfilev(3EXT)</code>. 
+		    nfiles is assumed to be 1 for the sendfile flowop.
+		    function. Example: <code>nfiles=10</code>
+		    </td>
+                   </tr>
+                  <tr><td class="fixed">size</td>
+                    <td>This parameter identifies the chunk size for the
+		    transfer. Instead of sending the whole file, uperf
+		    will send <emphasis>size</emphasis> sized chunks
+		    one at a time. <emphasis>This is used only if 
+		    nfiles=1</emphasis>
+		    </td>
+                   </tr>
+                </table>
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+        
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1><title>Statistics collected by uperf</title>
+    <para>
+      uperf collects quite a wide variety of statistics. By default,
+      uperf prints the throughput every second while the test is
+      running, and then prints out the total throughput. uperf also
+      prints the network statistics, calculated independently using
+      system statistics, to verify the throughput reported via uperf.
+      uperf also prints statistics from all the hosts involved in this
+      test to validate the output.   
+    </para>
+    <para>
+      Some of the statistics collected by uperf are listed below
+      <itemizedlist>
+        <listitem>Throughput</listitem>
+        <listitem>Latency</listitem>
+        <listitem>Group Statistics</listitem>
+        <listitem>Per-Thread statistics</listitem>
+        <listitem>Transaction Statistics</listitem>
+        <listitem>Flowops Statistics</listitem>
+        <listitem>Netstat Statistics</listitem>
+        <listitem>Per-second Throughput</listitem>
+      </itemizedlist>
+    </para>
+    <sect2>
+      <title>Default uperf output</title>
+      <programlisting><xi:include  href="uperf-default-output.txt"  parse="text"  
+                                     xmlns:xi="http://www.w3.org/2001/XInclude" />
+      </programlisting>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Frequently Asked Questions</title>
+    <qandaset defaultlabel='qanda'>
+      
+      <qandaentry>
+        <question><para>What is the history behind uperf?</para></question>
+	<answer><para>uperf was developed by the Performance Availablity
+	Engineering group at Sun Microsystems circa 2004. It was
+	originally inspired by Filebench, and developed by
+            <ulink url="http://blogs.sun.com/realneel">Neelakanth Nadgir</ulink>
+            and Nitin Rammanavar.
+        </para></answer>
+      </qandaentry>
+      
+      <qandaentry>
+        <question><para>Where can I submit bugs/feedback?</para></question>
+        <answer><para>Until we have something better, please email
+            <email>uperf@sun.com</email>
+        </para></answer>
+      </qandaentry>
+      
+      <qandaentry>
+        <question><para>How do I specify which interface to use?</para></question>
+        <answer><para>uperf just specifies the host to connect to. It is
+            upto the OS to determine which interface to use. You can change the
+            default interface to that host by changing the routing tables
+        </para></answer>
+      </qandaentry>
+      
+      <qandaentry>
+        <question><para>
+            Does the use of <parameter>-a</parameter> affect performance?
+        </para></question>
+        <answer><para>
+            Since <parameter>-a</parameter> collects all kinds of statistical
+            information, there is a measurable impact when the flowop is 
+            lightweight (UDP TX for small packets). 
+        </para></answer>
+      </qandaentry>
+      
+      <qandaentry>
+        <question><para>
+            Does uperf support socket autotuning on Linux?
+        </para></question>
+        <answer><para>
+	    uperf currently always call <code>setsocketopt()</code>, and
+	    this disables autotuning on Linux, so you can't test
+	    autotuning. If no window size(<code>wndsz</code>) is
+	    specified in the profile, <code>setsocketopt()</code> won't
+	    be called by uperf, thus enabling the autotuning on Linux
+        </para></answer>
+      </qandaentry>
+      <qandaentry>
+        <question><para>Where can I get the uperf harness?</para></question>
+        <answer><para>
+	    The harness is not opensource, although if there is
+	    sufficient interest, we would definetely consider
+	    opensourcing it. For more details, please contact Jing
+	    Zhang.
+        </para></answer>
+      </qandaentry>
+      <qandaentry>
+        <question><para>Why do you even have a 
+		<parameter>-n</parameter> option?</para></question>
+        <answer><para>uperf uses a global variable to count the
+	  number of bytes transferred. This is updated using atomic
+	  instructions <code>atomic_add_64</code> function. However, if
+	  you have thousands of threads, there is very high likelyhood
+	  that many threads update this value simultaneously. causing
+	  higher CPU utilization. The <parameter>-n</parameter> helps in
+	  this case.
+	</para></answer>
+
+      </qandaentry>
+      <qandaentry>
+        <question><para>Why do we have an option to do sendfilev with
+	chunks?</para></question>
+        <answer><para>Pallab identified an issue where chunked
+	sendfilev's were faster than transferring the whole
+	file in one go. This will help debug the issue.
+	</para></answer>
+      </qandaentry>
+
+      <!--      
+      <qandaentry>
+        <question><para>Sample Question</para></question>
+        <answer><para>SAMPLE ANSWER</para></answer>
+      </qandaentry>
+ -->     
+    </qandaset>
+    
+  </sect1>
+
+  <sect1>
+	  <title>Named connections</title>
+	  <para>
+	    uperf supports named connections. To specify a name,
+	    you should specify <parameter>conn=X</parameter> variable
+	    in the <parameter>options</parameter> to a 
+	    <parameter>connect</parameter> or <parameter>accept</parameter>
+	    flowop. For example,
+	    <code>
+	    &lt;flowop type="connect" options="conn=2 remotehost=$h 
+	    protocol=tcp&gt;</code>
+	  </para>
+	  <para>
+	    If a name is not specified, the connection is an
+	    <emphasis>anonymous</emphasis> connection. For any flowop,
+	    if a connection is not specified, it uses the first 
+	    anonymous connection.
+	  </para>
+  </sect1>
+</article>
+
+
+
+

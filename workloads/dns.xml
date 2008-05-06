@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<profile name="LDAP or DNS query">
+	<group nthreads="$conn">
+		<transaction iterations="1">
+			<flowop type="connect" options="remotehost=$h3 protocol=tcp wndsz=32k tcp_nodelay"/>
+		</transaction>
+		<transaction duration="120s">
+			<flowop type="read"  options="count=1 size=64"/>
+			<flowop type="write" options="count=1 size=64"/>
+		</transaction>
+		<transaction iterations="1">
+			<flowop type="disconnect" />
+		</transaction>
+	</group>
+
+	<group nthreads="$conn">
+		<transaction iterations="1">
+			<flowop type="connect" options="remotehost=$h4 protocol=tcp wndsz=32k tcp_nodelay"/>
+		</transaction>
+		<transaction duration="120s">
+                        <flowop type="read"  options="count=1 size=64"/>
+                        <flowop type="write" options="count=1 size=64"/>
+		</transaction>
+		<transaction iterations="1">
+			<flowop type="disconnect" />
+		</transaction>
+	</group>
+
+	<group nthreads="$conn">
+		<transaction iterations="1">
+			<flowop type="connect" options="remotehost=$h protocol=tcp wndsz=32k tcp_nodelay"/>
+		</transaction>
+		<transaction duration="120s">
+                        <flowop type="read"  options="count=1 size=64"/>
+                        <flowop type="write" options="count=1 size=64"/>
+		</transaction>
+		<transaction iterations="1">
+			<flowop type="disconnect" />
+		</transaction>
+	</group>
+
+	<group nthreads="$conn">
+		<transaction iterations="1">
+			<flowop type="connect" options="remotehost=$h2 protocol=tcp wndsz=32k tcp_nodelay"/>
+		</transaction>
+		<transaction duration="120s">
+                        <flowop type="read"  options="count=1 size=64"/>
+                        <flowop type="write" options="count=1 size=64"/>
+		</transaction>
+		<transaction iterations="1">
+			<flowop type="disconnect" />
+		</transaction>
+	</group>
+
+</profile>

@@ -1,0 +1,21 @@
+Usage: /home/neel/projects/raptor/raptor1/framework/uperf [m:shgtTfkpaeE:vVx:d:]
+	-m	 <profile>  Run uperf with this profile
+	-s	 Slave
+	-n	 Print no statistics
+	-t	 Print thread statistics
+	-T	 Print transaction statistics
+	-f	 Print flowop statistics
+	-g	 Print ThreadGroup statistics
+	-k	 Collect kstat statistics
+	-p	 Collect /proc stats for flowops (See NOTE)
+	-e	 Collect default CPU counters for flowops (See NOTE)
+	-E	 <event1,event2> Collect CPU counters for flowops (See NOTE)
+	-a	 Print all statistics
+	-v	 Verbose
+	-V	 Version
+	-h	 Print usage
+	-x	 Print in xanadu format to file
+	-X	 collect response times (in xanadu format)
+	-i	 <interval> collect throughput every <interval>
+
+NOTE: -p/-e/-E work only if -f is also used

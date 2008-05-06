@@ -1,0 +1,26 @@
+## Process this file with automake to produce Makefile.in
+
+bin_PROGRAMS = uperf
+
+$BUILD_DATE:sh =date
+
+uperf_SOURCES =  workorder.c strand.c execute.c flowops_library.c \
+	flowops.c common.c main.c slave.c  stats.c handshake.c parse.c shm.c \
+	master.c print.c signals.c goodbye.c delay.c rate.c sendfilev.c \
+	logging.c netstat.c numbers.c sync.c protocol.c tcp.c generic.c 
+
+uperf_LDADD = $(UPERF_LIBS)
+if HAVE_CPC
+uperf_SOURCES += hwcounter.c
+endif
+if SCTP_C
+uperf_SOURCES += sctp.c
+endif
+if SSL_C
+uperf_SOURCES += ssl.c
+endif
+if UDP_C
+uperf_SOURCES += udp.c
+endif
+
+#uperf_CPPFLAGS = -DBUILD_DATE="\"$(BUILD_DATE)\""

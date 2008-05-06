@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<profile name="2proto_1group">
+  <group nthreads="1">
+        <transaction iterations="1">
+            <flowop type="connect" options="conn=1 remotehost=$h protocol=sctp
+	    wndsz=200k tcp_nodelay"/>
+            <flowop type="connect" options="conn=2 remotehost=$h protocol=tcp
+	    wndsz=200k tcp_nodelay"/>
+        </transaction>
+        <transaction iterations="10">
+            <flowop type="write" options="conn=1 size=64k"/>
+            <flowop type="write" options="conn=2 count=10 size=64k"/>
+        </transaction>
+        <transaction>
+            <flowop type="disconnect" options="conn=2"/>
+            <flowop type="write" options="conn=1 count=1 size=64k"/> 
+            <flowop type="disconnect" options="conn=1"/>
+        </transaction>
+  </group>
+</profile>

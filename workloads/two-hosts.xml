@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<profile name="two-hosts">
+  <group nthreads="2">
+        <transaction>
+            <flowop type="connect" options="remotehost=$h1 protocol=tcp"/>
+            <flowop type="connect" options="remotehost=$h2 protocol=udp"/>
+        </transaction>
+        <transaction duration="100s">
+            <flowop type="write" options="size=300"/>
+            <flowop type="read" options="conn=1 size=300 "/>
+        </transaction>
+        <transaction>
+            <flowop type="disconnect" />
+            <flowop type="disconnect" options="conn=1"/>
+        </transaction>
+  </connection>
+</profile>

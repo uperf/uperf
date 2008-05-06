@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<profile name="VoIP Tx">
+  <group nthreads="200">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h protocol=udp"/>
+      </transaction>
+      <transaction duration="120s">
+            <flowop type="write" options="size=64"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+  <group nthreads="200">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h2 
+	protocol=udp"/>
+      </transaction>
+      <transaction duration="120s">
+            <flowop type="write" options="size=64"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+</profile>

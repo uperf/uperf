@@ -1,0 +1,69 @@
+body {
+	margin:10%;
+	font-family: Arial, Verdana;
+	font-size:12pt;
+	color:#444444;
+	background-color:#FFFFFF;
+	text-align:left;
+}
+
+div.sect1 div.titlepage h2 {
+	text-align:left;
+	color:#395d76;
+	border-bottom: 3px solid #aaa;
+
+}
+div.sect1 div.titlepage h3 {
+	font-size:14pt; 
+}
+pre.programlisting {
+	font-size:8pt;
+	background-color: #f3f5f7;
+	border: 1pt solid #aebdcc;
+	font-family: courier,monospace;
+	padding:5pt;
+	white-space: -moz-pre-wrap;
+}
+.fixed {
+	font-family: courier,monospace;
+}
+.term {
+	font-weight:bold;
+         color: #888;
+}
+span.command {
+	font-family: courier,monospace;
+	background-color: #f3f5f7;
+	border: 1pt solid #aebdcc;
+	font-family: courier,monospace;
+	padding:5pt;
+	-moz-border-radius:5px;
+}
+a {
+	text-decoration:none;
+}
+a:hover {
+	background-color:#FFC726;
+}
+
+table.options {
+	border-top: 1px solid #aaa;
+}
+table.options td {
+	border-bottom: 1px solid #aaa;
+	border-left: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+	vertical-align:middle;
+	padding:2px;
+}
+p {
+  text-align:justify;
+}
+div.qandaset p {
+  /* border:1px solid #e00;  */
+  margin:0px;
+  padding:0px;
+}
+tr.question {
+  font-weight:bold;
+}

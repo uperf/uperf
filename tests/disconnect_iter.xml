@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<profile name="disconnect_iter.xml">
+  <group nthreads="$nthr">
+    <transaction iterations="$iter">
+       <flowop type="connect" options="remotehost=$h protocol=tcp"/>
+    </transaction>
+    <transaction  iterations="$iter">
+       <flowop type="disconnect" />
+    </transaction>
+  </group>
+</profile>

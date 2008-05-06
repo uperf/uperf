@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<profile name="accept-accept">
+  <group nthreads="$nthr">
+    <transaction iterations="100">
+       <flowop type="accept" options="remotehost=$h protocol=tcp"/>
+    </transaction>
+    <transaction iterations="100">
+       <flowop type="disconnect" />
+    </transaction>
+  </group>
+</profile>

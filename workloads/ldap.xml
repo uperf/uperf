@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<profile name="ldap">
+  <group nthreads="100">
+    <transaction iterations="1">
+       <flowop type="connect" options="remotehost=$h protocol=tcp" />
+    </transaction>
+    <transaction iterations="50">
+       <flowop type="write" options="size=70"/>
+       <flowop type="think" options="duration=10ms idle" />
+       <flowop type="read" options="size=300"/>
+       <flowop type="think" options="duration=10ms busy" />
+    </transaction>
+    <transaction iterations="1">
+       <flowop type="disconnect" />
+    </transaction>
+  </group>
+</profile>

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<profile name="unknown_proto.xml">
+  <group nthreads="1">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=XXX"/>
+        </transaction>
+  </group>
+</profile>

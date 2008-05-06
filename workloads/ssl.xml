@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<profile name="iSSL">
+  <group nthreads="1">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=ssl engine=pkcs11"/>
+        </transaction>
+        <transaction iterations="2">
+            <flowop type="read" options="count=1 duration=3s size=8k"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+</profile>

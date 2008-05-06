@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<profile name="multi_proto_connect.xml">
+  <group nthreads="1">
+         <transaction iterations="10">
+            <flowop type="connect" options="remotehost=$h protocol=tcp"/>
+            <flowop type="disconnect"/>
+        </transaction>
+         <transaction iterations="10">
+            <flowop type="connect" options="remotehost=$h protocol=udp"/>
+            <flowop type="disconnect"/>
+        </transaction>
+         <transaction iterations="10">
+            <flowop type="connect" options="remotehost=$h protocol=sctp"/>
+            <flowop type="disconnect"/>
+        </transaction>
+
+       <transaction iterations="10">
+            <flowop type="connect" options="remotehost=$h protocol=tcp"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect"/>
+        </transaction>
+  </group>
+</profile>

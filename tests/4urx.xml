@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<profile name="UDP Rx">
+  <group nthreads="$conn">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h protocol=udp wndsz=64k"/>
+      </transaction>
+      <transaction duration="$t">
+            <flowop type="read" options="size=$size"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+  <group nthreads="$conn">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h2 
+	protocol=udp wndsz=64k"/>
+      </transaction>
+      <transaction duration="$t">
+            <flowop type="read" options="size=$size"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+  <group nthreads="$conn">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h3
+	protocol=udp wndsz=64k"/>
+      </transaction>
+      <transaction duration="$t">
+            <flowop type="read" options="size=$size"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+
+  <group nthreads="$conn">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h4
+	protocol=udp wndsz=64k"/>
+      </transaction>
+      <transaction duration="$t">
+            <flowop type="read" options="size=$size"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+</profile>
