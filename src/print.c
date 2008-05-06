@@ -21,6 +21,9 @@
 #include <termio.h>
 #include <unistd.h>
 #include <stropts.h>
+#include <stdint.h>
+#include "config.h"
+#include "uperf.h"
 #include "print.h"
 #include "hwcounter.h"
 #include "main.h"

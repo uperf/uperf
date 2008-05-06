@@ -42,6 +42,9 @@
 /* Have sctp */
 #undef HAVE_SCTP
 
+/* Have sendfilev */
+#undef HAVE_SENDFILEV
+
 /* Define to 1 if you have the <siginfo.h> header file. */
 #undef HAVE_SIGINFO_H
 

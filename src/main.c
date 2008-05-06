@@ -47,7 +47,7 @@
 #include "netstat.h"
 #endif /* ENABLE_NETSTAT */
 
-#ifdef UPERF_LINUX
+#ifdef UPERF_LINUX1
 _syscall0(pid_t, gettid)
 #endif /* UPERF_LINUX */
 

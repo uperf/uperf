@@ -2,10 +2,10 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
 /* Built on */
-#define BUILD_DATE "Tue May  6 13:27:29 PDT 2008"
+#define BUILD_DATE "Tue May  6 14:29:33 PDT 2008"
 
 /* Configured on */
-#define CONFIGURED_ON "Tue May  6 13:27:29 PDT 2008"
+#define CONFIGURED_ON "Tue May  6 14:29:33 PDT 2008"
 
 /* Debug */
 /* #undef DEBUG */
@@ -42,6 +42,9 @@
 
 /* Have sctp */
 #define HAVE_SCTP 1
+
+/* Have sendfilev */
+#define HAVE_SENDFILEV 1
 
 /* Define to 1 if you have the <siginfo.h> header file. */
 #define HAVE_SIGINFO_H 1

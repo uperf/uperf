@@ -18,7 +18,7 @@
 #ifndef _SENDFILEV_H_
 #define	_SENDFILEV_H_
 
-int sendfilev_init(char *dir);
+int sendfile_init(char *dir);
 ssize_t do_sendfilev(int sock, char *dir, int nfiles, int csize);
 ssize_t do_sendfile(int sock, char *dir, int csize);
 

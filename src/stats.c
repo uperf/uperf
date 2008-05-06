@@ -89,8 +89,10 @@ newstat_begin(strand_t *s, newstats_t *ns, uint64_t size, uint64_t count)
 	ns->time_used_start = GETHRTIME();
 	if (ENABLED_UTILIZATION_STATS(options))
 		ns->cpu_time_start = GETHRVTIME();
+#ifdef USE_CPC
 	if (s && ENABLED_CPUCOUNTER_STATS(options))
 		hwcounter_snap(&s->hw, SNAP_BEGIN);
+#endif
 	return (0);
 }
 

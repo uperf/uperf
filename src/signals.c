@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <wait.h>
 #ifdef HAVE_SIGINFO_H
 #include <siginfo.h>
 #endif /* HAVE_SIGINFO_H */
@@ -61,7 +62,9 @@ signal_handler(int signal)
 		pthread_exit(NULL);
 	} else if (signal == SIGINT) {
 		psignal(signal, "\nAborting ...");
+#if !defined(UPERF_LINUX)
 		sigsend(P_PGID, getpgid(getpid()), SIGKILL);
+#endif
 		exit(2);
 	} else {
 		/* No need to do anything, the syscall will return EINTR */

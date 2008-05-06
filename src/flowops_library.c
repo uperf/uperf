@@ -215,8 +215,12 @@ flowop_sendfilev(strand_t *s, flowop_t *f)
 	}
 
 	if (f->type == FLOWOP_SENDFILEV)
+#ifdef HAVE_SENDFILEV
 		n = do_sendfilev(f->connection->fd, f->options.dir,
 		    f->options.nfiles, f->options.size);
+#else
+		assert("sendfilev not supported");
+#endif
 	else
 		n = do_sendfile(f->connection->fd, f->options.dir,
 		    f->options.size);

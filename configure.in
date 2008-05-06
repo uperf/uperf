@@ -48,6 +48,7 @@ case "$(uname -s)" in
 		AC_MSG_NOTICE([*** Solaris Machine ***])
 		AC_DEFINE([UPERF_SOLARIS],[1],[Setting machine os to Solaris])
 		UPERF_LIBS="$UPERF_LIBS -lsocket -lnsl -lumem -lkstat -lsendfile"
+		LIBS=$UPERF_LIBS
 		;;
 esac
 
@@ -73,8 +74,15 @@ AC_COMPILE_IFELSE([[#include <sys/byteorder.h>
 		], 
 		[AC_MSG_RESULT(no)
 		])
-
-
+# Linux 2.6 does not have sendfilev
+AC_MSG_CHECKING(sendfilev)
+AC_LINK_IFELSE([[#include <sys/sendfile.h>
+		main() {int i=sendfilev(1,0, 1, 0);}]],
+		[AC_MSG_RESULT(yes)
+	  	 AC_DEFINE([HAVE_SENDFILEV],[1],[Have sendfilev])
+		], 
+		[AC_MSG_RESULT(no)
+		])
 
 AM_CONDITIONAL([HAVE_CPC], [false])
 AM_CONDITIONAL([HAVE_KSTAT], [false])

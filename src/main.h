@@ -23,7 +23,7 @@
 #ifndef	 __MAIN_H
 #define	 __MAIN_H
 #include <limits.h>			/* PATH_MAX */
-
+#include <stdio.h>			/* PATH_MAX */
 
 #define	FLOWOP_STATS		(1<<0)
 #define	TXN_STATS			(1<<1)

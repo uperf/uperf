@@ -461,7 +461,7 @@ parse_option(char *option, flowop_t *flowop)
 			flowop->options.nfiles = string2int(value);
 		} else if (strcasecmp(key, "dir") == 0) {
 			strlcpy(flowop->options.dir, value, PATHMAX);
-			if (sendfilev_init(value) != 0) {
+			if (sendfile_init(value) != 0) {
 				snprintf(err, sizeof (err),
 					"Error initializing dir: %s\n",
 					value);

@@ -85,9 +85,20 @@ find_sfv_list(const char *dir)
 	return (s);
 }
 
+/* pick a random file from the list and return its index */
+static int
+select_file(sfv_list_t *s)
+{
+	int fileno = rand() % s->nfiles;
+
+/* printf("picked %s\n", s->flist[fileno].name); */
+	return (fileno);
+}
+
+
 /* Open all readable files in the dir 'dir' and get their sizes */
 int
-sendfilev_init(char *dir)
+sendfile_init(char *dir)
 {
 
 	int count = 0;
@@ -135,16 +146,7 @@ sendfilev_init(char *dir)
 	return (0);
 }
 
-/* pick a random file from the list and return its index */
-static int
-select_file(sfv_list_t *s)
-{
-	int fileno = rand() % s->nfiles;
-
-/* printf("picked %s\n", s->flist[fileno].name); */
-	return (fileno);
-}
-
+#ifdef HAVE_SENDFILEV	/* Linux does not have sendfilev */
 static ssize_t
 do_sendfilev_chunked(sfv_list_t *s, int sock, int csize)
 {
@@ -195,6 +197,7 @@ do_sendfilev(int sock, char *dir, int nfiles, int chunk_size)
 
 	return (sendfilev(sock, vec, nfiles, &xferred));
 }
+#endif
 
 ssize_t
 do_sendfile(int sock, char *dir, int chunk_size)

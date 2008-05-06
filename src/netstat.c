@@ -23,7 +23,9 @@
 #include <strings.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
+#include "uperf.h"
 #include "numbers.h"
 #include "print.h"
 
