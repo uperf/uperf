@@ -311,6 +311,8 @@ print_netstat()
 		ib = nics[i].s[1].rx_bytes - nics[i].s[0].rx_bytes;
 		ob = nics[i].s[1].tx_bytes - nics[i].s[0].tx_bytes;
 		t =  (nics[i].s[1].stamp -  nics[i].s[0].stamp)/1.0e+9;
+		if (ip == 0 && op == 0)
+			continue;
 		(void) printf("%-5s  %10.0f  %10.0f ",
 		    nics[i].interface, op/t, ip/t);
 		PRINT_NUMb(ob*8/t, 10);
