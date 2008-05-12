@@ -16,7 +16,7 @@ ENV["rate"]="1000"
 arg = ARGV[0] || "tests/*xml"
 pass=[]
 fail=[]
-cmd = "framework/uperf"
+cmd = "src/uperf"
 #log = File.open("log","w+")
 ####Dir['tests/*xml'].each do |file|
 Dir[arg].each do |file|
