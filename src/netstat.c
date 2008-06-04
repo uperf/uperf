@@ -116,6 +116,11 @@ netstat_init()
 			continue;
 		strlcpy(nics[no_nics].interface, ksp->ks_name, INTERFACE_LEN);
 		nics[no_nics++].ksp = ksp;
+		if (no_nics >= MAX_NETS) {
+			printf("Warning: Number of interfaces exceeded %d\n",
+			    MAX_NETS);
+			return (-1);
+		}
 	}
 
 	return (0);

@@ -55,7 +55,7 @@ ensure_read(protocol_t *p, void *buffer, int size, void *options)
 
 	sz = 0;
 	while (sz < size) {
-		if ((n = p->read(p, buffer + sz, size, options)) <= 0) {
+		if ((n = p->read(p, buffer + sz, size - sz, options)) <= 0) {
 			return (n);
 		}
 		sz += n;
@@ -70,7 +70,7 @@ ensure_write(protocol_t *p, void *buffer, int size, void *options)
 
 	sz = 0;
 	while (sz < size) {
-		if ((n = p->write(p, buffer + sz, size, options)) <= 0) {
+		if ((n = p->write(p, buffer + sz, size - sz, options)) <= 0) {
 			return (n);
 		}
 		sz += n;

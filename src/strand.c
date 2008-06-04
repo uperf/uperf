@@ -220,8 +220,10 @@ strand_fini(strand_t *s)
 	for (i = 0; i < NUM_PROTOCOLS; i++) {
 		if (s->listen_conn[i] != 0) {
 			protocol_t *p = s->listen_conn[i];
-			destroy_protocol(p->type, p);
+			/* FIXME: need to do reference counting */
+			/* destroy_protocol(p->type, p); */
 			s->listen_conn[i] = 0;
+
 		}
 	}
 	/* Close any open connections */

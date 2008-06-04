@@ -470,6 +470,8 @@ parse_option(char *option, flowop_t *flowop)
 			}
 		} else if (strcasecmp(key, "count") == 0) {
 			flowop->options.count = atoi(value);
+		} else if (strcasecmp(key, "port") == 0) {
+			flowop->options.port = atoi(value);
 		} else if (strcasecmp(key, "protocol") == 0) {
 			flowop->options.protocol = protocol_type(value);
 			if (protocol_type(value) == PROTOCOL_UNSUPPORTED) {

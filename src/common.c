@@ -80,6 +80,22 @@ create_protocols(uperf_shm_t *shm, int nthr, flowop_t *f,
 	if (sl[0].port[protocol] > 0)
 		return (UPERF_SUCCESS);
 
+	if (f->options.port != 0) {
+		int port = htons(f->options.port);
+		p = create_protocol(protocol, " ", ntohs(port), SLAVE);
+		sl[0].port[protocol] = p->listen(p, (void *)&f->options);
+		if (sl[0].port[protocol] <= 0) {
+			return (UPERF_FAILURE);
+		}
+		for (i = 0; i < nthr; i++) {
+			strand_t *s = shm_get_strand(shm, i + ssid);
+			s->listen_conn[protocol] = p;
+			sl[i].port[protocol] = sl[0].port[protocol];
+		}
+		return (UPERF_SUCCESS);
+	} 
+
+	/* One port per thread */
 	for (i = 0; i < nthr; i++) {
 		strand_t *s = shm_get_strand(shm, i + ssid);
 		p = create_protocol(protocol, " ", ANY_PORT, SLAVE);

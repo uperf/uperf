@@ -283,10 +283,10 @@ init_options(int argc, char **argv)
 		return (NULL);
 	}
 #ifdef ENABLE_NETSTAT
-	if (ENABLED_PACKET_STATS(options)) {
+	if (oclient && ENABLED_PACKET_STATS(options)) {
 		if (netstat_init() != 0) {
-			uperf_error("Error opening netstat\n");
-			return (NULL);
+			uperf_error("Will not collect packet statistics\n");
+			options.copt &= ~PACKET_STATS;
 		}
 	}
 #endif /* ENABLE_NETSTAT */
