@@ -19,5 +19,6 @@
 #define	_RATE_H
 
 int rate_execute_1s(void *, void *, int, int (*callback)(void *, void *));
+int rate_execute_1s_busywait(void *, void *, int, int (*callback)(void *, void *));
 
 #endif /* _RATE_H */

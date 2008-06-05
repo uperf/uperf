@@ -93,3 +93,34 @@ rate_execute_1s(void *a, void *b, int rate, int (*callback)(void *, void *))
 		return (ret);
 	}
 }
+
+/*
+ * This function is busy wait version of 
+ * rate_execute_1s
+ */
+int
+rate_execute_1s_busywait(void *a, void *b, int rate, int (*callback)(void *, void *))
+{
+        hrtime_t begin, now;
+        int i, ret, interval;
+
+        assert(rate > 0);
+
+        begin = GETHRTIME();
+        now = GETHRTIME();
+
+        ret = 0;
+        i = 0;
+        interval = 1.0e+9/rate;
+        while ((now - begin) < 1.0e+9) {
+                if ((now - begin) >= (interval * i)) {
+                        if ((ret = callback(a, b)) != 0) {
+                                return (ret);
+                        }
+                        i++;
+                }
+                now = GETHRTIME();
+        }
+        return ret;
+}
+
