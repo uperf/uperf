@@ -78,6 +78,7 @@ uperf_usage(char *prog)
 	"\t-e\t\t Collect default CPU counters for flowops [-f assumed]\n"
 	"\t-E <ev1,ev2>\t Collect CPU counters for flowops [-f assumed]\n"
 	"\t-a\t\t Collect all statistics\n"
+	"\t-x file\t\t Collect data to be processed by Fenxi\n"
 	"\t-X file\t\t collect response times\n"
 	"\t-v\t\t Verbose\n"
 	"\t-V\t\t Version\n"
@@ -145,7 +146,7 @@ init_options(int argc, char **argv)
 	options.interval = 1000;	/* Collect throughput every 1second */
 	oserver = oclient = ofile = 0;
 
-	while ((ch = getopt(argc, argv, "i:hngm:stTfkpaeE:vVX:")) != EOF) {
+	while ((ch = getopt(argc, argv, "i:hngm:stTfkpaeE:vVxX:")) != EOF) {
 		switch (ch) {
 #ifdef USE_CPC
 		case 'E':
@@ -232,6 +233,9 @@ init_options(int argc, char **argv)
 		case 'V':
 			uperf_version();
 			exit(0);
+			break;
+		case 'x':
+			options.copt |= FENXI_PRINT;
 			break;
 		case 'X':
 			options.copt |= HISTORY_STATS;

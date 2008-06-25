@@ -93,6 +93,12 @@ print_summary(newstats_t *ns, int same_line)
 	time_s = time/1.0e+9;
 	throughput = ns->size * 8.0 / time_s;
 	ops = ns->count/time_s;
+	if (ENABLED_FENXI_PRINT(options)) {
+		printf("%s %.2f MB in %.2f secs = %.2f Mbps or %10.2f ops\n",
+			ns->name, ns->size/1024.0/1024.0, 
+			time/1.0e+9, throughput/1.0e+6, ops);
+		return;
+	}
 	if (same_line) {
 		memset(msg, ' ', sizeof (msg));
 		msg[window_width() - 1] = '\0';
