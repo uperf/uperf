@@ -612,6 +612,21 @@
 	    anonymous connection.
 	  </para>
   </sect1>
+  
+  <sect1>
+      <title>Using Fenxi with Uperf</title>
+      <para>Uperf can generate data that can be post processed by
+        <ulink url="http://fenxi.dev.java.net">Fenxi</ulink>. To
+        use that feature, you have to use the <parameter>-x</parameter>
+        option of uperf. The output should be stored in file whose
+        name has the <emphasis>uperf</emphasis> prefix. For ex
+        <programlisting>
+$ uperf -m iperf.xml -x > uperf-iperf.out
+$ fenxi process uperf-iperf.out outdir iperf
+        </programlisting>.
+        The output is now stored in <emphasis>outdir</emphasis>
+       </para>     
+  </sect1>
 </article>
 
 
