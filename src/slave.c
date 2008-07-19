@@ -41,6 +41,13 @@
 #include <sys/poll.h>
 #endif /* UPERF_LINUX */
 
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
+
+#ifdef HAVE_SIGNAL_H
+#include <signal.h>
+#endif
 
 #include "uperf.h"
 #include "protocol.h"

@@ -37,10 +37,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <assert.h>
-#ifdef UPERF_LINUX
+#ifdef  HAVE_SYS_POLL_H
 #include <sys/poll.h>
-#endif /* UPERF_LINUX */
-
+#endif /*  HAVE_SYS_POLL_H */
 
 #include "uperf.h"
 #include "protocol.h"

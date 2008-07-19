@@ -19,7 +19,7 @@
 #include "../config.h"
 #endif /* HAVE_CONFIG_H */
 #include <sys/types.h>
-#ifndef UPERF_LINUX
+#ifdef HAVE_SYS_BYTEORDER_H
 #include <sys/byteorder.h>
 #endif
 #include <stdlib.h>

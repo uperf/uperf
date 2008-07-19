@@ -287,7 +287,7 @@ signal_strand(strand_t *s, int signal)
 	if (STRAND_IS_PROCESS(s)) {
 		pid_t pid =  s->pid;
 		uperf_info("Sending signal %d to %d\n", signal, pid);
-#ifdef UPERF_LINUX
+#ifndef UPERF_SOLARIS
 		status = kill(pid, signal);
 #else
 		status = sigsend(P_PID, pid, signal);

@@ -18,11 +18,18 @@
 #include <string.h>
 #include <stdio.h>
 #include <strings.h>
-#include <termio.h>
-#include <unistd.h>
-#include <stropts.h>
-#include <stdint.h>
 #include "config.h"
+#ifdef HAVE_TERMIO_H
+#include <termio.h>
+#endif /* HAVE_TERMIO_H */
+#ifdef HAVE_SYS_TTYCOM_H
+#include <sys/ttycom.h>
+#endif /* HAVE_SYS_TTYCOM_H */
+#include <unistd.h>
+#ifdef HAVE_STROPTS_H
+#include <stropts.h>
+#endif /* HAVE_STROPTS_H */
+#include <stdint.h>
 #include "uperf.h"
 #include "print.h"
 #include "hwcounter.h"

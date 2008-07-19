@@ -20,6 +20,10 @@
 #include "../config.h"
 #endif /* HAVE_CONFIG_H */
 
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
+
 #include <errno.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -30,8 +34,12 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <strings.h>
+#ifdef HAVE_ALLOCA_H
 #include <alloca.h>
+#endif /* HAVE_ALLOCA_H */
+#ifdef HAVE_SYS_SENDFILE_H
 #include <sys/sendfile.h>
+#endif /* HAVE_SYS_SENDFILE_H*/
 
 #include "uperf.h"
 

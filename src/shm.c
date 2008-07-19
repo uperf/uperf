@@ -30,6 +30,10 @@
 #endif /* HAVE_ATOMIC_H */
 #include <sys/types.h>
 
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
+
 #include "uperf.h"
 
 #include "protocol.h"
@@ -242,12 +246,14 @@ shm_init(workorder_t *w)
 		shm_fini(shared);
 		return (NULL);
 	}
+#ifndef STRAND_THREAD_ONLY
 	if (pthread_mutexattr_setpshared(&shared->attr,
 		PTHREAD_PROCESS_SHARED) != 0) {
 		perror("pthread_mutexattr_setpshared");
 		shm_fini(shared);
 		return (NULL);
 	}
+#endif /* STRAND_THREAD_ONLY */
 	if (pthread_mutex_init(&shared->lock, &shared->attr) != 0) {
 		perror("pthread_mutex_init");
 		shm_fini(shared);

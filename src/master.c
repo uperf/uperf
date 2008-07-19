@@ -42,6 +42,10 @@
 #include <sys/poll.h>
 #endif /* HAVE_SYS_POLL_H */
 
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
+
 #include "uperf.h"
 #include "protocol.h"
 #include "hwcounter.h"

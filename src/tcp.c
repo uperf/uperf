@@ -23,6 +23,10 @@
 #include "../config.h"
 #endif /* HAVE_CONFIG_H */
 
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
+
 #include <strings.h>
 #include <errno.h>
 #include <stdio.h>

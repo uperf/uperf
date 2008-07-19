@@ -32,6 +32,9 @@
 #ifdef HAVE_SYS_INT_LIMITS_H
 #include <sys/int_limits.h>
 #endif				/* HAVE_SYS_INT_LIMITS_H */
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
 #include "logging.h"
 
 static int

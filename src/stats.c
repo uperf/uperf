@@ -49,10 +49,8 @@ extern uperf_shm_t *global_shm;
 
 #ifdef UPERF_SOLARIS
 #define	GETHRTIME gethrtime
-#endif /* UPERF_SOLARIS */
-
-#ifdef UPERF_LINUX
-
+#define	GETHRVTIME gethrvtime
+#else
 #define	SEC2NANOSEC	1000000000LL
 uint64_t
 GETHRTIME()
@@ -72,9 +70,7 @@ GETHRVTIME()
 	return (0);
 }
 
-#else
-#define	GETHRVTIME	gethrvtime
-#endif /* UPERF_LINUX */
+#endif /* UPERF_SOLARIS */
 
 /* ARGSUSED */
 int

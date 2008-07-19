@@ -68,11 +68,13 @@ uperf_log_init(uperf_log_t *l)
 		perror("pthread_mutexattr_init");
 		return (UPERF_FAILURE);
 	}
+#ifndef STRAND_THREAD_ONLY
 	if (pthread_mutexattr_setpshared(&log->attr,
 		PTHREAD_PROCESS_SHARED) != 0) {
 		perror("pthread_mutexattr_setpshared");
 		return (UPERF_FAILURE);
 	}
+#endif /* STRAND_THREAD_ONLY */
 	if (pthread_mutex_init(&log->lock, &log->attr) != 0) {
 		perror("pthread_mutex_init");
 		return (UPERF_FAILURE);

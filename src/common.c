@@ -27,14 +27,13 @@
 #include <sys/byteorder.h>
 #endif /* HAVE_SYS_BYTEORDER_H */
 
-#ifndef UPERF_LINUX
-#include <sys/byteorder.h>
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 #include <errno.h>
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
 #include "uperf.h"
 #include "protocol.h"
 #include "hwcounter.h"
