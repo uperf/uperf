@@ -31,16 +31,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "sync.h"
+#include "uperf.h"
 
 int
 init_barrier(barrier_t *bar, int threshold)
 {
 	pthread_rwlockattr_init(&bar->rwattr);
+#ifndef STRAND_THREAD_ONLY
 	if (pthread_rwlockattr_setpshared(&bar->rwattr,
 		PTHREAD_PROCESS_SHARED) != 0) {
 		printf("Error in pthread_rwlockattr_setpshared\n");
 		exit(1);
 	}
+#endif /* STRAND_THREAD_ONLY */
 	if (pthread_rwlock_init(&bar->barrier, &bar->rwattr) != 0) {
 		printf("pthread_rwlock_init failed\n");
 		exit(1);
@@ -55,11 +58,13 @@ init_barrier(barrier_t *bar, int threshold)
 	}
 #ifndef HAVE_ATOMIC_H
 	pthread_mutexattr_init(&bar->count_mtx_attr);
+#ifndef STRAND_THREAD_ONLY
 	if (pthread_mutexattr_setpshared(&bar->count_mtx_attr,
 		PTHREAD_PROCESS_SHARED) != 0) {
 		printf("Error in pthread_mutexattr_setpshared\n");
 		exit(1);
 	}
+#endif /* STRAND_THREAD_ONLY */
 	if (pthread_mutex_init(&bar->count_mutex, &bar->count_mtx_attr) != 0) {
 		printf("Error in pthread_mutex_init\n");
 		exit(1);

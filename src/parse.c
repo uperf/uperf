@@ -658,10 +658,12 @@ build_worklist(struct symbol *list)
 			curr_grp->nthreads = string2int(list->symbol);
 			curr_grp->strand_flag |= STRAND_TYPE_THREAD;
 			break;
+#ifndef  STRAND_THREAD_ONLY
 		case TOKEN_NPROCESSES:
 			curr_grp->nthreads = string2int(list->symbol);
 			curr_grp->strand_flag |= STRAND_TYPE_PROCESS;
 			break;
+#endif /* STRAND_THREAD_ONLY */
 		case TOKEN_ERROR:
 			snprintf(err, sizeof (err),
 				"Unknown symbol: %s\n", list->symbol);
