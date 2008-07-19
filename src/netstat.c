@@ -20,6 +20,7 @@
 #endif /* HAVE_CONFIG_H */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <strings.h>
 #include <string.h>
 #include <sys/types.h>
@@ -292,6 +293,134 @@ netstat_snap(int snaptype)
 	return (UPERF_SUCCESS);
 }
 #endif /* UPERF_LINUX */
+
+#ifdef UPERF_FREEBSD
+
+/*
+ * Parse netstat -bi output to on FreeBSD
+ */
+#define	NETSTAT_HDR	"/usr/bin/netstat -bi"
+#define	NETSTAT_DEV	"/usr/bin/netstat -bi | grep Link"
+#define NETSTAT_SEP	" "
+static int i_rbytes, i_rpkts, i_tbytes, i_tpkts;
+
+int
+netstat_init()
+{
+	FILE *f;
+	char buffer[1024];
+	char *token;
+	int index;
+	struct stat buf;
+
+	if ((f = popen(NETSTAT_HDR, "r")) == NULL) {
+		printf("Cannot open %s\n", NETSTAT_HDR);
+		return (UPERF_FAILURE);
+	}
+	i_rbytes = i_rpkts = i_tbytes = i_tpkts = 0;
+
+	fgets(buffer, 1024, f);
+
+	token = strtok(buffer, NETSTAT_SEP);
+	index = 0;
+	while (token) {
+		if (strcmp(token, "Ipkts") == 0) {
+			i_rpkts = index;
+		} else if (strcmp(token, "Ibytes") == 0) {
+			i_rbytes = index;
+		} else if (strcmp(token, "Opkts") == 0) {
+			i_tpkts = index;
+		} else if (strcmp(token, "Obytes") == 0) {
+			i_tbytes = index;
+		}
+		token = strtok(NULL, NETSTAT_SEP);
+		index++;
+	}
+	if ((i_rpkts == i_tpkts) || (i_rbytes == i_tbytes)) {
+		printf("Error parsing header from %s\n", NETSTAT_HDR);
+		printf("%d %d %d %d\n", i_rbytes, i_rpkts, i_tbytes, i_tpkts);
+		return (UPERF_FAILURE);
+	}
+	fclose(f);
+
+	return (UPERF_SUCCESS);
+}
+static int
+netstat_parse(char line[], struct packet_stats *ps)
+{
+	char *token;
+	int index = 0;
+
+	ps->tx_pkts = ps->rx_pkts = ps->tx_bytes = ps->rx_bytes = 0;
+	token = strtok(line, NETSTAT_SEP);
+	while (token) {
+		if (index == i_rbytes) {
+			ps->rx_bytes = atol(token);
+		} else if (index == i_tbytes) {
+			ps->tx_bytes = atol(token);
+		} else if (index == i_tpkts) {
+			ps->tx_pkts = atol(token);
+		} else if (index == i_rpkts) {
+			ps->rx_pkts = atol(token);
+		}
+		token = strtok(NULL, NETSTAT_SEP);
+		index++;
+	}
+	ps->stamp = GETHRTIME();
+
+	return (UPERF_SUCCESS);
+}
+static int
+find_nic(char *name)
+{
+	int i;
+	for (i = 0; i < no_nics; i++)
+		if (strncmp(nics[i].interface, name, INTERFACE_LEN) == 0)
+			return (i);
+
+	return (-1);
+}
+
+int
+netstat_snap(int snaptype)
+{
+	FILE *f;
+	char buffer[1024], hdr[1024];
+	char *interface, *tmp;
+	struct packet_stats ps;
+
+	if ((f = popen(NETSTAT_DEV, "r")) == NULL) {
+		printf("Cannot open %s\n", NETSTAT_DEV);
+		return (UPERF_FAILURE);
+	}
+	/* ignore headers */
+	fgets(buffer, 1024, f);
+	fgets(buffer, 1024, f);
+
+	while (fgets(buffer, 1024, f) > 0) {
+		strncpy(hdr, buffer, 1024);
+		interface = strtok(hdr, NETSTAT_SEP);
+
+		if (snaptype == SNAP_BEGIN) {
+			strncpy(nics[no_nics].interface, interface,
+				INTERFACE_LEN);
+			netstat_parse(buffer, &nics[no_nics++].s[0]);
+		} else {
+			int ind = find_nic(interface);
+			if (ind < 0) {
+				printf("Nic %s came online", interface);
+				continue;
+			} else {
+				netstat_parse(buffer, &nics[ind].s[1]);
+			}
+		}
+	}
+	fclose(f);
+
+	return (UPERF_SUCCESS);
+}
+#endif /* UPERF_FREEBSD */
+
 void
 print_netstat()
 {
@@ -326,3 +455,17 @@ print_netstat()
 	}
 	(void) uperf_line();
 }
+
+#ifdef TESTING
+#include "uperf.h"
+int options;
+int main(int argc, char *argv[])
+{
+	netstat_init();
+	netstat_snap(SNAP_BEGIN);
+	sleep(1);
+	netstat_snap(SNAP_END);
+	print_netstat();
+	exit(0);
+}
+#endif

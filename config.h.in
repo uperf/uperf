@@ -12,6 +12,9 @@
 /* collect nw stats */
 #undef ENABLE_NETSTAT
 
+/* Define to 1 if you have the <alloca.h> header file. */
+#undef HAVE_ALLOCA_H
+
 /* Define to 1 if you have the <atomic.h> header file. */
 #undef HAVE_ATOMIC_H
 
@@ -66,6 +69,9 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
+/* Define to 1 if you have the <stropts.h> header file. */
+#undef HAVE_STROPTS_H
+
 /* Define to 1 if you have the <sys/byteorder.h> header file. */
 #undef HAVE_SYS_BYTEORDER_H
 
@@ -78,8 +84,14 @@
 /* Define to 1 if you have the <sys/poll.h> header file. */
 #undef HAVE_SYS_POLL_H
 
+/* Define to 1 if you have the <sys/sendfile.h> header file. */
+#undef HAVE_SYS_SENDFILE_H
+
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/ttycom.h> header file. */
+#undef HAVE_SYS_TTYCOM_H
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
@@ -87,11 +99,17 @@
 /* Define to 1 if you have the <sys/varargs.h> header file. */
 #undef HAVE_SYS_VARARGS_H
 
+/* Define to 1 if you have the <termio.h> header file. */
+#undef HAVE_TERMIO_H
+
 /* Have udp */
 #undef HAVE_UDP
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the <wait.h> header file. */
+#undef HAVE_WAIT_H
 
 /* Name of package */
 #undef PACKAGE
@@ -113,6 +131,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* Setting machine os to FreeBSD */
+#undef UPERF_FREEBSD
 
 /* Setting machine os to Linux */
 #undef UPERF_LINUX

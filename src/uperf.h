@@ -115,6 +115,23 @@ typedef enum {
 #define	UPERF_STRAND_BARRIER_BEGIN	6
 #define	UPERF_STRAND_BARRIER_END	7
 
+#ifdef UPERF_FREEBSD
+
+#include <sys/types.h>
+#include <stdint.h>
+
+#define	hrtime_t	uint64_t
+#define	_lwp_self	pthread_self
+
+/* 
+ * FreeBSD does not support PTHREAD_PROCESS_SHARED mutexes or rwlocks,
+ * so ensure that it uses threads only, and not processes
+*/
+#define STRAND_THREAD_ONLY 1
+
+hrtime_t GETHRTIME();
+#endif /* UPERF_FREEBSD */
+
 #ifdef UPERF_LINUX
 
 #include <sys/types.h>

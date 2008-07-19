@@ -23,6 +23,9 @@
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif /* HAVE_CONFIG_H */
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
 
 #include <strings.h>
 #include <errno.h>
@@ -43,9 +46,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#ifdef UPERF_LINUX
+#ifdef  HAVE_SYS_POLL_H
 #include <sys/poll.h>
-#endif
+#endif /*  HAVE_SYS_POLL_H */
 
 #include "logging.h"
 #include "uperf.h"
@@ -64,21 +67,19 @@ name_to_addr(const char *address, struct in_addr *saddr)
 	char buf[1024];
 	int  error;
 	struct hostent *host, res;
-#ifdef UPERF_LINUX
-	struct hostent result;
-#endif	/* UPERF_LINUX */
 
 	/* First try it as aaa.bbb.ccc.ddd. */
 	saddr->s_addr = inet_addr(address);
 	if (saddr->s_addr != (in_addr_t)-1) {
 		return (0);
 	}
+#ifndef UPERF_SOLARIS
+	if (0 == (gethostbyname_r(address, (void *)&res, buf,
+		    sizeof (buf), &host,  &error))) {
+#else
 	if ((host = gethostbyname_r(address, (void *)&res, buf,
-			sizeof (buf),
-#ifdef UPERF_LINUX
-			&result,
+			sizeof (buf), &error))) {
 #endif /* UPERF_LINUX */
-		    &error))) {
 		(void) memcpy((char *)saddr, host->h_addr_list[0],
 		    host->h_length);
 		return (0);

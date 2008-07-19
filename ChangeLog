@@ -1,3 +1,5 @@
+Jul 18 2008 neel
+* uperf now works on FreeBSD!! Many thanks to Andrew Gallatin
 Jun 24 2008 neel
 * Add -x option for fenxi styled output (see http://fenxi.dev.java.net)
 Jun 4 2008

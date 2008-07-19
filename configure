@@ -3465,6 +3465,22 @@ ssl_default="yes"
 
 good_os="yes"
 case "$(uname -s)" in
+	FreeBSD)
+		{ echo "$as_me:$LINENO: *** FreeBSD Machine ***" >&5
+echo "$as_me: *** FreeBSD Machine ***" >&6;}
+
+cat >>confdefs.h <<\_ACEOF
+#define UPERF_FREEBSD 1
+_ACEOF
+
+		good_os="no"
+		sctp_default="yes"
+		ssl_default="yes"
+		#UPERF_LIBS="$UPERF_LIBS -lrt -lm"
+		CFLAGS="-D_GNU_SOURCE $CFLAGS"
+		SCTP_LIBNAME="c"
+		SCTP_LIBS=""
+		;;
 	Linux)
 		{ echo "$as_me:$LINENO: *** Linux Machine ***" >&5
 echo "$as_me: *** Linux Machine ***" >&6;}
@@ -3478,6 +3494,8 @@ _ACEOF
 		ssl_default="no"
 		#UPERF_LIBS="$UPERF_LIBS -lrt -lm"
 		CFLAGS="-D_GNU_SOURCE $CFLAGS"
+		SCTP_LIBS="-lsctp"
+		SCTP_LIBNAME="sctp"
 		;;
 	SunOS)
 		{ echo "$as_me:$LINENO: *** Solaris Machine ***" >&5
@@ -3489,6 +3507,8 @@ _ACEOF
 
 		UPERF_LIBS="$UPERF_LIBS -lsocket -lnsl -lumem -lkstat -lsendfile"
 		LIBS=$UPERF_LIBS
+		SCTP_LIBS="-lsctp"
+		SCTP_LIBNAME="sctp"
 		;;
 esac
 
@@ -4646,7 +4666,13 @@ done
 
 
 
-for ac_header in atomic.h siginfo.h sys/int_limits.h sys/lwp.h signal.h sys/byteorder.h poll.h sys/poll.h sys/varargs.h stdint.h
+
+
+
+
+
+
+for ac_header in atomic.h siginfo.h sys/int_limits.h sys/lwp.h signal.h sys/byteorder.h poll.h sys/poll.h sys/varargs.h stdint.h termio.h stropts.h sys/ttycom.h wait.h alloca.h sys/sendfile.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
@@ -4981,13 +5007,14 @@ fi
 if test "x$enable_sctp" = "xyes"; then
 	{ echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
-	{ echo "$as_me:$LINENO: checking for sctp_sendmsg in -lsctp" >&5
-echo $ECHO_N "checking for sctp_sendmsg in -lsctp... $ECHO_C" >&6; }
-if test "${ac_cv_lib_sctp_sctp_sendmsg+set}" = set; then
+	as_ac_Lib=`echo "ac_cv_lib_$SCTP_LIBNAME''_sctp_sendmsg" | $as_tr_sh`
+{ echo "$as_me:$LINENO: checking for sctp_sendmsg in -l$SCTP_LIBNAME" >&5
+echo $ECHO_N "checking for sctp_sendmsg in -l$SCTP_LIBNAME... $ECHO_C" >&6; }
+if { as_var=$as_ac_Lib; eval "test \"\${$as_var+set}\" = set"; }; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lsctp  $LIBS"
+LIBS="-l$SCTP_LIBNAME  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -5028,22 +5055,23 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_sctp_sctp_sendmsg=yes
+  eval "$as_ac_Lib=yes"
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_lib_sctp_sctp_sendmsg=no
+	eval "$as_ac_Lib=no"
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_sctp_sctp_sendmsg" >&5
-echo "${ECHO_T}$ac_cv_lib_sctp_sctp_sendmsg" >&6; }
-if test $ac_cv_lib_sctp_sctp_sendmsg = yes; then
-  UPERF_LIBS="$UPERF_LIBS -lsctp"
+ac_res=`eval echo '${'$as_ac_Lib'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+if test `eval echo '${'$as_ac_Lib'}'` = yes; then
+  UPERF_LIBS="$UPERF_LIBS $SCTP_LIBS"
 else
   { { echo "$as_me:$LINENO: error: cannot find libsctp, Try with --disable-sctp" >&5
 echo "$as_me: error: cannot find libsctp, Try with --disable-sctp" >&2;}
