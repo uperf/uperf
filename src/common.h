@@ -38,5 +38,7 @@ int preprocess_accepts(uperf_shm_t *, group_t *, slave_info_t **, int );
 int update_strand_with_slave_info(uperf_shm_t *, slave_info_t *, char *, int, int);
 int uperf_get_command(protocol_t *, uperf_command_t*, int);
 int uperf_send_command(protocol_t *p, uperf_cmd command, uint32_t val);
+int ensure_write(protocol_t *p, void *buffer, int size, void *options);
+int ensure_read(protocol_t *p, void *buffer, int size, void *options);
 
 #endif /* _COMMON_H */

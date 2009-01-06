@@ -61,6 +61,9 @@
 #define	TIMEOUT		1200000	/* Argument to poll */
 #define	SOCK_PORT(sin)	((sin).sin_port)
 
+extern int ensure_write(protocol_t *p, void *buffer, int size, void *options);
+extern int ensure_read(protocol_t *p, void *buffer, int size, void *options);
+
 int
 name_to_addr(const char *address, struct in_addr *saddr)
 {
@@ -299,14 +302,14 @@ generic_read(protocol_t *p, void *buffer, int size, void *options)
 		if ((generic_poll(p->fd, timeout, POLLIN)) <= 0)
 			return (-1);
 	}
-	return (read(p->fd, buffer, size));
+	return (ensure_read(p, buffer, size, options));
 }
 
 /* ARGSUSED */
 int
 generic_write(protocol_t *p, void *buffer, int size, void *options)
 {
-	return (write(p->fd, buffer, size));
+	return (ensure_write(p, buffer, size, options));
 }
 
 int

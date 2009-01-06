@@ -194,3 +194,34 @@ uperf_send_command(protocol_t *p, uperf_cmd command, uint32_t val)
 
 	return (p->write(p, &uc, sizeof (uperf_command_t), NULL));
 }
+
+int
+ensure_read(protocol_t *p, void *buffer, int size, void *options)
+{
+	int n, sz;
+
+	sz = 0;
+	while (sz < size) {
+		if ((n = read(p->fd, buffer + sz, size - sz)) <= 0) {
+			return (n);
+		}
+		sz += n;
+	}
+	return (sz);
+}
+
+int
+ensure_write(protocol_t *p, void *buffer, int size, void *options)
+{
+	int n, sz;
+
+	sz = 0;
+	while (sz < size) {
+		if ((n = write(p->fd, buffer + sz, size - sz)) <= 0) {
+			return (n);
+		}
+		sz += n;
+	}
+	return (sz);
+}
+

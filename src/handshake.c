@@ -52,36 +52,6 @@
 
 #define	ENABLED_HANDSHAKE	1
 
-static int
-ensure_read(protocol_t *p, void *buffer, int size, void *options)
-{
-	int n, sz;
-
-	sz = 0;
-	while (sz < size) {
-		if ((n = p->read(p, buffer + sz, size - sz, options)) <= 0) {
-			return (n);
-		}
-		sz += n;
-	}
-	return (sz);
-}
-
-static int
-ensure_write(protocol_t *p, void *buffer, int size, void *options)
-{
-	int n, sz;
-
-	sz = 0;
-	while (sz < size) {
-		if ((n = p->write(p, buffer + sz, size - sz, options)) <= 0) {
-			return (n);
-		}
-		sz += n;
-	}
-	return (sz);
-}
-
 /*
  * Transfer the group_t to a slave.
  * Before we transmit, we need to convert the master's work to what
@@ -100,7 +70,7 @@ tx_group_t(protocol_t *p, group_t *g, char *host)
 	if ((group_opposite(copy)) != UPERF_SUCCESS) {
 		return (UPERF_FAILURE);
 	}
-
+	uperf_info("  Sending workorder\n");
 	/* Nop flowops not for this slave */
 	for (txn = copy->tlist; txn; txn = txn->next) {
 		for (fptr = txn->flist; fptr; fptr = fptr->next) {
@@ -120,20 +90,23 @@ tx_group_t(protocol_t *p, group_t *g, char *host)
 		group_free(copy);
 		return (UPERF_FAILURE);
 	}
+	uperf_info("    Sent workorder\n");
 	for (txn = copy->tlist; txn; txn = txn->next) {
 		if (ensure_write(p, txn, SIZEOF_TXN_T, NULL) <= 0) {
 			group_free(copy);
 			return (UPERF_FAILURE);
 		}
+		uperf_info("    Sent transaction\n");
 		for (fptr = txn->flist; fptr; fptr = fptr->next) {
 			if (ensure_write(p, fptr, SIZEOF_FLOWOP_T, NULL) <= 0) {
 				group_free(copy);
 				return (UPERF_FAILURE);
 			}
+			uperf_info("    Sent flowop\n");
 		}
 	}
 	group_free(copy);
-	uperf_debug("TX worklist success");
+	uperf_info("TX worklist success");
 
 	return (UPERF_SUCCESS);
 }
@@ -154,13 +127,15 @@ rx_group_t(protocol_t *p, int my_endian)
 
 	tptr = NULL;
 
+	uperf_info("Waiting for workorder\n");
 	worklist = calloc(1, sizeof (group_t));
 	if (ensure_read(p, worklist, SIZEOF_GROUP_T, NULL) <= 0) {
 		free(worklist);
 		return (NULL);
 	}
+	uperf_info("  Received workgroup\n")
 	if (my_endian != worklist->endian) {
-		uperf_info("Different endian type!\n");
+		uperf_info("Master has a different endian type!\n");
 		worklist->ntxn = BSWAP_32(worklist->ntxn);
 		bitswap = 1;
 	}
@@ -171,13 +146,16 @@ rx_group_t(protocol_t *p, int my_endian)
 			free(txn);
 			return (NULL);
 		}
+		uperf_info("  Received Transaction\n");
 
 		fptr = NULL;
 		if (bitswap == 1) {
 			txn->nflowop = BSWAP_32(txn->nflowop);
 		}
+		uperf_info("  Transaction has %d flowops\n", txn->nflowop);
 		for (j = 0; j <  txn->nflowop; j++) {
 			flowop_t *f = calloc(1, sizeof (flowop_t));
+			uperf_info("    Reading Flowop\n");
 			if (ensure_read(p, f, SIZEOF_FLOWOP_T, NULL) <= 0) {
 				group_free(worklist);
 				free(f);
@@ -204,7 +182,7 @@ rx_group_t(protocol_t *p, int my_endian)
 		}
 	}
 
-	uperf_info("Received worklist\n");
+	uperf_info("  Slave received worklist\n");
 
 	return (worklist);
 }
@@ -305,6 +283,7 @@ handshake_p2_with_slave(uperf_shm_t *shm, char *host, group_t *g,
 		uperf_error("Error creating ports on the master side\n");
 		return (UPERF_FAILURE);
 	}
+	uperf_info("  Done preprocessing accepts\n");
 
 	hsp2.p1.phase = HANDSHAKE_PHASE_2;
 	(void) strlcpy(hsp2.p1.magic, UPERF_MAGIC, sizeof (hsp2.p1.magic));
@@ -320,10 +299,12 @@ handshake_p2_with_slave(uperf_shm_t *shm, char *host, group_t *g,
 	if ((ensure_write(p, &hsp2, sizeof (hs_phase2_t), NULL)) <= 0) {
 		return (UPERF_FAILURE);
 	}
+	uperf_info("  Sent handshake header\n");
 
 	if ((tx_group_t(p, g, host)) != UPERF_SUCCESS) {
 		return (UPERF_FAILURE);
 	}
+	uperf_info("  Sent workorder\n");
 
 	if (si != NULL) {
 		/*
@@ -375,10 +356,12 @@ handshake_phase2(uperf_shm_t *shm, workorder_t *w)
 	group_t *g;
 
 	id = 0;
+	uperf_info("Starting handshake phase 2\n");
 	for (i = 0; i < w->ngrp; i++) {
 		g = &w->grp[i];
 		protocol_t *p = g->control;
 		while (p) {
+			uperf_info("Handshake phase 2 with %s\n", p->host);
 			status = handshake_p2_with_slave(shm, p->host, g, id,
 			    p);
 			if (status != UPERF_SUCCESS) {
@@ -386,6 +369,7 @@ handshake_phase2(uperf_shm_t *shm, workorder_t *w)
 				    p->host);
 				return (UPERF_FAILURE);
 			}
+			uperf_info("Handshake phase 2 with %s done\n", p->host);
 			p = p->next;
 		}
 		id += g->nthreads;
@@ -406,11 +390,11 @@ handshake(uperf_shm_t *shm, workorder_t *w)
 	if ((handshake_phase1(w)) != UPERF_SUCCESS) {
 		return (UPERF_FAILURE);
 	}
-	uperf_info("completed handshake phase 1\n");
+	uperf_info("Completed handshake phase 1\n");
 	if ((handshake_phase2(shm, w)) != UPERF_SUCCESS) {
 		return (UPERF_FAILURE);
 	}
-	uperf_info("completed handshake phase 2\n");
+	uperf_info("Completed handshake phase 2\n");
 	return (UPERF_SUCCESS);
 }
 

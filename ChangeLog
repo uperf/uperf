@@ -1,3 +1,5 @@
+Jan 6 2009 neel
+* Fix 2450904: uperf hang for some profiles with zero TCP window size
 Jul 18 2008 neel
 * uperf now works on FreeBSD!! Many thanks to Andrew Gallatin
 Jun 24 2008 neel
