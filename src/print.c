@@ -57,6 +57,8 @@ window_width()
 		struct winsize w;
 		if (ioctl(fileno(stdout), TIOCGWINSZ, &w) != -1) {
 			width = (w.ws_col ? w.ws_col : 80);
+                    if (width > 128)
+                       width = 128;
 		} else {
 			width = 80;
 		}
