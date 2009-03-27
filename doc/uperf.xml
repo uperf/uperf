@@ -544,7 +544,7 @@
         <question><para>
             Does uperf support socket autotuning on Linux?
         </para></question>
-        <answer><para>
+        <answer><para>Do not set the wndsz parameter.
 	    uperf currently always call <code>setsocketopt()</code>, and
 	    this disables autotuning on Linux, so you can't test
 	    autotuning. If no window size(<code>wndsz</code>) is
@@ -581,6 +581,14 @@
 	sendfilev's were faster than transferring the whole
 	file in one go. This will help debug the issue.
 	</para></answer>
+      </qandaentry>
+      <qandaentry>
+        <question><para>What does operations in the Run Statistics 
+		section mean? (</para>
+        </question>
+        <answer><para>
+		Operations =  1 + flowops_executed + transactions_executed
+		</para></answer>
       </qandaentry>
 
       <!--      

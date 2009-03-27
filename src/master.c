@@ -618,6 +618,7 @@ master(workorder_t *w)
 		(void) memset(&gtotal, 0, sizeof (goodbye_stat_t));
 		if ((rc = say_goodbyes_and_close(&gtotal, goodbye_timeout))
 		    == 0) {
+			update_aggr_stat(shm);
 			local.elapsed_time = (AGG_STAT(shm))->end_time
 			    - (AGG_STAT(shm))->start_time;
 			local.error = 0;
