@@ -83,7 +83,7 @@ AC_COMPILE_IFELSE([[#include <sys/resource.h>
 # Some solaris versions do not define BSWAP_* macros
 AC_MSG_CHECKING(BSWAP_ macros)
 AC_COMPILE_IFELSE([[#include <sys/byteorder.h>
-		int i=BSWAP_32(1);]],
+		int main(int argc, char *argv[]){int i=BSWAP_32(1);}]],
 		[AC_MSG_RESULT(yes)
 	  	 AC_DEFINE([HAVE_BSWAP],[1],[Have BSWAP_ macros])
 		], 

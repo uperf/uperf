@@ -37,7 +37,7 @@ uperf_sleep(hrtime_t duration_nsecs)
 #ifdef HAVE_NANOSLEEP
 	struct timespec rqtp, rmtp;
 	rqtp.tv_sec = (long) duration_nsecs/1.0e+9;
-	rqtp.tv_nsec = (long) fmodl(duration_nsecs, 1.0e+9);
+	rqtp.tv_nsec = (long) fmod(duration_nsecs, 1.0e+9);
 	if (nanosleep(&rqtp, &rmtp) == -1) {
 		char msg[512];
 		int saved_errno = errno;

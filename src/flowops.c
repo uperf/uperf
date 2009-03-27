@@ -24,7 +24,9 @@
 #endif /* HAVE_CONFIG_H */
 
 #include <unistd.h>
+#ifdef HAVE_STDINT_H
 #include <stdint.h>
+#endif /* HAVE_STDINT_H */
 #include "flowops.h"
 
 struct flowop_id {

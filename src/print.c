@@ -29,7 +29,9 @@
 #ifdef HAVE_STROPTS_H
 #include <stropts.h>
 #endif /* HAVE_STROPTS_H */
+#ifdef HAVE_STDINT_H
 #include <stdint.h>
+#endif /* HAVE_STDINT_H */
 #include "uperf.h"
 #include "print.h"
 #include "hwcounter.h"

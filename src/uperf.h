@@ -115,11 +115,13 @@ typedef enum {
 #define	UPERF_STRAND_BARRIER_BEGIN	6
 #define	UPERF_STRAND_BARRIER_END	7
 
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif /* HAVE_STDINT_H */
+
 #ifdef UPERF_FREEBSD
 
 #include <sys/types.h>
-#include <stdint.h>
-
 #define	hrtime_t	uint64_t
 #define	_lwp_self	pthread_self
 
@@ -136,7 +138,6 @@ hrtime_t GETHRTIME();
 
 #include <sys/types.h>
 #include <linux/unistd.h>
-#include <stdint.h>
 
 #define	hrtime_t	uint64_t
 #define	_lwp_self	gettid
