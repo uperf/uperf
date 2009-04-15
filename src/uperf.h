@@ -140,9 +140,10 @@ hrtime_t GETHRTIME();
 #include <linux/unistd.h>
 
 #define	hrtime_t	uint64_t
-#define	_lwp_self	gettid
+#define	_lwp_self	pthread_self
 #define	strlcpy		strncpy
 #define	strlcat		strncat
+
 
 hrtime_t GETHRTIME();
 #endif /* UPERF_LINUX */

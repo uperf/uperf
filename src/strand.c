@@ -302,7 +302,7 @@ signal_strand(strand_t *s, int signal)
 			signal = SIGUSR1;
 		}
 
-		uperf_info("Sending signal %d to %d\n", signal, s->tid);
+		uperf_info("Sending signal %d to %lu\n", signal, s->tid);
 		errno = 0;
 		if ((status = pthread_kill(s->tid, signal)) != 0) {
 			if (status != ESRCH) {
@@ -336,7 +336,6 @@ signal_all_strands(uperf_shm_t *shm, int groupid, int signal)
 	int i;
 	int no_signalled;
 	int retries = REPEATED_SIGNAL_RETRIES;
-	char e[512];
 
 	for (i = 0; i < shm->no_strands; i++) {
 		strand_t *s = shm_get_strand(shm, i);
@@ -346,7 +345,6 @@ signal_all_strands(uperf_shm_t *shm, int groupid, int signal)
 	}
 
 	do {
-		bzero(e, sizeof (e));
 		no_signalled = 0;
 		if (retries < REPEATED_SIGNAL_RETRIES)
 			uperf_sleep(SIGNAL_SLEEP); /* give them a breather */
@@ -355,9 +353,6 @@ signal_all_strands(uperf_shm_t *shm, int groupid, int signal)
 			if (s->signalled == 1) {
 				if (signal_strand(s, signal) == 0) {
 					no_signalled++;
-					char m[12];
-					sprintf(m, "%d ", s->tid);
-					strlcat(e, m, sizeof (e));
 				}
 			}
 		}
@@ -370,7 +365,7 @@ signal_all_strands(uperf_shm_t *shm, int groupid, int signal)
 	} while ((no_signalled > 0) && (retries-- > 0));
 
 	if (retries < 0 && no_signalled > 0) {
-		uperf_info("%d [%s] threads not responding\n", no_signalled, e);
+		uperf_info("%d threads not responding\n", no_signalled);
 		return (1);
 	}
 
