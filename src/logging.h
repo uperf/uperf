@@ -38,10 +38,11 @@
  * Log messages are of type <msg, count> where count is the 
  * number of times this message was successively received
  */
+#include <pthread.h>
 
 #define	NUM_ERRNOS	256
 #define	NUM_ERR_STR	256
-#define	ERR_STR_LEN	64
+#define	ERR_STR_LEN	512
 
 typedef enum {
 	UPERF_NONVERBOSE = 0,		/* Prints only critical msgs */
