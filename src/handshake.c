@@ -573,6 +573,7 @@ handshake_end_with_slave(protocol_t *p)
 {
 	hs_phase1_ack_t ack;
 
+	(void) memset(&ack, 0, sizeof (hs_phase1_ack_t));
 	if ((ensure_write(p, &ack, sizeof (hs_phase1_ack_t), NULL)) <= 0) {
 		return (UPERF_FAILURE);
 	}
