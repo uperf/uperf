@@ -98,7 +98,8 @@ add_error(char *str)
  * Return null if no more tokens
  */
 static char *
-next_token(char *s1) {
+next_token(char *s1)
+{
 	char symbol[128];
 	int i = 0;
 	static char *p = NULL;
@@ -191,7 +192,7 @@ get_symbol(char *s)
 	}
 	if (s[0] == '$') {
 		char *tmp = getenv((s+1));
-		if (tmp == NULL) {
+		if (tmp == NULL || *tmp == '\0') {
 			char msg[1024];
 			snprintf(msg, 1024, "%s is not set\n", s);
 			add_error(msg);
@@ -563,9 +564,9 @@ static workorder_t *
 build_worklist(struct symbol *list)
 {
 	static workorder_t w;
-	group_t *curr_grp;
-	txn_t *curr_txn;
-	flowop_t *curr_flowop;
+	group_t *curr_grp = NULL;
+	txn_t *curr_txn = NULL;
+	flowop_t *curr_flowop = NULL;
 	char err[1024];
 	int txnid = 0;
 	int fid = 0;
@@ -720,7 +721,6 @@ parse_app_profile(char *filename)
 	if (w == NULL || no_errs > 0) {
 		print_errors();
 	}
-
 	free(buffer);
 	close(fd);
 	if (w == NULL || no_errs > 0)
