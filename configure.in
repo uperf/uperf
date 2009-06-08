@@ -67,6 +67,8 @@ case "$(uname -s)" in
 		;;
 esac
 
+AC_CHECK_TYPES([hrtime_t], [], [], [[#include <sys/time.h>]])
+AC_CHECK_TYPES([uint64_t, uint32_t], [], [], [[#include <stdint.h>]])
 # Solaris 9 and below do not support RUSAGE_LWP with getrusage
 # fallback to using /proc if not defined
 AC_MSG_CHECKING(if we can use getrusage)
@@ -156,9 +158,19 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-AC_CHECK_HEADERS([atomic.h siginfo.h sys/int_limits.h sys/lwp.h signal.h sys/byteorder.h poll.h sys/poll.h sys/varargs.h stdint.h termio.h stropts.h sys/ttycom.h wait.h alloca.h sys/sendfile.h])
+AC_CHECK_HEADERS([atomic.h siginfo.h sys/int_limits.h sys/lwp.h signal.h sys/byteorder.h poll.h sys/poll.h sys/varargs.h stdint.h termio.h stropts.h sys/ttycom.h wait.h alloca.h sys/sendfile.h sys/types.h linux/unistd.h])
 
+LIBS="$UPERF_LIBS"
 AC_CHECK_FUNCS([nanosleep])
+AC_CHECK_FUNCS([pthread_self])
+AC_CHECK_FUNCS([_lwp_self])
+AC_CHECK_FUNCS([strncpy])
+AC_CHECK_FUNCS([strncat])
+AC_CHECK_FUNCS([strlcpy])
+AC_CHECK_FUNCS([strlcat])
+AC_CHECK_FUNCS([gethrtime])
+AC_CHECK_FUNCS([gethrvtime])
+AC_CHECK_FUNCS([clock_gettime])
 
 AC_MSG_CHECKING(whether to enable debug mode)
 AC_ARG_ENABLE(debug,
