@@ -70,6 +70,7 @@ static int
 flowop_rw(strand_t *s, flowop_t *f)
 {
 	int n;
+	int sz;
 	flowop_rw_execute func;
 	flowop_options_t *fo = &f->options;
 
@@ -108,19 +109,36 @@ flowop_rw(strand_t *s, flowop_t *f)
 		return (-1);
 	}
 	assert(fo->size > 0);
-	n = func(f->connection, s->buffer, fo->size, fo);
-	if (n <= 0) {
-		char msg[1024];
-		if (errno != EINTR) {
-			int serrno = errno;
-			snprintf(msg, 1024, "error for p_id %d", f->p_id);
-			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
-			errno = serrno; /* snprint could change errno */
+	sz = 0;
+	while (sz < fo->size) {
+		if (SIGNALLED(s))
+			return (-1);
+		n = func(f->connection, s->buffer + sz, fo->size - sz, fo);
+
+		/* read(2) and write(2) can return 0 in case of a
+		 * hangup. For this case, we just assume that the
+		 * duration has expired and return
+		 */
+		if (n == 0) {
+			errno = EINTR;
+			return (-1);
 		}
-		return (-1);
+		if (n <= 0) {
+			char msg[1024];
+			if (errno != EINTR) {
+				int serrno = errno;
+				snprintf(msg, 1024, "error(%d) for flowop %d",
+					serrno, f->type);
+				uperf_log_msg(UPERF_LOG_ERROR, serrno, msg);
+				/* snprint could change errno */
+				errno = serrno;
+			}
+			return (-1);
+		}
+		sz += n;
 	}
 
-	return (n);
+	return (sz);
 }
 
 /*
@@ -147,6 +165,8 @@ flowop_connect(strand_t *sp, flowop_t *fp)
 	}
 	datap = create_protocol(fp->options.protocol,
 		    fp->options.remotehost, port, sp->role);
+	if (datap == NULL)
+		return (-1);
 	datap->p_id = fp->p_id;
 
 	strand_add_connection(sp, datap);
@@ -188,7 +208,6 @@ flowop_accept(strand_t *sp, flowop_t *fp)
 	newp = cntrp->accept(cntrp, &fp->options);
 
 	if (newp == NULL) {
-		uperf_log_msg(UPERF_LOG_ERROR, errno, "Accept Failed");
 		return (-1);
 	}
 	newp->p_id = fp->p_id;

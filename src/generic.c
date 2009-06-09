@@ -302,14 +302,14 @@ generic_read(protocol_t *p, void *buffer, int size, void *options)
 		if ((generic_poll(p->fd, timeout, POLLIN)) <= 0)
 			return (-1);
 	}
-	return (ensure_read(p, buffer, size, options));
+	return (read(p->fd, buffer, size));
 }
 
 /* ARGSUSED */
 int
 generic_write(protocol_t *p, void *buffer, int size, void *options)
 {
-	return (ensure_write(p, buffer, size, options));
+	return (write(p->fd, buffer, size));
 }
 
 int
