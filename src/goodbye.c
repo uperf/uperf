@@ -101,7 +101,6 @@ send_goodbye(goodbye_t *g, protocol_t *p)
 {
 	assert(p);
 	assert(g);
-
 	(void) strlcpy(g->magic, GOODBYE_MAGIC, sizeof (g->magic));
 	if (p->write(p, g, sizeof (goodbye_t), NULL) <= 0) {
 		uperf_info("Error exchanging goodbye's with client ");
@@ -116,6 +115,7 @@ recv_goodbye(goodbye_t *g, protocol_t *p, int timeout)
 	assert(p);
 	assert(g);
 
+	bzero(g, sizeof(goodbye_t));
 	if (safe_read(p->fd, (char *)g, sizeof (goodbye_t), timeout)
 	    != UPERF_SUCCESS) {
 		uperf_info("Error exchanging goodbye's with client ");
