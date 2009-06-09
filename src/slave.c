@@ -439,7 +439,12 @@ slave()
 		uperf_error("Cannot create control connection\n");
 		return (1);
 	}
-	slave_conn->listen(slave_conn, NULL);
+	if (slave_conn->listen(slave_conn, NULL) < 0) {
+		uperf_log_flush();
+		printf("Error starting slave\n");
+		return (1);
+	}
+
 	/*
 	 * Accept the incomming request and spawn a new worker thread to
 	 * execute the request
