@@ -190,7 +190,7 @@ group_execute(strand_t *strand, group_t *g)
 	int error = 0;
 	txn_t *txn;
 
-	strand->buffer = (char *) malloc(group_max_dto_size(g));
+	strand->buffer = (char *) calloc(1, group_max_dto_size(g));
 	if (ENABLED_GROUP_STATS(options))
 		stats_update(GROUP_BEGIN, strand, GROUP_STAT(g), 0, 0);
 	for (txn = g->tlist; txn; txn = txn->next) {
