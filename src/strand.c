@@ -212,16 +212,14 @@ strand_get_connection(strand_t *s, int id)
 	return (NULL);
 }
 
-/* Called at strand exit 
- * FIXME: Need to free strand->slave_list 
- * FIXME: Need to free strand->worklist
- */
+/* Called at strand exit */
 void
 strand_fini(strand_t *s)
 {
 	int i;
 	protocol_t *p = s->cpool;
 	protocol_t *ptmp;
+	slave_info_list_t *sil;
 
 	for (i = 0; i < NUM_PROTOCOLS; i++) {
 		if (s->listen_conn[i] != 0) {
@@ -238,6 +236,13 @@ strand_fini(strand_t *s)
 		destroy_protocol(p->type, p);
 		p = ptmp;
 	}
+	sil = s->slave_list;
+	while(sil) {
+		slave_info_list_t *q = sil->next;
+		free(sil);
+		sil = q;
+	}
+	group_free(s->worklist);
 }
 
 /*
