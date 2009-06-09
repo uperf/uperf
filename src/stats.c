@@ -47,10 +47,9 @@
 extern options_t options;
 extern uperf_shm_t *global_shm;
 
-#ifdef UPERF_SOLARIS
-#define	GETHRTIME gethrtime
-#define	GETHRVTIME gethrvtime
-#else
+#ifdef HAVE_GETHRTIME
+#define	GETHRTIME	gethrtime
+#elif HAVE_CLOCK_GETTIME
 #define	SEC2NANOSEC	1000000000LL
 uint64_t
 GETHRTIME()
@@ -63,14 +62,19 @@ GETHRTIME()
 
 	return (ret);
 }
+#else
+#error "Could not find gethrtime nor clock_gettime"
+#endif /* HAVE_GETHRTIME */
 
+#ifdef HAVE_GETHRVTIME
+#define	GETHRVTIME gethrvtime
+#else
 uint64_t
 GETHRVTIME()
 {
 	return (0);
 }
-
-#endif /* UPERF_SOLARIS */
+#endif /* HAVE_GETHRVTIME */
 
 /* ARGSUSED */
 int

@@ -38,7 +38,6 @@
 #include <openssl/engine.h>
 #include <pthread.h>
 #include "logging.h"
-#include "uperf.h"
 #include "flowops.h"
 #include "parse.h"
 #include "workorder.h"
@@ -90,7 +89,7 @@ locking_function(int mode, int n, char *file, int line)
 static unsigned long
 id_function(void)
 {
-	return ((unsigned long)pthread_self());
+	return ((unsigned long) MY_THREAD_ID());
 }
 
 static int

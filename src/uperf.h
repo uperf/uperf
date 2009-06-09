@@ -119,39 +119,51 @@ typedef enum {
 #include <stdint.h>
 #endif /* HAVE_STDINT_H */
 
-#ifdef UPERF_FREEBSD
-
-#include <sys/types.h>
+#ifndef HAVE_HRTIME_T
 #define	hrtime_t	uint64_t
-#define	_lwp_self	pthread_self
+#endif /* HAVE_HRTIME_T */
 
+#ifdef HAVE_PTHREAD_SELF
+#define	MY_THREAD_ID	pthread_self
+#elif HAVE__LWP_SELF
+#define	MY_THREAD_ID	_lwp_self
+#else
+#error "Cannot get pthread_self nor _lwp_self"
+#endif
+
+#ifdef HAVE_LINUX_UNISTD_H
+#include <linux/unistd.h>
+#endif /* HAVE_LINUX_UNISTD_H */
+
+#ifdef HAVE_SYS_TYPES_H_
+#include <sys/types.h>
+#endif /* HAVE_SYS_TYPES_H_ */
+
+#ifndef HAVE_STRLCPY
+/* Some OS (like linux) do not have strl* routines. We fallback to
+ * strn* functions
+ */
+#ifdef HAVE_STRNCPY
+#define	strlcpy		strncpy
+#define	strlcat		strncat
+#else
+#error "Cannot find safe string manipulation functions (strl* nor strn*)"
+#endif /* HAVE_STRNCPY */
+#endif /* HAVE_STRLCPY */
+
+#ifdef HAVE_GETHRTIME
+#define	GETHRTIME	gethrtime
+#else
+hrtime_t GETHRTIME();
+#endif /* HAVE_GETHRTIME */
+
+#ifdef UPERF_FREEBSD
 /* 
  * FreeBSD does not support PTHREAD_PROCESS_SHARED mutexes or rwlocks,
  * so ensure that it uses threads only, and not processes
 */
 #define STRAND_THREAD_ONLY 1
-
-hrtime_t GETHRTIME();
 #endif /* UPERF_FREEBSD */
-
-#ifdef UPERF_LINUX
-
-#include <sys/types.h>
-#include <linux/unistd.h>
-
-#define	hrtime_t	uint64_t
-#define	_lwp_self	pthread_self
-#define	strlcpy		strncpy
-#define	strlcat		strncat
-
-
-hrtime_t GETHRTIME();
-#endif /* UPERF_LINUX */
-
-#ifdef UPERF_SOLARIS
-#define GETHRTIME gethrtime
-
-#endif /* UPERF_SOLARIS */
 
 /* Forward Declarations */
 typedef struct uperf_shm uperf_shm_t;

@@ -43,10 +43,6 @@
 extern options_t options;
 typedef int (*generic_execute_func)(strand_t *, void *);
 
-#define	SIGNALLED(A)	((A)->signalled == 1)
-#define	CLEAR_SIGNAL(A)	(A)->signalled = 0
-
-
 /*
  * Execute a function for specified duration
  */
@@ -66,6 +62,7 @@ duration_execute(strand_t *sp, void *b, hrtime_t stop,
 	return (error);
 }
 
+/* Returns one of UPERF_SUCCESS, UPERF_FAILURE, UPERF_DURATAION_EXPIRED */
 static int
 flowop_execute(strand_t *sp, flowop_t *fp)
 {
@@ -87,24 +84,25 @@ flowop_execute(strand_t *sp, flowop_t *fp)
 	}
 	save_errno = errno;
 	STATS_RECORD_FLOWOP(FLOWOP_END, sp, FLOWOP_STAT(fp), ret, i);
-	if (save_errno == EINTR) {
+	if ((save_errno == EINTR) || SIGNALLED(sp)) {
 		return (UPERF_DURATION_EXPIRED);
 	}
 	return (ret >= 0 ? UPERF_SUCCESS : UPERF_FAILURE);
 }
 
-/* Returns 0 on success */
+/* Returns one of UPERF_SUCCESS, UPERF_FAILURE, UPERF_DURATAION_EXPIRED */
 static int
 txn_execute_once(strand_t *strand, txn_t *txn)
 {
-	flowop_t *fptr;
-	int ret = 0;
+	flowop_t *f;
+	int ret = UPERF_SUCCESS;
 
 	if (ENABLED_TXN_STATS(options)) {
 		stats_update(TXN_BEGIN, strand, TXN_STAT(txn), 0, 0);
 	}
-	for (fptr = txn->flist; fptr && ret == 0; fptr = fptr->next) {
-		ret = flowop_execute(strand, fptr);
+	/* Execute flowops untill ERROR or DURATION_EXPIRED */
+	for (f = txn->flist; f && ret == UPERF_SUCCESS; f = f->next) {
+		ret = flowop_execute(strand, f);
 	}
 	if (ENABLED_TXN_STATS(options)) {
 		stats_update(TXN_END, strand, TXN_STAT(txn), 0, 1);
@@ -140,6 +138,7 @@ txn_execute_rate(strand_t *sp, void *tp)
 
 }
 
+/* Returns one of UPERF_SUCCESS, UPERF_FAILURE, UPERF_DURATAION_EXPIRED */
 static int
 txn_duration(strand_t *s, txn_t *txn)
 {
@@ -168,10 +167,11 @@ txn_iterations(strand_t *sp, txn_t *tp)
 	return (error);
 }
 
+/* Returns one of UPERF_SUCCESS, UPERF_FAILURE, UPERF_DURATAION_EXPIRED */
 static int
 txn_execute(strand_t *strand, txn_t *txn)
 {
-	int error;	/* possible error values are 0, -1, -200 */
+	int error;
 
 	if (txn->duration > 0) {
 		error = txn_duration(strand, txn);
@@ -196,10 +196,14 @@ group_execute(strand_t *strand, group_t *g)
 	for (txn = g->tlist; txn; txn = txn->next) {
 		barrier_t *b = shm_get_barrier(strand->shmptr, g->groupid,
 				    txn->txnid);
+		strand->strand_state = STRAND_STATE_AT_BARRIER;
 		wait_barrier(b);
 
-		if (global_shm->global_error > 1)
-				break;
+		if (global_shm->global_error > 1) {
+			error = 999;
+			break;
+		}
+		strand->strand_state = STRAND_STATE_EXECUTING;
 		error = txn_execute(strand, txn);
 		CLEAR_SIGNAL(strand);
 
@@ -207,9 +211,11 @@ group_execute(strand_t *strand, group_t *g)
 		 * Possible values of error are success, failure and
 		 * DURATION_EXPIRED. Duration expiry does not mean failure.
 		 */
-		if (error == UPERF_FAILURE)
+		if (error == UPERF_FAILURE) {
 			break;
+		}
 	}
+	strand->strand_state = STRAND_STATE_EXIT;
 	if (ENABLED_GROUP_STATS(options))
 		stats_update(GROUP_END, strand, GROUP_STAT(g), 0, 1);
 	free(strand->buffer);

@@ -87,9 +87,10 @@ protocol_tcp_new()
 {
 	protocol_t *newp;
 
-	newp = calloc(sizeof (protocol_t), 1);
-	if (!newp)
+	if ((newp = calloc(sizeof (protocol_t), 1)) == NULL) {
+		perror("calloc");
 		return (NULL);
+	}
 	newp->connect = protocol_connect;
 	newp->disconnect = generic_disconnect;
 	newp->listen = protocol_listen;
@@ -113,7 +114,9 @@ tcp_accept(protocol_t *p, void *options)
 {
 	protocol_t *newp;
 
-	newp = protocol_tcp_new();
+	if((newp = protocol_tcp_new()) == NULL) {
+		return (NULL);
+	}
 	if (generic_accept(p, newp, options) != 0)
 		return (NULL);
 	if (options) {
@@ -128,6 +131,8 @@ protocol_tcp_create(char *host, int port)
 {
 	protocol_t *p = protocol_tcp_new();
 
+	if (!p)
+		return (NULL);
 	(void) strlcpy(p->host, host, MAXHOSTNAME);
 	if (strlen(host) == 0)
 		(void) strlcpy(p->host, "localhost", MAXHOSTNAME);

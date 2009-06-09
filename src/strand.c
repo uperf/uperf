@@ -188,6 +188,9 @@ strand_get_connection(strand_t *s, int id)
 	int i;
 	protocol_t *ptr = s->cpool;
 
+	assert(s);
+	assert(ptr);
+
 	/* check cache */
 	for (i = 0; i < s->ccache_size; i++) {
 		if (s->ccache[i] == NULL)
@@ -209,7 +212,10 @@ strand_get_connection(strand_t *s, int id)
 	return (NULL);
 }
 
-/* Called at strand exit */
+/* Called at strand exit 
+ * FIXME: Need to free strand->slave_list 
+ * FIXME: Need to free strand->worklist
+ */
 void
 strand_fini(strand_t *s)
 {
@@ -286,7 +292,9 @@ signal_strand(strand_t *s, int signal)
 
 	if (STRAND_IS_PROCESS(s)) {
 		pid_t pid =  s->pid;
-		uperf_info("Sending signal %d to %d\n", signal, pid);
+		uperf_info("Sending signal %d(%s) to %d\n", signal, 
+			signal == SIGKILL ? "SIGKILL": "SIGUSR2",
+			pid);
 #ifndef UPERF_SOLARIS
 		status = kill(pid, signal);
 #else
@@ -302,7 +310,9 @@ signal_strand(strand_t *s, int signal)
 			signal = SIGUSR1;
 		}
 
-		uperf_info("Sending signal %d to %lu\n", signal, s->tid);
+		uperf_info("Sending signal %s to %lu\n", 
+			signal == SIGUSR1 ? "SIGUSR1(kill)": "SIGUSR2",
+			s->tid);
 		errno = 0;
 		if ((status = pthread_kill(s->tid, signal)) != 0) {
 			if (status != ESRCH) {
@@ -314,8 +324,9 @@ signal_strand(strand_t *s, int signal)
 				uperf_error("pthread_kill: err = %d\n",
 				    status);
 			} else {
-		uperf_info("Thread %d not found while sending signal %d\n",
-		    s->tid);
+				uperf_info(
+			"Thread %d not found while sending signal %d (%d)\n",
+			    s->tid, signal, status);
 			}
 		}
 	}
@@ -323,7 +334,41 @@ signal_strand(strand_t *s, int signal)
 	return (status);
 }
 
-#define	SIGNAL_SLEEP	20000000
+#ifdef	DEBUG
+void
+print_stacks(uperf_shm_t *shm)
+{
+	int i;
+	char cmd[128];
+	for (i = 0; i < shm->no_strands; i++) {
+		strand_t *s = shm_get_strand(shm, i);
+		if (s->signalled == 1) {
+			if (STRAND_IS_PROCESS(s)) {
+				snprintf(cmd, 128, "/usr/bin/pstack %d",
+					s->pid);
+			} else {
+				snprintf(cmd, 128, "/usr/bin/pstack %d/%d",
+					getpid(), s->tid);
+			}
+			system(cmd);
+			printf("Strand is at %d\n", s->strand_state);
+		}
+	}
+}
+#endif /* DEBUG */
+#define	SIGNAL_SLEEP	200000000
+
+int
+strand_killall(uperf_shm_t *shm)
+{
+	int i;
+	for (i = 0; i < shm->no_strands; i++) {
+		strand_t *s = shm_get_strand(shm, i);
+		signal_strand(s, SIGKILL);
+	}
+		
+	return (0);
+}
 
 /*
  * Send a signal to all strands for a group. If group id is -1,
@@ -339,6 +384,8 @@ signal_all_strands(uperf_shm_t *shm, int groupid, int signal)
 
 	for (i = 0; i < shm->no_strands; i++) {
 		strand_t *s = shm_get_strand(shm, i);
+		if (STRAND_AT_BARRIER(s))
+			continue;
 		if ((groupid != -1) && (s->worklist->groupid != groupid))
 			continue;
 		s->signalled = 1;
@@ -350,23 +397,30 @@ signal_all_strands(uperf_shm_t *shm, int groupid, int signal)
 			uperf_sleep(SIGNAL_SLEEP); /* give them a breather */
 		for (i = 0; i < shm->no_strands; i++) {
 			strand_t *s = shm_get_strand(shm, i);
+			if (STRAND_AT_BARRIER(s))
+				continue;
 			if (s->signalled == 1) {
 				if (signal_strand(s, signal) == 0) {
 					no_signalled++;
 				}
 			}
 		}
-		/*
-		 * Do not send repeated SIGKILL's coz if the thread
-		 * has exited, it will kill the master program
-		 */
-		if (signal == SIGKILL)
-			return (0);
 	} while ((no_signalled > 0) && (retries-- > 0));
 
 	if (retries < 0 && no_signalled > 0) {
-		uperf_info("%d threads not responding\n", no_signalled);
-		return (1);
+		int not_responding = 0;
+		for (i = 0; i < shm->no_strands; i++) {
+			strand_t *s = shm_get_strand(shm, i);
+			if (STRAND_AT_BARRIER(s))
+				not_responding++;
+		}
+		if (not_responding > 0) {
+			uperf_info("%d threads not responding\n", no_signalled);
+#ifdef	DEBUG
+			print_stacks(shm);
+#endif /* DEBUG */
+			return (1);
+		}
 	}
 
 	return (0);
@@ -417,9 +471,9 @@ strand_run(void *sp)
 	newstat_begin(0, STRAND_STAT(s), 0, 0);
 	error = group_execute(s, s->worklist);
 	newstat_end(0, STRAND_STAT(s), 0, 1);
-
-	if (error != UPERF_SUCCESS && error != EINTR)
+	if (error != UPERF_SUCCESS && error != EINTR) {
 		flag_error("Error executing transactions");
+	}
 
 	shm_update_strand_exit(shm);
 	if (ENABLED_HISTORY_STATS(options)) {

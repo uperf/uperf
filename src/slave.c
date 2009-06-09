@@ -126,7 +126,7 @@ wait_unlock_barrier(uperf_shm_t *shm, int txn)
 		if (shm->global_error > 0)
 			return (-1);
 
-		(void) printf("%d threads are still not at barrier %d\n",
+		uperf_info("%d threads not at barrier %d sending SIGUSR2\n",
 		    barrier_notreached(bar), txn);
 		if (signal_all_strands(shm, -1, SIGUSR2) != 0) {
 			uperf_log_msg(UPERF_LOG_ERROR, 0,
@@ -225,7 +225,7 @@ slave_master_goodbye(uperf_shm_t *shm, protocol_t *control)
 		goodbye.msg_type = MESSAGE_ERROR;
 		uperf_log_flush_to_string(goodbye.message,
 			GOODBYE_MESSAGE_LEN);
-		uperf_debug("Goodbye **  %s\n", goodbye.message);
+		uperf_info("Goodbye **  %s ***\n", goodbye.message);
 	} else {
 		goodbye.msg_type = MESSAGE_INFO;
 		(void) strlcpy(goodbye.message, "Success", GOODBYE_MESSAGE_LEN);
@@ -293,6 +293,7 @@ static int
 slave_master(protocol_t *p)
 {
 	int i;
+	int error;
 	slave_info_t *sl = NULL;
 	uperf_shm_t *shm;
 	group_t *g;
@@ -354,11 +355,11 @@ slave_master(protocol_t *p)
 
 	/* Finally, allow threads to start executing transactions */
 	newstat_begin(0, AGG_STAT(shm), 0, 0);
-	if (slave_master_poll(shm, p) != 0) {
+	if ((error = slave_master_poll(shm, p)) != 0) {
 		/* Kill threads on error */
-		signal_all_strands(shm, -1, SIGKILL);
+		strand_killall(shm);
 	}
-	wait_for_strands(shm, 0);
+	wait_for_strands(shm, error);
 	newstat_end(0, AGG_STAT(shm), 0, 0);
 
 	(void) slave_master_goodbye(shm, p);
@@ -444,7 +445,6 @@ slave()
 		printf("Error starting slave\n");
 		return (1);
 	}
-
 	/*
 	 * Accept the incomming request and spawn a new worker thread to
 	 * execute the request

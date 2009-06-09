@@ -211,7 +211,7 @@ hwcounter_initlwp(hwcounter_t * hw, const char *c1, const char *c2)
 	}
 	if (cpc_bind_event(&hw->event, 0) == -1) {
 		(void) fprintf(stderr, "Cannot bind lwp%d: %s",
-			_lwp_self(), strerror(errno));
+			MY_THREAD_ID(), strerror(errno));
 		free(eventstr);
 		return (-1);
 	}

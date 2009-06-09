@@ -87,14 +87,14 @@ say_goodbye(goodbye_stat_t *total, protocol_t *p, int timeout)
 	switch (g.msg_type) {
 		case MESSAGE_INFO:
 			(void) snprintf(msg, GOODBYE_MESSAGE_LEN,
-			    "[%s] %s\n", p->host, g.message);
+			    "[%s] %s", p->host, g.message);
 			uperf_info(msg);
 			break;
 		case MESSAGE_NONE:
 			break;
 		case MESSAGE_ERROR:
 			(void) snprintf(msg, GOODBYE_MESSAGE_LEN,
-			    "[%s] %s\n", p->host, g.message);
+			    "[%s] %s", p->host, g.message);
 			uperf_log_msg(UPERF_LOG_ERROR, 0, msg);
 			break;
 		case MESSAGE_WARNING:
@@ -224,7 +224,7 @@ master_prepare_to_exit(uperf_shm_t *shm)
 	if (cleaned_up > 1)
 		abort();
 	uperf_info("Master: Shutting down strands\n");
-	signal_all_strands(shm, -1, SIGKILL);
+	strand_killall(shm);
 	(void) send_command_to_slaves(UPERF_CMD_ABORT, 0);
 	cleaned_up++;
 }
@@ -597,7 +597,6 @@ master(workorder_t *w)
 	if (shm->global_error > 0) {
 		/* decrease timeout coz no point in waiting */
 		goodbye_timeout = 1000;
-		uperf_log_flush();
 	}
 
 	if (ENABLED_GROUP_STATS(options))
@@ -627,8 +626,8 @@ master(workorder_t *w)
 			print_goodbye_stat("master", &local);
 			print_difference(local, gtotal);
 		}
-		uperf_log_flush();
 	}
+	uperf_log_flush();
 	for (i = 0; i < shm->no_strands; i++) {
 		strand_fini(&shm->strands[i]);
 	}
