@@ -2,7 +2,7 @@
 <profile name="iPERF">
   <group nprocs="$nthr">
         <transaction iterations="1">
-            <flowop type="connect" options="remotehost=localhost protocol=$proto
+            <flowop type="connect" options="remotehost=$h protocol=$proto
 	    wndsz=50k  tcp_nodelay"/>
         </transaction>
         <transaction duration="4s">

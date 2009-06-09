@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<profile name="Test 4 groups">
+  <group nthreads="$nthr">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h 
+	protocol=$protocol wndsz=256k"/>
+      </transaction>
+      <transaction duration="$duration">
+            <flowop type="$operation" options="size=1024"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+  <group nthreads="$nthr">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h 
+	protocol=$protocol wndsz=256k"/>
+      </transaction>
+      <transaction duration="$duration">
+            <flowop type="$operation" options="size=1024"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+  <group nthreads="$nthr">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h
+	protocol=$protocol wndsz=256k"/>
+      </transaction>
+      <transaction duration="$duration">
+            <flowop type="$operation" options="size=1024"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+
+  <group nthreads="$nthr">
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h
+	protocol=$protocol wndsz=256k"/>
+      </transaction>
+      <transaction duration="$duration">
+            <flowop type="$operation" options="size=1024"/>
+      </transaction>
+      <transaction iterations="1">
+            <flowop type="disconnect" />
+      </transaction>
+  </group>
+</profile>

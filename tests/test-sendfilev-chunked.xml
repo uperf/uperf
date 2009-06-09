@@ -6,8 +6,8 @@
 	    wndsz=50k  tcp_nodelay"/>
         </transaction>
         <transaction duration="30s">
-            <flowop type="sendfilev" options="dir=/export/home/neel/dump
-	    nfiles=10 size=8192"/>
+            <flowop type="sendfilev" options="dir=/usr/lib
+	    nfiles=10 size=512"/>
         </transaction>
         <transaction iterations="1">
             <flowop type="disconnect" />
