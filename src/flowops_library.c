@@ -150,6 +150,7 @@ int
 flowop_connect(strand_t *sp, flowop_t *fp)
 {
 	int port;
+	int error;
 	protocol_t *datap;
 
 	port = strand_get_port(sp, fp->options.remotehost,
@@ -169,9 +170,11 @@ flowop_connect(strand_t *sp, flowop_t *fp)
 		return (-1);
 	datap->p_id = fp->p_id;
 
-	strand_add_connection(sp, datap);
+	error = datap->connect(datap, &fp->options);
+	if (error == UPERF_SUCCESS)
+		strand_add_connection(sp, datap);
 
-	return (datap->connect(datap, &fp->options));
+	return (error);
 }
 
 /*
