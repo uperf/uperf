@@ -173,6 +173,8 @@ flowop_connect(strand_t *sp, flowop_t *fp)
 	error = datap->connect(datap, &fp->options);
 	if (error == UPERF_SUCCESS)
 		strand_add_connection(sp, datap);
+	else
+		destroy_protocol(datap->type, datap);
 
 	return (error);
 }
