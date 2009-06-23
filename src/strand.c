@@ -189,7 +189,8 @@ strand_get_connection(strand_t *s, int id)
 	protocol_t *ptr = s->cpool;
 
 	assert(s);
-	assert(ptr);
+	if (!s->cpool)
+		return (NULL);	
 
 	/* check cache */
 	for (i = 0; i < s->ccache_size; i++) {
@@ -221,6 +222,8 @@ strand_fini(strand_t *s)
 	protocol_t *ptmp;
 	slave_info_list_t *sil;
 
+	/* Make sure strand is dead */
+	signal_strand(s, SIGKILL);
 	for (i = 0; i < NUM_PROTOCOLS; i++) {
 		if (s->listen_conn[i] != 0) {
 			protocol_t *p = s->listen_conn[i];
@@ -328,10 +331,6 @@ signal_strand(strand_t *s, int signal)
 				 */
 				uperf_error("pthread_kill: err = %d\n",
 				    status);
-			} else {
-				uperf_info(
-			"Thread %d not found while sending signal %d (%d)\n",
-			    s->tid, signal, status);
 			}
 		}
 	}
