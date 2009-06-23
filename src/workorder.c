@@ -157,11 +157,12 @@ group_clone(group_t *g1)
 {
 	txn_t *t1, *t2, *pt;
 	flowop_t *f1, *f2, *pf;
-	group_t *g2 = malloc(sizeof (group_t));
+	group_t *g2;
 
 	if (g1 == NULL)
 		return (NULL);
 
+	g2 = malloc(sizeof (group_t));
 	(void) memcpy(g2, g1, sizeof (group_t));
 	pt = NULL;
 	for (t1 = g1->tlist; t1; t1 = t1->next) {
