@@ -200,7 +200,6 @@ group_execute(strand_t *strand, group_t *g)
 		wait_barrier(b);
 
 		if (global_shm->global_error > 1) {
-			error = 999;
 			break;
 		}
 		strand->strand_state = STRAND_STATE_EXECUTING;
