@@ -129,13 +129,10 @@ void
 destroy_protocol(proto_type_t type, protocol_t *p)
 {
 	proto_list_t *pl = find_protocol_by_type(type);
-	/* FIXME: */
-	if (pl) {
-		ASSERT(type > 0);
-		ASSERT(pl);
-		ASSERT(pl->destroy);
-		pl->destroy(p);
-	}
+	ASSERT(type > 0);
+	ASSERT(pl);
+	ASSERT(pl->destroy);
+	pl->destroy(p);
 }
 
 proto_type_t
