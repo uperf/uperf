@@ -628,9 +628,7 @@ master(workorder_t *w)
 		}
 	}
 	uperf_log_flush();
-	for (i = 0; i < shm->no_strands; i++) {
-		strand_fini(&shm->strands[i]);
-	}
+
 	if (ENABLED_HISTORY_STATS(options)) {
 		fclose(options.history_fd);
 	}

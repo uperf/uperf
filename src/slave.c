@@ -364,10 +364,6 @@ slave_master(protocol_t *p)
 
 	(void) slave_master_goodbye(shm, p);
 
-	for (i = 0; i < shm->worklist->nthreads; i++) {
-		strand_t *s = shm_get_strand(shm, i);
-		strand_fini(s);
-	}
 	uperf_log_flush();
 	/* fprintf(stderr, "%ld: master-slave exiting\n", getpid()); */
 	p->disconnect(p);

@@ -213,7 +213,7 @@ strand_get_connection(strand_t *s, int id)
 	return (NULL);
 }
 
-/* Called at strand exit */
+/* Called by strand on exit */
 void
 strand_fini(strand_t *s)
 {
@@ -228,7 +228,7 @@ strand_fini(strand_t *s)
 		if (s->listen_conn[i] != 0) {
 			protocol_t *p = s->listen_conn[i];
 			/* FIXME: need to do reference counting */
-			/* destroy_protocol(p->type, p); */
+			destroy_protocol(p->type, p);
 			s->listen_conn[i] = 0;
 
 		}
@@ -483,6 +483,7 @@ strand_run(void *sp)
 	if (ENABLED_HISTORY_STATS(options)) {
 		flush_history(s);
 	}
+	strand_fini(s);
 
 	return (NULL);
 }
