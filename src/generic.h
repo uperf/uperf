@@ -23,7 +23,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-int name_to_addr(const char *, struct in_addr *);
+int name_to_addr(const char *, struct sockaddr_in *);
 int generic_socket(protocol_t *, int);
 int generic_connect(protocol_t *, int);
 int generic_listen(protocol_t *, int);

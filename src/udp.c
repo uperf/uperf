@@ -282,7 +282,7 @@ protocol_udp_connect(protocol_t *p, void *options)
 	flowop_options_t *fo = (flowop_options_t *)options;
 
 	(void) bzero(&pd->addr_info, sizeof (struct sockaddr_in));
-	if (name_to_addr(pd->rhost, &(pd->addr_info.sin_addr)) != 0) {
+	if (name_to_addr(pd->rhost, &(pd->addr_info)) != 0) {
 		perror("name_to_addr:");
 		uperf_fatal("Unknown host: %s\n", pd->rhost);
 	}

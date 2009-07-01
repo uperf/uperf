@@ -65,30 +65,19 @@ extern int ensure_write(protocol_t *p, void *buffer, int size, void *options);
 extern int ensure_read(protocol_t *p, void *buffer, int size, void *options);
 
 int
-name_to_addr(const char *address, struct in_addr *saddr)
+name_to_addr(const char *address, struct sockaddr_in *saddr)
 {
-	char buf[1024];
-	int  error;
-	struct hostent *host, res;
-
-	/* First try it as aaa.bbb.ccc.ddd. */
-	saddr->s_addr = inet_addr(address);
-	if (saddr->s_addr != (in_addr_t)-1) {
+	struct addrinfo hints, *res;
+	int error = 0;
+	if ((error = getaddrinfo(address, NULL, NULL, &res)) == 0) {
+		memcpy(saddr, res->ai_addr, sizeof (struct sockaddr_in));
+		freeaddrinfo(res);
 		return (0);
-	}
-#ifndef UPERF_SOLARIS
-	if (0 == (gethostbyname_r(address, (void *)&res, buf,
-		    sizeof (buf), &host,  &error))) {
-#else
-	if ((host = gethostbyname_r(address, (void *)&res, buf,
-			sizeof (buf), &error))) {
-#endif /* UPERF_LINUX */
-		(void) memcpy((char *)saddr, host->h_addr_list[0],
-		    host->h_length);
-		return (0);
-	}
+        }
+	printf("%s\n", gai_strerror(error));
 	return (-1);
 }
+
 int
 generic_socket(protocol_t *p, int pflag)
 {
@@ -118,7 +107,7 @@ generic_connect(protocol_t *p, int pflag)
 		return (-1);
 
 	(void) memset(&server, 0, sizeof (server));
-	if (name_to_addr(p->host, &(server.sin_addr))) {
+	if (name_to_addr(p->host, &server)) {
 		(void) snprintf(msg, sizeof (msg),
 				"Cannot connect to Unknown host: %s",
 				p->host);
