@@ -27,6 +27,10 @@
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif /* HAVE_STDINT_H */
+#ifdef HAVE_STRINGS_H
+#include <strings.h>	/* for strcasecmp */
+#endif
+
 #include "flowops.h"
 
 struct flowop_id {

@@ -212,7 +212,6 @@ do_sendfile(int sock, char *dir, int chunk_size)
 {
 	off_t off = 0;
 	sfv_list_t *s;
-	struct sendfilevec *vec, *v;
 
 	s = find_sfv_list(dir);
 	assert(s);

@@ -71,7 +71,7 @@ flowop_rw(strand_t *s, flowop_t *f)
 {
 	int n;
 	int sz;
-	flowop_rw_execute func;
+	flowop_rw_execute func = NULL;
 	flowop_options_t *fo = &f->options;
 
 	if (f->connection == NULL) {
@@ -224,9 +224,7 @@ flowop_accept(strand_t *sp, flowop_t *fp)
 int
 flowop_sendfilev(strand_t *s, flowop_t *f)
 {
-	char msg[1024];
-	int x;
-	int n;
+	int n = 0;
 
 	if (f->connection == NULL) {
 		f->connection = strand_get_connection(s, f->p_id);

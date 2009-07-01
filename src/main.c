@@ -130,7 +130,6 @@ init_options(int argc, char **argv)
 {
 	int oserver, oclient, ofile;
 	int ch;
-	char *ev1, *ev2;
 
 	if (argc < 2) {
 		uperf_usage(argv[0]);
@@ -151,6 +150,7 @@ init_options(int argc, char **argv)
 #ifdef USE_CPC
 		case 'E':
 			if (optarg) {
+				char *ev1, *ev2;
 				ev1 = strtok(optarg, ",");
 				ev2 = strtok(NULL, ",");
 				if ((ev1 == NULL) || (ev2 == NULL)) {

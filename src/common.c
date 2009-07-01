@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <errno.h>
+#include <unistd.h> /* for read(2) and write(2) */
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif /* HAVE_STRING_H */

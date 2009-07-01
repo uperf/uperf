@@ -228,8 +228,10 @@ parse(char *buffer, struct symbol *list)
 			pt = curr->symbol;
 		}
 
-		if ((token[0] == '>') && (token[1] == '\0'))
+		if ((token[0] == '>') && (token[1] == '\0')){
+			free(token);
 			continue;
+		}
 
 		if (token[0] == '=')
 			merge = 1;
@@ -682,9 +684,11 @@ parse_app_profile(char *filename)
 {
 	struct stat stat_buf;
 	int fd;
+	int i;
 	off_t size;
 	char *buffer;
 	struct symbol list = { "START", 0, NULL, NULL};
+	struct symbol *p;
 	workorder_t *w;
 
 	if (stat(filename, &stat_buf) != 0) {
@@ -721,6 +725,15 @@ parse_app_profile(char *filename)
 	if (w == NULL || no_errs > 0) {
 		print_errors();
 	}
+	/* Free list.next */
+	p = list.next;
+	while (p) {
+		struct symbol *q = p->next;
+		free(p);
+		p = q;
+	}
+	for (i = 0; i < no_errs; i++)
+		free(parse_errors[i]);
 	free(buffer);
 	close(fd);
 	if (w == NULL || no_errs > 0)

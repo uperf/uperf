@@ -71,17 +71,6 @@ static int reap_children = 0;
 
 static void slave_master_goodbye(uperf_shm_t *shm, protocol_t *control);
 
-static void
-slave_cleanup(uperf_shm_t *shm)
-{
-	/*
-	 * We can either send the UPERF_CMD_ABORT or goodbye_stat_t
-	 * Either way, the master will abort the run
-	 * uperf_send_command(shm->control, UPERF_CMD_ABORT, 0);
-	 */
-	slave_master_goodbye(shm, shm->control);
-}
-
 static int
 slave_spawn_strands(uperf_shm_t *shm, protocol_t *control)
 {
@@ -292,11 +281,10 @@ slave_init(protocol_t *p)
 static int
 slave_master(protocol_t *p)
 {
-	int i;
-	int error;
 	slave_info_t *sl = NULL;
 	uperf_shm_t *shm;
 	group_t *g;
+	int error = 0;
 
 	if ((shm = slave_init(p)) == NULL) {
 		uperf_error("Error initializing slave\n");
@@ -362,6 +350,10 @@ slave_master(protocol_t *p)
 	wait_for_strands(shm, error);
 	newstat_end(0, AGG_STAT(shm), 0, 0);
 
+	/*
+	 * We can either send the UPERF_CMD_ABORT or goodbye_stat_t
+	 * Either way, the master will abort the run
+	 */
 	(void) slave_master_goodbye(shm, p);
 
 	uperf_log_flush();

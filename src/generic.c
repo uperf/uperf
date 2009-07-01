@@ -338,7 +338,6 @@ int
 generic_accept(protocol_t *oldp, protocol_t *newp, void *options)
 {
 	int addrlen;
-	int error;
 	int timeout;
 	char hostname[NI_MAXHOST];
 	struct sockaddr_in remote;

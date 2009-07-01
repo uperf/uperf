@@ -259,8 +259,7 @@ netstat_snap(int snaptype)
 {
 	FILE *f;
 	char buffer[1024], hdr[1024];
-	char *interface, *tmp;
-	struct packet_stats ps;
+	char *interface;
 
 	if ((f = fopen(NETSTAT_DEV, "r")) == NULL) {
 		printf("Cannot open %s\n", NETSTAT_DEV);

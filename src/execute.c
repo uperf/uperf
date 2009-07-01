@@ -67,7 +67,6 @@ static int
 flowop_execute(strand_t *sp, flowop_t *fp)
 {
 	uint64_t i;
-	int error = 0;
 	int ret = 0;
 	int save_errno;
 

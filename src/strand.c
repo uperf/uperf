@@ -223,7 +223,6 @@ strand_fini(strand_t *s)
 	slave_info_list_t *sil;
 
 	/* Make sure strand is dead */
-	signal_strand(s, SIGKILL);
 	for (i = 0; i < NUM_PROTOCOLS; i++) {
 		if (s->listen_conn[i] != 0) {
 			protocol_t *p = s->listen_conn[i];
