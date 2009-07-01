@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<profile name="high_connection_count.xml">
+<profile name="canfail.xml">
   <group nthreads="10">
         <transaction iterations="10000">
             <flowop type="connect" options="remotehost=$h protocol=tcp

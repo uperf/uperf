@@ -2,7 +2,7 @@
 <profile name="test_throughput.xml">
   <group nthreads="$nthr">
         <transaction iterations="1">
-            <flowop type="connect" options="remotehost=$h protocol=udp
+            <flowop type="connect" options="remotehost=$h protocol=tcp
 	    wndsz=200k tcp_nodelay"/>
         </transaction>
         <transaction duration="10s">

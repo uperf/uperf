@@ -1,10 +1,10 @@
 #!/bin/env ruby -w
 
-ENV["h"]="localhost"
-ENV["h1"]="localhost"
-ENV["h2"]="localhost"
-ENV["h3"]="localhost"
-ENV["h4"]="localhost"
+ENV["h"]="frost"
+ENV["h1"]="frost"
+ENV["h2"]="frost"
+ENV["h3"]="frost"
+ENV["h4"]="frost"
 ENV["nthr"]="10"
 ENV["conn"]="10"
 ENV["proto"]="tcp"

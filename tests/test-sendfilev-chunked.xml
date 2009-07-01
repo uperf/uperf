@@ -6,7 +6,7 @@
 	    wndsz=50k  tcp_nodelay"/>
         </transaction>
         <transaction duration="30s">
-            <flowop type="sendfilev" options="dir=/usr/lib
+            <flowop type="sendfilev" options="dir=.
 	    nfiles=10 size=512"/>
         </transaction>
         <transaction iterations="1">

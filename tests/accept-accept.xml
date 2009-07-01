@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <profile name="accept-accept">
   <group nthreads="$nthr">
-    <transaction iterations="100">
+    <transaction iterations="10">
        <flowop type="accept" options="remotehost=$h protocol=$protocol"/>
     </transaction>
-    <transaction iterations="100">
+    <transaction iterations="10">
        <flowop type="disconnect" />
     </transaction>
   </group>

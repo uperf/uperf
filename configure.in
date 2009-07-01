@@ -32,6 +32,7 @@ netstat_default="yes"
 udp_default="yes"
 sctp_default="yes"
 ssl_default="yes"
+cpc_default="yes"
 
 good_os="yes"
 case "$(uname -s)" in
@@ -52,6 +53,7 @@ case "$(uname -s)" in
 		good_os="no"
 		sctp_default="no"
 		ssl_default="no"
+		cpc_default="no"
 		#UPERF_LIBS="$UPERF_LIBS -lrt -lm"
 		CFLAGS="-D_GNU_SOURCE $CFLAGS"
 		SCTP_LIBS="-lsctp"
@@ -84,7 +86,7 @@ AC_COMPILE_IFELSE([[#include <sys/resource.h>
 
 # Some solaris versions do not define BSWAP_* macros
 AC_MSG_CHECKING(BSWAP_ macros)
-AC_COMPILE_IFELSE([[#include <sys/byteorder.h>
+AC_LINK_IFELSE([[#include <sys/byteorder.h>
 		int main(int argc, char *argv[]){int i=BSWAP_32(1);}]],
 		[AC_MSG_RESULT(yes)
 	  	 AC_DEFINE([HAVE_BSWAP],[1],[Have BSWAP_ macros])
@@ -104,19 +106,23 @@ AC_LINK_IFELSE([[#include <sys/sendfile.h>
 AM_CONDITIONAL([HAVE_CPC], [false])
 AM_CONDITIONAL([HAVE_KSTAT], [false])
 # Checks for libraries.
-AC_MSG_NOTICE(checking to see whether to enable cpu performance counters support)
-cpc="Not enabled"
-AC_CHECK_LIB([cpc], [cpc_open],
-	[
-     	  #AC_MSG_RESULT(yes)
-	  AC_DEFINE([USE_CPC],[1],[Have cpu perf counters?])
-	  AC_DEFINE([USE_CPCv2],[1],[Have version2 cpu perf counters?])
-	  UPERF_LIBS="$UPERF_LIBS -lcpc -lintl"
-	  cpc="CPC version 2"
-	  AM_CONDITIONAL([HAVE_CPC], [true])
-          AC_DEFINE([HAVE_CPC],[1],[Have libcpc ])
-	],
-	[ #check for v1
+AC_MSG_CHECKING(whether to enable cpu performance counters support?)
+AC_ARG_ENABLE(cpc, 
+	AC_HELP_STRING([--enable-cpc],[Turn on cpu counter support ]),,
+	enable_sctp=$cpc_default)
+if test "x$enable_cpc" = "xyes"; then
+	AC_MSG_RESULT(yes)
+	AC_CHECK_LIB([cpc], [cpc_open],
+		[
+     	  	#AC_MSG_RESULT(yes)
+	  	AC_DEFINE([USE_CPC],[1],[Have cpu perf counters?])
+	  	AC_DEFINE([USE_CPCv2],[1],[Have version2 cpu perf counters?])
+	  	UPERF_LIBS="$UPERF_LIBS -lcpc -lintl"
+	  	cpc="CPC version 2"
+	  	AM_CONDITIONAL([HAVE_CPC], [true])
+	          AC_DEFINE([HAVE_CPC],[1],[Have libcpc ])
+		],
+		[ #check for v1
 		AC_CHECK_LIB([cpc], [cpc_version],
 		 	[AC_DEFINE([USE_CPC],[1],[Have cpu perf counters?])
 			 AC_DEFINE([USE_CPCv1],[1],[Have version1 cpu perf counters?])
@@ -132,8 +138,13 @@ AC_CHECK_LIB([cpc], [cpc_open],
 			]
 		)
 	]
-)
-
+	)
+else
+	cpc="Not enabled"
+	HAVE_CPC=
+	AM_CONDITIONAL([HAVE_CPC], [false])
+	AC_MSG_RESULT(no)
+fi
 AC_CHECK_LIB([kstat], [kstat_open],
 	[ AC_DEFINE([HAVE_LIBKSTAT], [1], [Have libkstat])
 	  UPERF_LIBS="$UPERF_LIBS -lkstat"
