@@ -501,6 +501,27 @@
     </sect2>
   </sect1>
   <sect1>
+    <title>Common profiles</title>
+    <sect2>
+      <title>One way throughput test</title>
+      <para></para>
+    </sect2>
+    <sect2>
+      <title>Bi-directional test</title>
+      <para></para>
+    </sect2>
+    <sect2>
+      <title>Connection setup/teardown test</title>
+      <para></para>
+    </sect2>
+    <sect2>
+      <title>Throughput test with multiple hosts</title>
+      <para></para>
+    </sect2>
+
+  </sect1>
+
+  <sect1>
     <title>Frequently Asked Questions</title>
     <qandaset defaultlabel='qanda'>
       
