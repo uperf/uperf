@@ -51,7 +51,7 @@ case "$(uname -s)" in
 		AC_MSG_NOTICE([*** Linux Machine ***])
 		AC_DEFINE([UPERF_LINUX],[1],[Setting machine os to Linux])
 		good_os="no"
-		sctp_default="no"
+		sctp_default="yes"
 		ssl_default="no"
 		cpc_default="no"
 		#UPERF_LIBS="$UPERF_LIBS -lrt -lm"
@@ -109,7 +109,7 @@ AM_CONDITIONAL([HAVE_KSTAT], [false])
 AC_MSG_CHECKING(whether to enable cpu performance counters support?)
 AC_ARG_ENABLE(cpc, 
 	AC_HELP_STRING([--enable-cpc],[Turn on cpu counter support ]),,
-	enable_sctp=$cpc_default)
+	enable_cpc=$cpc_default)
 if test "x$enable_cpc" = "xyes"; then
 	AC_MSG_RESULT(yes)
 	AC_CHECK_LIB([cpc], [cpc_open],

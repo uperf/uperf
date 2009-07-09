@@ -3630,7 +3630,7 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 		good_os="no"
-		sctp_default="no"
+		sctp_default="yes"
 		ssl_default="no"
 		cpc_default="no"
 		#UPERF_LIBS="$UPERF_LIBS -lrt -lm"
@@ -4135,7 +4135,7 @@ $as_echo_n "checking whether to enable cpu performance counters support?... " >&
 if test "${enable_cpc+set}" = set; then
   enableval=$enable_cpc;
 else
-  enable_sctp=$cpc_default
+  enable_cpc=$cpc_default
 fi
 
 if test "x$enable_cpc" = "xyes"; then
