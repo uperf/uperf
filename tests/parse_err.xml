@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<Profile name="accept.xml">
+  <goup nthreads="2">
+        <transaction iterations="1">
+            <flowop type="accept" options="conn=1 remotehost=$h protocol=$proto
+	    wndsz=200k tcp_nodelay"/>
+            <flowop type="connect" options="remotehost=$h protocol=$proto
+	    wndsz=200k tcp_nodelay"/>
+            <flowop type="write" options="size=64"/>
+            <flowop type="write" options="conn=1 size=264"/>
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+<group nthreads="4">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=$proto
+	    wndsz=200k tcp_nodelay"/>
+            <flowop type="write" options="size=64"/>
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+</profile>
