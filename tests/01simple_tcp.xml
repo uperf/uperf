@@ -1,15 +1,11 @@
 <?xml version="1.0"?>
-<profile name="canfail.xml">
+<profile name="simple.xml">
   <group nthreads="1">
-        <transaction iterations="10000">
+        <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol=tcp
-	    canfail wndsz=200k tcp_nodelay"/>
-
-        </transaction>
-        </transaction>
-        <transaction iterations="10000">
+	    wndsz=2k tcp_nodelay"/>
+            <flowop type="write" options="count=2 size=64"/>
             <flowop type="disconnect" />
         </transaction>
   </group>
-
 </profile>

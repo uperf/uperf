@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<profile name="test_netperf.xml">
+<profile name="test_send_recv.xml">
   <group nthreads="1">
         <transaction iterations="1000">
             <flowop type="connect" options="remotehost=$h protocol=tcp

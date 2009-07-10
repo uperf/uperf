@@ -1,17 +1,11 @@
 <?xml version="1.0"?>
 <profile name="test_duration_process.xml">
-  <group nprocs="$nthr">
+  <group nprocs="12">
         <transaction iterations="1">
-            <flowop type="connect" options="remotehost=$h protocol=$proto
+            <flowop type="connect" options="remotehost=$h protocol=udp
 	    wndsz=500k  tcp_nodelay"/>
         </transaction>
-        <transaction duration="30s">
-	    <!--
-        <transaction iterations="1">
-            <flowop type="read" options="timeout=5s count=20000 size=64"/>
-            <flowop type="write" options="duration=5s size=64k"/>
-            <flowop type="read" options="duration=50s size=8k"/>
-	    -->
+        <transaction duration="$duration">
             <flowop type="read" options="size=64"/>
         </transaction>
         <transaction iterations="1">

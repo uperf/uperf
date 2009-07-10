@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<profile name="simple.xml">
+  <group nthreads="1">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=ssl
+	    wndsz=2k tcp_nodelay"/>
+            <flowop type="write" options="count=2 size=64"/>
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+</profile>

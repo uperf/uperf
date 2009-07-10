@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <profile name="sendfilev">
-  <group nthreads="$nthr">
+  <group nthreads="4">
         <transaction iterations="1">
-            <flowop type="accept" options="remotehost=$h protocol=$proto
+            <flowop type="accept" options="remotehost=$h protocol=tcp
 	    wndsz=50k  tcp_nodelay"/>
         </transaction>
         <transaction duration="30s">
