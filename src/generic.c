@@ -67,27 +67,22 @@ extern int ensure_read(protocol_t *p, void *buffer, int size, void *options);
 int
 name_to_addr(const char *address, struct sockaddr_in *saddr)
 {
-	struct addrinfo hints, *res;
+	struct addrinfo *res;
 	int error = 0;
 	if ((error = getaddrinfo(address, NULL, NULL, &res)) == 0) {
 		memcpy(saddr, res->ai_addr, sizeof (struct sockaddr_in));
 		freeaddrinfo(res);
-		return (0);
+	} else {
+		ulog_err("getaddrinfo(%s): %s\n", address, gai_strerror(error));
         }
-	printf("%s\n", gai_strerror(error));
-	return (-1);
+	return (error);
 }
 
 int
 generic_socket(protocol_t *p, int pflag)
 {
-	char msg[128];
-	const char *pname = protocol_to_str(p->type);
-
 	if ((p->fd = socket(AF_INET, SOCK_STREAM, pflag)) < 0) {
-		(void) snprintf(msg, 128, "%s: Cannot create socket",
-		    pname);
-		uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+		ulog_err("%s: Cannot create socket", protocol_to_str(p->type));
 		return (-1);
 	}
 	return (0);
@@ -97,35 +92,25 @@ generic_socket(protocol_t *p, int pflag)
 int
 generic_connect(protocol_t *p, int pflag)
 {
-	struct sockaddr_in server;
-	const char *pname;
-	char msg[128];
+	struct sockaddr_in serv;
 
 	uperf_debug("Connecting to %s:%d\n", p->host, p->port);
 
 	if ((generic_socket(p, pflag)) < 0)
 		return (-1);
 
-	(void) memset(&server, 0, sizeof (server));
-	if (name_to_addr(p->host, &server)) {
-		(void) snprintf(msg, sizeof (msg),
-				"Cannot connect to Unknown host: %s",
-				p->host);
-		uperf_log_msg(UPERF_LOG_ERROR, 0, msg);
+	(void) memset(&serv, 0, sizeof (serv));
+	if (name_to_addr(p->host, &serv)) {
+		/* Error is already reported by name_to_addr, so just return */
 		return (-1);
 	}
-	pname = protocol_to_str(p->type);
 
-	server.sin_port = htons(p->port);
-	server.sin_family = AF_INET;
+	serv.sin_port = htons(p->port);
+	serv.sin_family = AF_INET;
 
-	if ((connect(p->fd, (struct sockaddr *)&server,
-		    sizeof (server))) < 0) {
-		(void) snprintf(msg, 128, "%s: Cannot connect to %s:%d",
-		    pname,
-		    p->host, p->port);
-		uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
-		uperf_info(msg);
+	if ((connect(p->fd, (struct sockaddr *)&serv, sizeof (serv))) < 0) {
+		ulog_err("%s: Cannot connect to %s:%d",
+			protocol_to_str(p->type), p->host, p->port);
 		return (-1);
 	}
 
@@ -134,29 +119,21 @@ generic_connect(protocol_t *p, int pflag)
 int
 generic_setfd_nonblock(int fd)
 {
-	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
-		uperf_log_msg(UPERF_LOG_WARN, errno,
-			"Cannot set non-blocking, falling back to default");
-		return (-1);
-	}
-
-	return (0);
+	return (fcntl(fd, F_SETFL, O_NONBLOCK));
 }
 
 int
 generic_set_socket_buffer(int fd, int size)
 {
-	int wndsz = size;
+	int w = size;
 
-	if (wndsz == 0)
+	if (w == 0)
 		return (0);
-	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&wndsz,
-			sizeof (wndsz))) {
-		uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot set SO_SNDBUF");
+	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&w, sizeof (w))) {
+		ulog_warn("Cannot set SO_SNDBUF");
 	}
-	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&wndsz,
-			sizeof (wndsz)) != 0) {
-		uperf_log_msg(UPERF_LOG_WARN, errno, " Cannot set SO_RCVBUF");
+	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&w, sizeof (w)) !=0) {
+		ulog_warn(" Cannot set SO_RCVBUF");
 	}
 
 	return (UPERF_SUCCESS);
@@ -165,43 +142,38 @@ generic_set_socket_buffer(int fd, int size)
 int
 generic_verify_socket_buffer(int fd, int wndsz)
 {
-	int nwndsz;
-	int len;
+	int nwsz;
+	socklen_t len;
 	float diff;
-	char msg[128];
 
 	if (wndsz == 0)
 		return (0);
 
 	/* Now verify */
 	len = sizeof (wndsz);
-	nwndsz = -1;
-	if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&nwndsz,
-		&len) != 0) {
-		uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot get SO_SNDBUF");
+	nwsz = -1;
+	if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&nwsz, &len) != 0) {
+		ulog_warn("Cannot get SO_SNDBUF");
 	}
-	diff = 1.0*nwndsz/wndsz;
+	diff = 1.0*nwsz/wndsz;
 	if (diff < 0.9 || diff > 1.1) {
-		(void) snprintf(msg, 128, "%s: %.2fKB (Requested:%.2fKB)",
-		    "SNDBUF", nwndsz/1024.0, wndsz/1024.0);
-		uperf_log_msg(UPERF_LOG_WARN, 0, msg);
+		ulog_warn("%s: %.2fKB (Requested:%.2fKB)", "SNDBUF",	
+			nwsz/1024.0, wndsz/1024.0);
 	} else {
-		uperf_info("Set Send buffer size to %.2fKB\n", nwndsz/1024.0);
+		uperf_info("Set Send buffer size to %.2fKB\n", nwsz/1024.0);
 	}
 
 	len = sizeof (wndsz);
-	if (getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&nwndsz,
-		&len) != 0) {
-		uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot get SO_RCVBUF");
+	if (getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&nwsz, &len) != 0) {
+		ulog_warn("Cannot get SO_RCVBUF");
 	}
 
-	diff = 1.0*nwndsz/wndsz;
+	diff = 1.0*nwsz/wndsz;
 	if (diff < 0.9 || diff > 1.1) {
-		(void) snprintf(msg, 128, "%s: %.2fKB (Requested:%.2fKB)",
-		    "Recv buffer", nwndsz/1024.0, wndsz/1024.0);
-		uperf_log_msg(UPERF_LOG_WARN, 0, msg);
+		ulog_warn("%s: %.2fKB (Requested:%.2fKB)",
+		    "Recv buffer", nwsz/1024.0, wndsz/1024.0);
 	} else {
-		uperf_info("Set Recv buffer size to %.2fKB\n", nwndsz/1024.0);
+		uperf_info("Set Recv buffer size to %.2fKB\n", nwsz/1024.0);
 	}
 
 	return (0);
@@ -212,40 +184,32 @@ int
 generic_listen(protocol_t *p, int pflag)
 {
 	int reuse = 1;
-	struct sockaddr_in server;
-	const char *pname;
-	char msg[128];
-
-	pname = protocol_to_str(p->type);
+	struct sockaddr_in serv;
 
 	if (setsockopt(p->fd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse,
 		sizeof (int)) < 0) {
-		(void) snprintf(msg, 128, "%s: Cannot set SO_REUSEADDR",
-		    pname);
-		uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+		ulog_err("%s: Cannot set SO_REUSEADDR",
+			protocol_to_str(p->type));
 	}
-	(void) memset(&server, 0, sizeof (struct sockaddr_in));
-	server.sin_addr.s_addr = htonl(INADDR_ANY);
-	server.sin_family = AF_INET;
-	server.sin_port = htons(p->port);
-	if ((bind(p->fd, (struct sockaddr *)&server,
-		    sizeof (server))) != 0) {
-		(void) snprintf(msg, 128, "%s: Cannot bind to port", pname);
-		uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+	(void) memset(&serv, 0, sizeof (struct sockaddr_in));
+	serv.sin_addr.s_addr = htonl(INADDR_ANY);
+	serv.sin_family = AF_INET;
+	serv.sin_port = htons(p->port);
+	if ((bind(p->fd, (struct sockaddr *)&serv, sizeof (serv))) != 0) {
+		ulog_err("%s: Cannot bind to port %d",
+			protocol_to_str(p->type), serv.sin_port);
 		return (-1);
 	}
-	if (server.sin_port == ANY_PORT) {
-		int tmp = sizeof (server);
-		if ((getsockname(p->fd, (struct sockaddr *)&server,
-			    &tmp)) != 0) {
-			(void) snprintf(msg, 128, "%s: Cannot getsockname",
-			    pname);
-			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+	if (serv.sin_port == ANY_PORT) {
+		socklen_t tmp = sizeof (serv);
+		if ((getsockname(p->fd, (struct sockaddr *)&serv, &tmp)) != 0) {
+			ulog_err("%s: Cannot getsockname",
+				protocol_to_str(p->type));
 			return (-1);
 		}
 	}
 	listen(p->fd, LISTENQ);
-	p->port = ntohs(server.sin_port);
+	p->port = ntohs(serv.sin_port);
 	uperf_debug("Listening on port %d\n",  p->port);
 
 	return (p->port);
@@ -326,7 +290,7 @@ generic_undefined(protocol_t *p, void *options)
 int
 generic_accept(protocol_t *oldp, protocol_t *newp, void *options)
 {
-	int addrlen;
+	socklen_t addrlen;
 	int timeout;
 	char hostname[NI_MAXHOST];
 	struct sockaddr_in remote;
@@ -342,7 +306,7 @@ generic_accept(protocol_t *oldp, protocol_t *newp, void *options)
 
 	if ((newp->fd = accept(oldp->fd, (struct sockaddr *)&remote,
 	    &addrlen)) < 0) {
-		uperf_log_msg(UPERF_LOG_ERROR, errno, "accept:");
+		ulog_err("accept:");
 		return (-1);
 	}
 
@@ -410,8 +374,7 @@ set_tcp_options(int fd, flowop_options_t *f)
 		int nodelay = 1;
 		if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
 			(char *)&nodelay, sizeof (nodelay))) {
-			uperf_log_msg(UPERF_LOG_WARN, errno,
-			    "Cannot set TCP_NODELAY");
+			ulog_warn("Cannot set TCP_NODELAY");
 		}
 	}
 }

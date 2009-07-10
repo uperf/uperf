@@ -72,8 +72,10 @@ set_udp_options(int fd, flowop_options_t *f)
 		(void) generic_verify_socket_buffer(fd, f->wndsz);
 	}
 	if (f && FO_NONBLOCKING(f)) {
-		if (generic_setfd_nonblock(fd) != 0)
+		if (generic_setfd_nonblock(fd) != 0) {
+			ulog_warn("non-blocking failed, falling back");
 			CLEAR_FO_NONBLOCKING(f);
+		}
 	}
 
 	return (0);

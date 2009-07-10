@@ -74,6 +74,7 @@ int uperf_log_init(uperf_log_t *);
 int uperf_log_flush();
 int uperf_log_flush_to_string(char *, int);
 int uperf_log_msg(uperf_msg_type, int, char *);
+int ulog(uperf_msg_type type, int myerrno, char *fmt, ...);
 int uperf_log_num_msgs();
 void uperf_printer(uperf_log_level, uperf_msg_type, const char *, ...);
 int uperf_set_log_level(uperf_log_level);
@@ -95,6 +96,8 @@ int uperf_set_log_level(uperf_log_level);
 #define uperf_info(...)   	{uperf_printer(UPERF_VERBOSE, 		\
     UPERF_LOG_INFO,	__VA_ARGS__);}
 
+#define ulog_err(...)	ulog(UPERF_LOG_ERROR, errno, __VA_ARGS__);
+#define ulog_warn(...)	ulog(UPERF_LOG_WARN, errno, __VA_ARGS__);
 #ifdef DEBUG
 #define uperf_debug(...)  	{uperf_printer(UPERF_NONVERBOSE, 	\
     UPERF_LOG_DEBUG, __VA_ARGS__);}

@@ -170,6 +170,19 @@ uperf_log_flush()
 }
 
 int
+ulog(uperf_msg_type type, int myerrno, char *fmt, ...)
+{
+	char buf[ERR_STR_LEN];
+	va_list ap;
+	
+	va_start(ap, fmt);
+	(void) vsnprintf(buf, sizeof (buf), fmt, ap);
+	va_end(ap);
+	
+	return (uperf_log_msg(type, myerrno, buf));
+}
+
+int
 uperf_log_msg(uperf_msg_type type, int myerrno, char *msg)
 {
 	int no;
