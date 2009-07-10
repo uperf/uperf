@@ -139,7 +139,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 EXTRA_DIST = connect.xml iperf.xml ldap.xml oltpnet.xml oraclerac.xml \
-	sctp.xml .netperf.xml specweb.xml ssl.xml telnet.xml \
+	sctp.xml netperf.xml specweb.xml ssl.xml telnet.xml \
 	two-hosts.xml
 data_DATA = connect.xml iperf.xml ldap.xml netperf.xml oltpnet.xml \
 	oraclerac.xml sctp.xml specweb.xml ssl.xml telnet.xml \
