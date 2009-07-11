@@ -267,7 +267,6 @@ parse(char *buffer, struct symbol *list)
 
 	return (0);
 }
-#ifdef TEST_PARSE
 static void
 print_symbols(struct symbol *list) {
 	while (list) {
@@ -292,6 +291,7 @@ print_flowop_t(flowop_t *t)
 	(void) printf("type = %s, ", t->name);
 	(void) printf("remote = %s ", t->options.remotehost);
 	(void) printf("protocol = %d ", t->options.protocol);
+	(void) printf("duration = %llu ", t->options.duration);
 	(void) printf("]\n");
 }
 void
@@ -322,7 +322,6 @@ print_workorder_t(workorder_t *w) {
 	for (i = 0; i < w->ngrp; i++)
 		print_group_t_recurse(&w->grp[i]);
 }
-#endif /* TEST_PARSE */
 
 static int
 string2int(char *value)
