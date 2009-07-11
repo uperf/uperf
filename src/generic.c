@@ -61,9 +61,6 @@
 #define	TIMEOUT		1200000	/* Argument to poll */
 #define	SOCK_PORT(sin)	((sin).sin_port)
 
-extern int ensure_write(protocol_t *p, void *buffer, int size, void *options);
-extern int ensure_read(protocol_t *p, void *buffer, int size, void *options);
-
 int
 name_to_addr(const char *address, struct sockaddr_in *saddr)
 {
