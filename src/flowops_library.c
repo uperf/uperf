@@ -263,6 +263,7 @@ flowop_think(strand_t *sp, flowop_t *fp)
 {
 	int error;
 	flowop_options_t *fo = &fp->options;
+	uperf_info("thinking for %.2fms\n", 1.0*fp->options.duration/1.0e+6);
 	if (FO_THINK_BUSY(fo)) {
 		error = uperf_spin(fp->options.duration);
 	} else {
