@@ -287,7 +287,10 @@ protocol_ssl_connect(protocol_t * p, void *options)
 			flowop_options->engine);
 		}
 	}
-	ssl_p->ssl = SSL_new(ctx);
+	if ((ssl_p->ssl = SSL_new(ctx)) == NULL) {
+		ulog_err("Error initializng SSL");
+		return (-1);
+	}
 	sbio = BIO_new_socket(p->fd, BIO_NOCLOSE);
 	SSL_set_bio(ssl_p->ssl, sbio, sbio);
 
