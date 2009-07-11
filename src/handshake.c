@@ -86,19 +86,19 @@ tx_group_t(protocol_t *p, group_t *g, char *host)
 
 
 	/* First write the group, then txn , then flowop */
-	if (ensure_write(p, copy, SIZEOF_GROUP_T, NULL) <= 0) {
+	if (ensure_write(p, copy, SIZEOF_GROUP_T) <= 0) {
 		group_free(copy);
 		return (UPERF_FAILURE);
 	}
 	uperf_info("    Sent workorder\n");
 	for (txn = copy->tlist; txn; txn = txn->next) {
-		if (ensure_write(p, txn, SIZEOF_TXN_T, NULL) <= 0) {
+		if (ensure_write(p, txn, SIZEOF_TXN_T) <= 0) {
 			group_free(copy);
 			return (UPERF_FAILURE);
 		}
 		uperf_info("    Sent transaction\n");
 		for (fptr = txn->flist; fptr; fptr = fptr->next) {
-			if (ensure_write(p, fptr, SIZEOF_FLOWOP_T, NULL) <= 0) {
+			if (ensure_write(p, fptr, SIZEOF_FLOWOP_T) <= 0) {
 				group_free(copy);
 				return (UPERF_FAILURE);
 			}
@@ -129,7 +129,7 @@ rx_group_t(protocol_t *p, int my_endian)
 
 	uperf_info("Waiting for workorder\n");
 	worklist = calloc(1, sizeof (group_t));
-	if (ensure_read(p, worklist, SIZEOF_GROUP_T, NULL) <= 0) {
+	if (ensure_read(p, worklist, SIZEOF_GROUP_T) <= 0) {
 		free(worklist);
 		return (NULL);
 	}
@@ -141,7 +141,7 @@ rx_group_t(protocol_t *p, int my_endian)
 	}
 	for (i = 0; i < worklist->ntxn; i++) {
 		txn = calloc(1, sizeof (txn_t));
-		if (ensure_read(p, txn, SIZEOF_TXN_T, NULL) <= 0) {
+		if (ensure_read(p, txn, SIZEOF_TXN_T) <= 0) {
 			group_free(worklist);
 			free(txn);
 			return (NULL);
@@ -156,7 +156,7 @@ rx_group_t(protocol_t *p, int my_endian)
 		for (j = 0; j <  txn->nflowop; j++) {
 			flowop_t *f = calloc(1, sizeof (flowop_t));
 			uperf_info("    Reading Flowop\n");
-			if (ensure_read(p, f, SIZEOF_FLOWOP_T, NULL) <= 0) {
+			if (ensure_read(p, f, SIZEOF_FLOWOP_T) <= 0) {
 				group_free(worklist);
 				free(f);
 				return (NULL);
@@ -217,10 +217,10 @@ handshake_p1_with_slave(protocol_t *p, int *protocols)
 	(void) memcpy(hsp1.protocol, protocols, sizeof (hsp1.protocol));
 	(void) strlcpy(hsp1.version, UPERF_DATA_VERSION, UPERF_VERSION_LEN);
 
-	if ((ensure_write(p, &hsp1, sizeof (hs_phase1_t), NULL)) <= 0) {
+	if ((ensure_write(p, &hsp1, sizeof (hs_phase1_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
-	if ((ensure_read(p, &hsp1a, sizeof (hs_phase1_ack_t), NULL)) <= 0) {
+	if ((ensure_read(p, &hsp1a, sizeof (hs_phase1_ack_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
 	if (strcmp(hsp1a.status, UPERF_OK) != 0) {
@@ -296,7 +296,7 @@ handshake_p2_with_slave(uperf_shm_t *shm, char *host, group_t *g,
 		hsp2.p1.no_slave_info = 0;
 	}
 
-	if ((ensure_write(p, &hsp2, sizeof (hs_phase2_t), NULL)) <= 0) {
+	if ((ensure_write(p, &hsp2, sizeof (hs_phase2_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
 	uperf_info("  Sent handshake header\n");
@@ -312,14 +312,14 @@ handshake_p2_with_slave(uperf_shm_t *shm, char *host, group_t *g,
 		 * info the the slaves
 		 */
 		uperf_info("Sending %d slave_info_t\n", hsp2.p1.no_slave_info);
-		if ((ensure_write(p, si, g->nthreads * sizeof (slave_info_t),
-		    NULL)) <= 0) {
+		if ((ensure_write(p, si, g->nthreads * sizeof (slave_info_t)))
+			<= 0) {
 			return (UPERF_FAILURE);
 		}
 		free(si);
 	}
 
-	if ((ensure_read(p, &hsp2a, sizeof (hs_phase2_ack_t), NULL)) <= 0) {
+	if ((ensure_read(p, &hsp2a, sizeof (hs_phase2_ack_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
 
@@ -336,7 +336,7 @@ handshake_p2_with_slave(uperf_shm_t *shm, char *host, group_t *g,
 			perror("malloc");
 			return (UPERF_FAILURE);
 		}
-		if ((ensure_read(p, si, size, NULL)) <= 0) {
+		if ((ensure_read(p, si, size)) <= 0) {
 			free(si);
 			return (UPERF_FAILURE);
 		}
@@ -414,7 +414,7 @@ slave_handshake(uperf_shm_t *shm, protocol_t *p)
 		(void) strlcpy(hsp1a.status, UPERF_OK, sizeof (hsp1a.status));
 
 		uperf_debug("reading p1\n");
-		if ((ensure_read(p, &hsp1, sizeof (hs_phase1_t), NULL)) <= 0) {
+		if ((ensure_read(p, &hsp1, sizeof (hs_phase1_t))) <= 0) {
 			uperf_debug("Cannot read p1\n");
 			return (UPERF_FAILURE);
 		}
@@ -450,15 +450,15 @@ slave_handshake(uperf_shm_t *shm, protocol_t *p)
 			for (i = 0; i < NUM_PROTOCOLS; i++) {
 				if (hsp1.protocol[i] == 0)
 					continue;
-				if (valid_protocol(hsp1.protocol[i]) == -1) {
+				if (valid_protocol(i) == -1) {
 					(void) snprintf(hsp1a.message,
 						sizeof (hsp1a.message),
-						"%s:%d",
+						"%s:%s",
 					    "Unsupported protocol",
-					    hsp1.protocol[i]);
-					(void) printf("%s:%d",
+						protocol_to_str(i));
+					(void) printf("%s:%s",
 					    "Unsupported protocol",
-					    hsp1.protocol[i]);
+						protocol_to_str(i));
 					(void) strlcpy(hsp1a.status,
 						UPERF_NOT_OK,
 						sizeof (hsp1a.status));
@@ -471,7 +471,7 @@ slave_handshake(uperf_shm_t *shm, protocol_t *p)
 			(status == UPERF_SUCCESS)) {
 			break;
 		}
-		if ((ensure_write(p, &hsp1a, sizeof (hs_phase1_ack_t), NULL))
+		if ((ensure_write(p, &hsp1a, sizeof (hs_phase1_ack_t)))
 		    <= 0) {
 			(void) printf("Cannot write p1");
 			return (UPERF_FAILURE);
@@ -507,7 +507,7 @@ slave_handshake_p2_complete(uperf_shm_t *shm, protocol_t *p)
 		perror("malloc");
 		return (UPERF_FAILURE);
 	}
-	if ((ensure_read(p, si, size, NULL)) <= 0) {
+	if ((ensure_read(p, si, size)) <= 0) {
 		free(si);
 		return (UPERF_FAILURE);
 	}
@@ -542,13 +542,13 @@ slave_handshake_p2_success(slave_info_t *sl, int no, protocol_t *p, int bitswap)
 		}
 	}
 	(void) strlcpy(hsp2a.p1a.status, UPERF_OK, sizeof (hsp2a.p1a.status));
-	if ((ensure_write(p, &hsp2a, sizeof (hs_phase2_ack_t), NULL)) <= 0) {
+	if ((ensure_write(p, &hsp2a, sizeof (hs_phase2_ack_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
 	if (no == 0)
 		return (UPERF_SUCCESS);
 
-	if ((ensure_write(p, sl, no * sizeof (slave_info_t), NULL)) <= 0) {
+	if ((ensure_write(p, sl, no * sizeof (slave_info_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
 
@@ -562,7 +562,7 @@ slave_handshake_p2_failure(char *message, protocol_t *p, int myendian)
 	hs_phase2_ack_t hsp2a;
 
 	(void) strlcpy(hsp2a.p1a.message, message, 128);
-	if ((ensure_write(p, &hsp2a, sizeof (hs_phase2_ack_t), NULL)) <= 0) {
+	if ((ensure_write(p, &hsp2a, sizeof (hs_phase2_ack_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
 	return (UPERF_SUCCESS);
@@ -574,10 +574,10 @@ handshake_end_with_slave(protocol_t *p)
 	hs_phase1_ack_t ack;
 
 	(void) memset(&ack, 0, sizeof (hs_phase1_ack_t));
-	if ((ensure_write(p, &ack, sizeof (hs_phase1_ack_t), NULL)) <= 0) {
+	if ((ensure_write(p, &ack, sizeof (hs_phase1_ack_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
-	if ((ensure_read(p, &ack, sizeof (hs_phase1_ack_t), NULL)) <= 0) {
+	if ((ensure_read(p, &ack, sizeof (hs_phase1_ack_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
 
@@ -613,10 +613,10 @@ handshake_end_slave(slave_info_t *sl, int no, protocol_t *p, int bitswap)
 {
 	hs_phase1_ack_t ack;
 
-	if ((ensure_read(p, &ack, sizeof (hs_phase1_ack_t), NULL)) <= 0) {
+	if ((ensure_read(p, &ack, sizeof (hs_phase1_ack_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
-	if ((ensure_write(p, &ack, sizeof (hs_phase1_ack_t), NULL)) <= 0) {
+	if ((ensure_write(p, &ack, sizeof (hs_phase1_ack_t))) <= 0) {
 		return (UPERF_FAILURE);
 	}
 

@@ -37,7 +37,9 @@
 #endif /* HAVE_STRING_H */
 #include "uperf.h"
 #include "protocol.h"
+#ifdef USE_CPC
 #include "hwcounter.h"
+#endif
 #include "sync.h"
 #include "logging.h"
 #include "flowops.h"
@@ -161,10 +163,8 @@ static char cmds[][64] = { "UPERF_CMD_NEXT_TXN",
 int
 uperf_get_command(protocol_t *p, uperf_command_t *uc, int bitswap)
 {
-	int ret;
-
 	(void) memset(uc, 0, sizeof (uperf_command_t));
-	if ((ret = p->read(p, uc, sizeof (uperf_command_t), NULL)) <= 0) {
+	if (p->read(p, uc, sizeof (uperf_command_t), NULL) <= 0) {
 		(void) printf("Error IN get Command:%s\n", strerror(errno));
 		return (-1);
 	}
@@ -197,7 +197,7 @@ uperf_send_command(protocol_t *p, uperf_cmd command, uint32_t val)
 }
 
 int
-ensure_read(protocol_t *p, void *buffer, int size, void *options)
+ensure_read(protocol_t *p, void *buffer, int size)
 {
 	int n, sz;
 
@@ -212,7 +212,7 @@ ensure_read(protocol_t *p, void *buffer, int size, void *options)
 }
 
 int
-ensure_write(protocol_t *p, void *buffer, int size, void *options)
+ensure_write(protocol_t *p, void *buffer, int size)
 {
 	int n, sz;
 
