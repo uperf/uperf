@@ -1,3 +1,5 @@
+Jul 10 2009 neel
+* make check now works
 Jun 30 2009 neel
 * Now works on Solaris 9 (configure with --disable-sctp --disable-ssl 
   --disable-cpc)

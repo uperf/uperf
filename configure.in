@@ -276,6 +276,7 @@ AC_SUBST(UPERF_LIBS)
 #AC_CONFIG_FILES([Makefile
 AC_OUTPUT([Makefile
                  src/Makefile
+		 tests/Makefile
                  workloads/Makefile])
 
 echo "CC=$CC"

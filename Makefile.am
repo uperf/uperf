@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = workloads src
+SUBDIRS = workloads src tests
 TODAY = `date +%m%d%y`
 
 dist-hook: releaseinfo
