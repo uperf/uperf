@@ -154,7 +154,12 @@ valid_protocol(proto_type_t type)
 const char *
 protocol_to_str(proto_type_t t)
 {
-	proto_list_t *pl = find_protocol_by_type(t);
-
-	return (pl ? pl->protocol : 0);
+	switch (t) {
+		case PROTOCOL_TCP: return "TCP";
+        	case PROTOCOL_UDAPL: return "uDAPL";
+        	case PROTOCOL_UDP: return "UDP";
+        	case PROTOCOL_SSL: return "SSL";
+        	case PROTOCOL_SCTP: return "SCTP";
+		default: return "Unknown";
+	}
 }
