@@ -132,8 +132,8 @@ shm_init_barriers_master(uperf_shm_t *shm, workorder_t *w)
 		int j;
 		group_t *g = &w->grp[i];
 
-		n = MAX(n, group_num_txn(g));
-		for (j = 0; j < group_num_txn(g); j++) {
+		n = MAX(n, g->ntxn);
+		for (j = 0; j < g->ntxn; j++) {
 			strand_per_txn[j] += g->nthreads;
 		}
 	}
@@ -159,7 +159,7 @@ shm_init_barriers_slave(uperf_shm_t *shm, group_t *g)
 	int n;
 	int i;
 
-	n = group_num_txn(g);
+	n = g->ntxn;
 	if (n > NUM_BARRIER) {
 		uperf_error("Shm exhausted!\n");
 		return (-1);

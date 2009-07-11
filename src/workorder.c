@@ -47,7 +47,7 @@ workorder_num_strands(workorder_t *w)
 	return (count);
 }
 
-int
+static int
 group_num_stats(group_t *g)
 {
 	int count = 1;
@@ -84,19 +84,13 @@ workorder_num_strands_bytype(workorder_t *w, uint32_t type)
 }
 
 int
-group_num_txn(group_t *g)
-{
-	return (g->ntxn);
-}
-
-int
 workorder_max_txn(workorder_t *w)
 {
 	int i, no;
 
 	no = 0;
 	for (i = 0; i < w->ngrp; i++)
-		no = MAX(no, group_num_txn(&w->grp[i]));
+		no = MAX(no, w->grp[i].ntxn);
 
 	return (no);
 }
@@ -292,6 +286,7 @@ group_bitswap(group_t *grp)
 			fo->count = BSWAP_64(fo->count);
 			fo->wndsz = BSWAP_64(fo->wndsz);
 			fo->poll_timeout = BSWAP_64(fo->poll_timeout);
+			fo->duration = BSWAP_64(fo->duration);
 		}
 	}
 

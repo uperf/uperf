@@ -126,7 +126,6 @@ typedef struct app_profile {
 }workorder_t;
 
 int workorder_num_strands(workorder_t *);
-int group_num_stats(group_t *);
 int workorder_num_stats(workorder_t *);
 int workorder_num_strands_bytype(workorder_t *, uint32_t);
 int group_max_open_connections(group_t *);
@@ -136,7 +135,6 @@ void group_free(group_t *);
 group_t* group_clone(group_t *);
 int group_opposite(group_t *);
 int group_bitswap(group_t *);
-int group_num_txn(group_t *);
 int workorder_max_txn(workorder_t *);
 
 #endif /* _WORKORDER_H */
