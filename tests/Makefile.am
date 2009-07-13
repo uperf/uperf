@@ -4,7 +4,8 @@ TESTS = unknown_proto.xml parse_err.xml 01simple_tcp.xml 02two_groups.xml \
 	a.xml canfail.xml disconnect_iter.xml friendliness.xml \
 	high_connection_count.xml mix_thr_proc.xml test_4groups.xml \
 	test-duration-process.xml test_netperf.xml test-sendfilev-chunked.xml \
-	test-sendfile.xml test_send_recv.xml test-ssize-flowop-count-dur.xml 
+	test-sendfile.xml test_send_recv.xml test-ssize-flowop-count-dur.xml \
+	test-rate.xml
 	
 XFAIL_TESTS = unknown_proto.xml parse_err.xml
 

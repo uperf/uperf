@@ -141,7 +141,7 @@ TESTS = unknown_proto.xml parse_err.xml 01simple_tcp.xml \
 	test_4groups.xml test-duration-process.xml test_netperf.xml \
 	test-sendfilev-chunked.xml test-sendfile.xml \
 	test_send_recv.xml test-ssize-flowop-count-dur.xml \
-	$(am__append_1) $(am__append_2) $(am__append_3)
+	test-rate.xml $(am__append_1) $(am__append_2) $(am__append_3)
 XFAIL_TESTS = unknown_proto.xml parse_err.xml
 all: all-am
 
