@@ -32,8 +32,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "uperf.h"
-#include "protocol.h"
+#ifdef USE_CPC
 #include "hwcounter.h"
+#endif /* USE_CPC */
+#include "protocol.h"
 #include "sync.h"
 #include "logging.h"
 #include "main.h"
