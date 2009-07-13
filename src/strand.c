@@ -31,13 +31,8 @@
 #include <assert.h>
 
 #include "uperf.h"
-#include "protocol.h"
-#include "hwcounter.h"
-#include "sync.h"
 #include "logging.h"
-#include "flowops.h"
 #include "workorder.h"
-#include "stats.h"
 #include "strand.h"
 #include "shm.h"
 #include "delay.h"

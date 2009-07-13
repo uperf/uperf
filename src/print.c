@@ -34,7 +34,6 @@
 #endif /* HAVE_STDINT_H */
 #include "uperf.h"
 #include "print.h"
-#include "hwcounter.h"
 #include "main.h"
 #include "workorder.h"
 #include "strand.h"

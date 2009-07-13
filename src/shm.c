@@ -37,7 +37,6 @@
 #include "uperf.h"
 
 #include "protocol.h"
-#include "hwcounter.h"
 #include "sync.h"
 #include "logging.h"
 #include "flowops.h"

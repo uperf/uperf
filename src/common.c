@@ -37,9 +37,6 @@
 #endif /* HAVE_STRING_H */
 #include "uperf.h"
 #include "protocol.h"
-#ifdef USE_CPC
-#include "hwcounter.h"
-#endif
 #include "sync.h"
 #include "logging.h"
 #include "flowops.h"

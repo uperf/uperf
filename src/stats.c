@@ -33,7 +33,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include "uperf.h"
-#include "hwcounter.h"
 #include "main.h"
 #include "workorder.h"
 #include "stats.h"

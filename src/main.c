@@ -37,7 +37,6 @@
 #endif /* HAVE_CONFIG_H */
 
 #include "uperf.h"
-#include "hwcounter.h"
 #include "logging.h"
 #include "numbers.h"
 #include "main.h"

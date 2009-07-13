@@ -19,6 +19,9 @@
 #define	_STRAND_H
 
 #include "uperf.h"
+#ifdef USE_CPC
+#include "hwcounter.h"
+#endif /* USE_CPC */
 
 typedef struct slave_info {
 	char 			host[MAXHOSTNAME];
