@@ -63,7 +63,7 @@ int
 uperf_log_init(uperf_log_t *l)
 {
 	log = l;
-	memset(log, 0, sizeof (uperf_log_t));
+	(void) memset(log, 0, sizeof (uperf_log_t));
 	if (pthread_mutexattr_init(&log->attr) != 0) {
 		perror("pthread_mutexattr_init");
 		return (UPERF_FAILURE);
@@ -95,7 +95,7 @@ uperf_log_flush_to_string(char *buffer, int size)
 	int i;
 	int index = 0;
 
-	pthread_mutex_lock(&log->lock);
+	(void) pthread_mutex_lock(&log->lock);
 	for (i = 0; i < log->num_msg; i++) {
 		int err = log->msg[i].myerrno;
 		char *e;
@@ -109,25 +109,25 @@ uperf_log_flush_to_string(char *buffer, int size)
 				t = "Warnings";
 			else
 				t = "Errors";
-			snprintf(&buffer[index], size - index,
+			(void) snprintf(&buffer[index], size - index,
 				"%d %s  %s %s\n",
 				log->msg[i].count, t,
 				log->msg[i].str, e);
 			index = strlen(buffer);
 		} else {
 			if (log->msg[i].type == UPERF_LOG_WARN) {
-				snprintf(&buffer[index], size - index,
+				(void) snprintf(&buffer[index], size - index,
 					"Warning:");
 			} else {
-				snprintf(&buffer[index], size - index,
+				(void) snprintf(&buffer[index], size - index,
 					" ");
 			}
 			index = strlen(buffer);
-			snprintf(&buffer[index], size - index,
+			(void) snprintf(&buffer[index], size - index,
 				"%s %s\n", log->msg[i].str, e);
 		}
 	}
-	pthread_mutex_unlock(&log->lock);
+	(void) pthread_mutex_unlock(&log->lock);
 
 	return (UPERF_SUCCESS);
 }
@@ -138,7 +138,7 @@ uperf_log_flush()
 {
 	int i;
 
-	pthread_mutex_lock(&log->lock);
+	(void) pthread_mutex_lock(&log->lock);
 	for (i = 0; i < log->num_msg; i++) {
 		int err = log->msg[i].myerrno;
 		char *e;
@@ -151,20 +151,20 @@ uperf_log_flush()
 				t = "Warnings";
 			else
 				t = "Errors";
-			printf("** %d %s %s %s\n",
+			(void) printf("** %d %s %s %s\n",
 			    log->msg[i].count, t,
 			    log->msg[i].str, e);
 		} else {
 			if (log->msg[i].type == UPERF_LOG_WARN)
-				printf("** Warning:");
+				(void) printf("** Warning:");
 			else
-				printf("** ");
-			printf("%s %s\n", log->msg[i].str, e);
+				(void) printf("** ");
+			(void) printf("%s %s\n", log->msg[i].str, e);
 		}
 	}
 	/* reset the counters */
-	memset(log, 0, sizeof (uperf_log_t));
-	pthread_mutex_unlock(&log->lock);
+	(void) memset(log, 0, sizeof (uperf_log_t));
+	(void) pthread_mutex_unlock(&log->lock);
 
 	return (UPERF_SUCCESS);
 }
@@ -193,32 +193,32 @@ uperf_log_msg(uperf_msg_type type, int myerrno, char *msg)
 
 	uperf_debug("logging: %d %s\n", type, msg);
 
-	pthread_mutex_lock(&log->lock);
+	(void) pthread_mutex_lock(&log->lock);
 	no = log->num_msg;
-	pthread_mutex_unlock(&log->lock);
+	(void) pthread_mutex_unlock(&log->lock);
 
 	if (no > NUM_ERR_STR) {
-		uperf_log_flush();
+		(void) uperf_log_flush();
 	}
 
-	pthread_mutex_lock(&log->lock);
+	(void) pthread_mutex_lock(&log->lock);
 
 	for (i = 0; i < log->num_msg; i++) {
 		if (strncmp(log->msg[i].str, msg, ERR_STR_LEN) == 0) {
 			log->msg[i].count++;
-			pthread_mutex_unlock(&log->lock);
+			(void) pthread_mutex_unlock(&log->lock);
 			errno = myerrno;
 			return (UPERF_SUCCESS);
 		}
 	}
-	strlcpy(log->msg[log->num_msg].str, msg, ERR_STR_LEN - 1);
+	(void) strlcpy(log->msg[log->num_msg].str, msg, ERR_STR_LEN - 1);
 	log->msg[log->num_msg].str[ERR_STR_LEN-1] = '\0';
 	log->msg[log->num_msg].count = 1;
 	log->msg[log->num_msg].myerrno = myerrno;
 	log->msg[log->num_msg].type = type;
 	log->num_msg++;
 
-	pthread_mutex_unlock(&log->lock);
+	(void) pthread_mutex_unlock(&log->lock);
 
 	/* reset errno to its old value */
 	errno = myerrno;

@@ -169,7 +169,7 @@ decimal_to_string(double value, char *result, int size, int is_bit)
 	int pos = 0;
 	double div;
 
-	memset(result, 0, size);
+	(void) memset(result, 0, size);
 	div = is_bit ? 1000.0 : 1024.0;
 	if (value == 0)
 		return ("0");
@@ -179,14 +179,16 @@ decimal_to_string(double value, char *result, int size, int is_bit)
 	}
 	if (is_bit == 1) {
 		if (pos == 0)
-			snprintf(result, size, "%.2fb/s", value);
+			(void) snprintf(result, size, "%.2fb/s", value);
 		else
-			snprintf(result, size, "%.2f%cb/s", value, suffix[pos]);
+			(void) snprintf(result, size, "%.2f%cb/s", value,
+					suffix[pos]);
 	} else {
 		if (pos == 0)
-			snprintf(result, size, "%.2fB", value);
+			(void) snprintf(result, size, "%.2fB", value);
 		else
-			snprintf(result, size, "%.2f%cB", value, suffix[pos]);
+			(void) snprintf(result, size, "%.2f%cB", value,
+					suffix[pos]);
 	}
 	return (result);
 }
@@ -195,7 +197,8 @@ void
 print_decimal(double value, int size, int is_bit)
 {
 	char temp[128];
-	printf("%*s ", size, decimal_to_string(value, temp, size, is_bit));
+	(void) printf("%*s ", size, decimal_to_string(value, temp, size,
+			is_bit));
 }
 
 void
@@ -219,7 +222,8 @@ adaptive_print_time(double value, int width)
 		acutal_width++;
 		s = ' ';
 	}
-	snprintf(format, sizeof (format), "%%%d.%df%%c%%c", acutal_width, 2);
-	snprintf(str, width, format, newvalue, suffix[index], s);
-	printf("%*s ", width, str);
+	(void) snprintf(format, sizeof (format), "%%%d.%df%%c%%c",
+			acutal_width, 2);
+	(void) snprintf(str, width, format, newvalue, suffix[index], s);
+	(void) printf("%*s ", width, str);
 }

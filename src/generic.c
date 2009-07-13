@@ -65,9 +65,9 @@ int
 name_to_addr(const char *address, struct sockaddr_in *saddr)
 {
 	struct addrinfo *res;
-	int error = 0;
+	int error;
 	if ((error = getaddrinfo(address, NULL, NULL, &res)) == 0) {
-		memcpy(saddr, res->ai_addr, sizeof (struct sockaddr_in));
+		(void) memcpy(saddr, res->ai_addr, sizeof (struct sockaddr_in));
 		freeaddrinfo(res);
 	} else {
 		ulog_err("getaddrinfo(%s): %s\n", address, gai_strerror(error));
@@ -262,12 +262,14 @@ generic_write(protocol_t *p, void *buffer, int size, void *options)
 	return (write(p->fd, buffer, size));
 }
 
+/* ARGSUSED */
 int
 generic_recv(protocol_t *p, void *buffer, int size, void *options)
 {
 	return (recv(p->fd, buffer, size, 0));
 }
 
+/* ARGSUSED */
 int
 generic_send(protocol_t *p, void *buffer, int size, void *options)
 {

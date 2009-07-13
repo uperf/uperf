@@ -235,12 +235,12 @@ print_progress(uperf_shm_t *shm, newstats_t prev)
 	if (ENABLED_STATS(options)) {
 		newstats_t pns;
 		update_aggr_stat(shm);
-		memcpy(&pns, AGG_STAT(shm), sizeof (pns));
+		(void) memcpy(&pns, AGG_STAT(shm), sizeof (pns));
 		pns.start_time = prev.end_time;
 		pns.size -= prev.size;
 		pns.end_time = GETHRTIME();
 		pns.count -= prev.count;
-		strlcpy(pns.name, prev.name, sizeof (pns.name));
+		(void) strlcpy(pns.name, prev.name, sizeof (pns.name));
 		print_summary(&pns, 1);
 	}
 }
@@ -288,14 +288,15 @@ master_poll(uperf_shm_t *shm)
 			if (ENABLED_STATS(options)) {
 				if (curr_txn != 0) {
 					print_progress(shm, prev_ns);
-					printf("\n");
+					(void) printf("\n");
 				}
 				update_aggr_stat(shm);
-				memcpy(&prev_ns, AGG_STAT(shm),
+				(void) memcpy(&prev_ns, AGG_STAT(shm),
 				    sizeof (prev_ns));
 				prev_ns.end_time = GETHRTIME();
-				snprintf(prev_ns.name, sizeof (prev_ns.name),
-				    "Txn%d", curr_txn + 1);
+				(void) snprintf(prev_ns.name,
+						sizeof (prev_ns.name),
+						"Txn%d", curr_txn + 1);
 			}
 			/*
 			 * Ask slaves to begin curr_txn Ok to ignore
@@ -321,10 +322,10 @@ master_poll(uperf_shm_t *shm)
 	while (shm->global_error == 0 && shm->finished == 0) {
 		shm_process_callouts(shm);
 		print_progress(shm, prev_ns);
-		poll(NULL, 0, 100);
+		(void) poll(NULL, 0, 100);
 	}
 	if (ENABLED_STATS(options)) {
-		printf("\n");
+		(void) printf("\n");
 		uperf_line();
 	}
 	if (shm->global_error > 0) {
@@ -451,7 +452,7 @@ spawn_strands_group(uperf_shm_t *shm, group_t *gp, int id)
 		s->worklist = group_clone(gp);
 		s->shmptr = shm;
 		s->role = MASTER;
-		group_assign_stat(shm, s->worklist, id + j);
+		(void) group_assign_stat(shm, s->worklist, id + j);
 
 		if (STRAND_IS_PROCESS(gp)) {
 			s->strand_flag |= STRAND_TYPE_PROCESS;
@@ -630,7 +631,7 @@ master(workorder_t *w)
 	uperf_log_flush();
 
 	if (ENABLED_HISTORY_STATS(options)) {
-		fclose(options.history_fd);
+		(void) fclose(options.history_fd);
 	}
 	/* Cleanup */
 	if (shm->global_error != 0) {
