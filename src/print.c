@@ -262,7 +262,8 @@ print_flowop_averages(uperf_shm_t *shm)
 void
 print_goodbye_stat_header()
 {
-	printf("\nRun Statistics\nHostname           Time        Data   Throughput   Operations      Errors\n");
+	printf("\nRun Statistics\nHostname           Time        Data   \
+Throughput   Operations      Errors\n");
 	uperf_line();
 }
 
