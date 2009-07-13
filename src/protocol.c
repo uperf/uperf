@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 /*
@@ -156,10 +157,10 @@ protocol_to_str(proto_type_t t)
 {
 	switch (t) {
 		case PROTOCOL_TCP: return "TCP";
-        	case PROTOCOL_UDAPL: return "uDAPL";
-        	case PROTOCOL_UDP: return "UDP";
-        	case PROTOCOL_SSL: return "SSL";
-        	case PROTOCOL_SCTP: return "SCTP";
+		case PROTOCOL_UDAPL: return "uDAPL";
+		case PROTOCOL_UDP: return "UDP";
+		case PROTOCOL_SSL: return "SSL";
+		case PROTOCOL_SCTP: return "SCTP";
 		default: return "Unknown";
 	}
 }

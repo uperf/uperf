@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -51,7 +52,7 @@ duration_execute(strand_t *sp, void *b, hrtime_t stop,
 {
 	int error = 0;
 
-	if (STRAND_IS_LEADER(sp)) 
+	if (STRAND_IS_LEADER(sp))
 		shm_callout_register(sp->shmptr, stop, sp->worklist->groupid);
 
 	/* We call "callback" multiple times as it might be a rate function */
@@ -127,12 +128,12 @@ txn_execute_rate(strand_t *sp, void *tp)
 	txn_t *txnp = (txn_t *) tp;
 	assert(txnp->rate_count > 0);
 
-	if (sp->shmptr->role ==MASTER) 
+	if (sp->shmptr->role == MASTER)
 		return (rate_execute_1s(sp, txnp, txnp->rate_count,
-	    		&txn_rate_callback));
-	else 
+						&txn_rate_callback));
+	else
 		return (rate_execute_1s_busywait(sp, txnp, txnp->rate_count,
-	    		&txn_rate_callback));
+						&txn_rate_callback));
 
 }
 

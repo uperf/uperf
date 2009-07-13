@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 /*
@@ -71,7 +72,7 @@ name_to_addr(const char *address, struct sockaddr_in *saddr)
 		freeaddrinfo(res);
 	} else {
 		ulog_err("getaddrinfo(%s): %s\n", address, gai_strerror(error));
-        }
+	}
 	return (error);
 }
 
@@ -129,7 +130,8 @@ generic_set_socket_buffer(int fd, int size)
 	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&w, sizeof (w))) {
 		ulog_warn("Cannot set SO_SNDBUF");
 	}
-	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&w, sizeof (w)) !=0) {
+	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&w, sizeof (w))
+		!= 0) {
 		ulog_warn(" Cannot set SO_RCVBUF");
 	}
 
@@ -154,7 +156,7 @@ generic_verify_socket_buffer(int fd, int wndsz)
 	}
 	diff = 1.0*nwsz/wndsz;
 	if (diff < 0.9 || diff > 1.1) {
-		ulog_warn("%s: %.2fKB (Requested:%.2fKB)", "SNDBUF",	
+		ulog_warn("%s: %.2fKB (Requested:%.2fKB)", "SNDBUF",
 			nwsz/1024.0, wndsz/1024.0);
 	} else {
 		uperf_info("Set Send buffer size to %.2fKB\n", nwsz/1024.0);

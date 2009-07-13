@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 #include <string.h>
@@ -58,8 +59,8 @@ window_width()
 		struct winsize w;
 		if (ioctl(fileno(stdout), TIOCGWINSZ, &w) != -1) {
 			width = (w.ws_col ? w.ws_col : 80);
-                    if (width > 128)
-                       width = 128;
+		if (width > 128)
+			width = 128;
 		} else {
 			width = 80;
 		}
@@ -105,7 +106,7 @@ print_summary(newstats_t *ns, int same_line)
 	ops = ns->count/time_s;
 	if (ENABLED_FENXI_PRINT(options)) {
 		printf("%s %.2f MB in %.2f secs = %.2f Mbps or %10.2f ops\n",
-			ns->name, ns->size/1024.0/1024.0, 
+			ns->name, ns->size/1024.0/1024.0,
 			time/1.0e+9, throughput/1.0e+6, ops);
 		return;
 	}

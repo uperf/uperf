@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -92,7 +93,7 @@ create_protocols(uperf_shm_t *shm, int nthr, flowop_t *f,
 			sl[i].port[protocol] = sl[0].port[protocol];
 		}
 		return (UPERF_SUCCESS);
-	} 
+	}
 
 	/* One port per thread */
 	for (i = 0; i < nthr; i++) {
@@ -222,4 +223,3 @@ ensure_write(protocol_t *p, void *buffer, int size)
 	}
 	return (sz);
 }
-

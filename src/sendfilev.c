@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 
@@ -39,7 +40,7 @@
 #endif /* HAVE_ALLOCA_H */
 #ifdef HAVE_SYS_SENDFILE_H
 #include <sys/sendfile.h>
-#endif /* HAVE_SYS_SENDFILE_H*/
+#endif /* HAVE_SYS_SENDFILE_H */
 
 #include "uperf.h"
 

@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -94,33 +95,28 @@ rate_execute_1s(void *a, void *b, int rate, int (*callback)(void *, void *))
 	}
 }
 
-/*
- * This function is busy wait version of 
- * rate_execute_1s
- */
+/* This function is busy wait version of rate_execute_1s */
 int
-rate_execute_1s_busywait(void *a, void *b, int rate, int (*callback)(void *, void *))
+rate_execute_1s_busywait(void *a, void *b, int rate,
+	int (*callback)(void *, void *))
 {
-        hrtime_t begin, now;
-        int i, ret, interval;
+	hrtime_t begin, now;
+	int i = 0;
+	int ret = 0;
+	int interval = 1.0e+9/rate;
 
-        assert(rate > 0);
+	assert(rate > 0);
+	begin = GETHRTIME();
+	now = GETHRTIME();
 
-        begin = GETHRTIME();
-        now = GETHRTIME();
-
-        ret = 0;
-        i = 0;
-        interval = 1.0e+9/rate;
-        while ((now - begin) < 1.0e+9) {
-                if ((now - begin) >= (interval * i)) {
-                        if ((ret = callback(a, b)) != 0) {
-                                return (ret);
-                        }
-                        i++;
-                }
-                now = GETHRTIME();
-        }
-        return ret;
+	while ((now - begin) < 1.0e+9) {
+		if ((now - begin) >= (interval * i)) {
+			if ((ret = callback(a, b)) != 0) {
+				return (ret);
+			}
+			i++;
+		}
+		now = GETHRTIME();
+	}
+	return (ret);
 }
-

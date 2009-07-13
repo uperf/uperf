@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -114,7 +115,7 @@ recv_goodbye(goodbye_t *g, protocol_t *p, int timeout)
 	assert(p);
 	assert(g);
 
-	bzero(g, sizeof(goodbye_t));
+	(void) bzero(g, sizeof (goodbye_t));
 	if (safe_read(p->fd, (char *)g, sizeof (goodbye_t), timeout)
 	    != UPERF_SUCCESS) {
 		uperf_info("Error exchanging goodbye's with client ");

@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -228,7 +229,7 @@ parse(char *buffer, struct symbol *list)
 			pt = curr->symbol;
 		}
 
-		if ((token[0] == '>') && (token[1] == '\0')){
+		if ((token[0] == '>') && (token[1] == '\0')) {
 			free(token);
 			continue;
 		}

@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -185,7 +186,7 @@ strand_get_connection(strand_t *s, int id)
 
 	assert(s);
 	if (!s->cpool)
-		return (NULL);	
+		return (NULL);
 
 	/* check cache */
 	for (i = 0; i < s->ccache_size; i++) {
@@ -234,7 +235,7 @@ strand_fini(strand_t *s)
 		p = ptmp;
 	}
 	sil = s->slave_list;
-	while(sil) {
+	while (sil) {
 		slave_info_list_t *q = sil->next;
 		free(sil);
 		sil = q;
@@ -294,7 +295,7 @@ signal_strand(strand_t *s, int signal)
 
 	if (STRAND_IS_PROCESS(s)) {
 		pid_t pid =  s->pid;
-		uperf_info("Sending signal %d(%s) to %d\n", signal, 
+		uperf_info("Sending signal %d(%s) to %d\n", signal,
 			signal == SIGKILL ? "SIGKILL": "SIGUSR2",
 			pid);
 #ifndef UPERF_SOLARIS
@@ -312,7 +313,7 @@ signal_strand(strand_t *s, int signal)
 			signal = SIGUSR1;
 		}
 
-		uperf_info("Sending signal %s to %lu\n", 
+		uperf_info("Sending signal %s to %lu\n",
 			signal == SIGUSR1 ? "SIGUSR1(kill)": "SIGUSR2",
 			s->tid);
 		errno = 0;
@@ -364,7 +365,6 @@ strand_killall(uperf_shm_t *shm)
 		strand_t *s = shm_get_strand(shm, i);
 		signal_strand(s, SIGKILL);
 	}
-		
 	return (0);
 }
 

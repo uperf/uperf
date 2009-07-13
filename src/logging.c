@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -174,11 +175,11 @@ ulog(uperf_msg_type type, int myerrno, char *fmt, ...)
 {
 	char buf[ERR_STR_LEN];
 	va_list ap;
-	
+
 	va_start(ap, fmt);
 	(void) vsnprintf(buf, sizeof (buf), fmt, ap);
 	va_end(ap);
-	
+
 	return (uperf_log_msg(type, myerrno, buf));
 }
 

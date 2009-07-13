@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 /*
@@ -114,7 +115,7 @@ tcp_accept(protocol_t *p, void *options)
 {
 	protocol_t *newp;
 
-	if((newp = protocol_tcp_new()) == NULL) {
+	if ((newp = protocol_tcp_new()) == NULL) {
 		return (NULL);
 	}
 	if (generic_accept(p, newp, options) != 0)

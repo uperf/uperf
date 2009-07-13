@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Sun Microsystems
+/*
+ * Copyright (C) 2008 Sun Microsystems
  *
  * This file is part of uperf.
  *
@@ -12,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with uperf.  If not, see <http://www.gnu.org/licenses/>.
+ * along with uperf.  If not, see http://www.gnu.org/licenses/.
  */
 
 /*
@@ -113,8 +114,8 @@ flowop_rw(strand_t *s, flowop_t *f)
 		if (SIGNALLED(s))
 			return (-1);
 		n = func(f->connection, s->buffer + sz, fo->size - sz, fo);
-
-		/* read(2) and write(2) can return 0 in case of a
+		/*
+		 * read(2) and write(2) can return 0 in case of a
 		 * hangup. For this case, we just assume that the
 		 * duration has expired and return
 		 */
