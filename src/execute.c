@@ -30,7 +30,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include "uperf.h"
-#include "protocol.h"
 #include "sync.h"
 #include "logging.h"
 #include "main.h"
