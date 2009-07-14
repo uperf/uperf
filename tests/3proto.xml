@@ -4,7 +4,7 @@
         <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol=udp"/>
         </transaction>
-        <transaction iterations="10">
+        <transaction duration="5s">
             <flowop type="write" options="size=512"/>
         </transaction>
         <transaction>
@@ -13,7 +13,7 @@
         <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol=tcp"/>
         </transaction>
-        <transaction iterations="10">
+        <transaction duration="5">
             <flowop type="read" options="size=256"/>
         </transaction>
         <transaction>
@@ -22,7 +22,7 @@
         <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol=sctp"/>
         </transaction>
-        <transaction iterations="10">
+        <transaction duration="5">
             <flowop type="read" options="size=256"/>
             <flowop type="write" options="size=512"/>
         </transaction>
