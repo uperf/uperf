@@ -102,6 +102,19 @@ AC_LINK_IFELSE([[#include <sys/sendfile.h>
 		], 
 		[AC_MSG_RESULT(no)
 		])
+# Earlier versions of FreeBSD did not support PTHREAD_PROCESS_SHARED
+AM_CONDITIONAL([HAVE_PTHREAD_PROCESS_SHARED], [true])
+AC_MSG_CHECKING(if we can have PTHREAD_PROCESS_SHARED)
+AC_COMPILE_IFELSE([[#include <pthread.h>
+		int i=PTHREAD_PROCESS_SHARED;]],
+		[AC_MSG_RESULT(yes)
+	  	 ##AC_DEFINE([USE_],[1],[Have PTHREAD_PROCESS_SHARED])
+		], 
+		[
+		 AC_MSG_RESULT(no)
+		 AC_DEFINE([STRAND_THREAD_ONLY], [1], [Use proc])
+		 AM_CONDITIONAL([HAVE_PTHREAD_PROCESS_SHARED], [false])
+		])
 
 AM_CONDITIONAL([HAVE_CPC], [false])
 AM_CONDITIONAL([HAVE_KSTAT], [false])

@@ -657,6 +657,8 @@ HAVE_KSTAT_FALSE
 HAVE_KSTAT_TRUE
 HAVE_CPC_FALSE
 HAVE_CPC_TRUE
+HAVE_PTHREAD_PROCESS_SHARED_FALSE
+HAVE_PTHREAD_PROCESS_SHARED_TRUE
 RANLIB
 am__fastdepCC_FALSE
 am__fastdepCC_TRUE
@@ -4111,6 +4113,67 @@ fi
 rm -rf conftest.dSYM
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
+# Earlier versions of FreeBSD did not support PTHREAD_PROCESS_SHARED
+ if true; then
+  HAVE_PTHREAD_PROCESS_SHARED_TRUE=
+  HAVE_PTHREAD_PROCESS_SHARED_FALSE='#'
+else
+  HAVE_PTHREAD_PROCESS_SHARED_TRUE='#'
+  HAVE_PTHREAD_PROCESS_SHARED_FALSE=
+fi
+
+{ $as_echo "$as_me:$LINENO: checking if we can have PTHREAD_PROCESS_SHARED" >&5
+$as_echo_n "checking if we can have PTHREAD_PROCESS_SHARED... " >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+#include <pthread.h>
+		int i=PTHREAD_PROCESS_SHARED;
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  { $as_echo "$as_me:$LINENO: result: yes" >&5
+$as_echo "yes" >&6; }
+	  	 ##AC_DEFINE([USE_],[1],[Have PTHREAD_PROCESS_SHARED])
+
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+		 { $as_echo "$as_me:$LINENO: result: no" >&5
+$as_echo "no" >&6; }
+
+cat >>confdefs.h <<\_ACEOF
+#define STRAND_THREAD_ONLY 1
+_ACEOF
+
+		  if false; then
+  HAVE_PTHREAD_PROCESS_SHARED_TRUE=
+  HAVE_PTHREAD_PROCESS_SHARED_FALSE='#'
+else
+  HAVE_PTHREAD_PROCESS_SHARED_TRUE='#'
+  HAVE_PTHREAD_PROCESS_SHARED_FALSE=
+fi
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
  if false; then
   HAVE_CPC_TRUE=
@@ -6771,6 +6834,20 @@ if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   { { $as_echo "$as_me:$LINENO: error: conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_PTHREAD_PROCESS_SHARED_TRUE}" && test -z "${HAVE_PTHREAD_PROCESS_SHARED_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"HAVE_PTHREAD_PROCESS_SHARED\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"HAVE_PTHREAD_PROCESS_SHARED\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_PTHREAD_PROCESS_SHARED_TRUE}" && test -z "${HAVE_PTHREAD_PROCESS_SHARED_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"HAVE_PTHREAD_PROCESS_SHARED\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"HAVE_PTHREAD_PROCESS_SHARED\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi

@@ -157,14 +157,6 @@ typedef enum {
 hrtime_t GETHRTIME();
 #endif /* HAVE_GETHRTIME */
 
-#ifdef UPERF_FREEBSD
-/* 
- * FreeBSD does not support PTHREAD_PROCESS_SHARED mutexes or rwlocks,
- * so ensure that it uses threads only, and not processes
-*/
-#define STRAND_THREAD_ONLY 1
-#endif /* UPERF_FREEBSD */
-
 /* Forward Declarations */
 typedef struct uperf_shm uperf_shm_t;
 typedef struct flowop_options flowop_options_t;
