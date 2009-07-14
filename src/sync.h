@@ -23,6 +23,8 @@
 #ifndef	_SYNC_H
 #define	_SYNC_H
 
+#include <pthread.h>
+
 #define	BARRIER_REACHED(a)		!barrier_notreached((a))
 #define	BARRIER_NOTREACHED(a)		barrier_notreached((a))
 

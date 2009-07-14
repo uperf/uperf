@@ -661,8 +661,13 @@ build_worklist(struct symbol *list)
 			curr_grp->nthreads = string2int(list->symbol);
 			curr_grp->strand_flag |= STRAND_TYPE_THREAD;
 			break;
-#ifndef  STRAND_THREAD_ONLY
 		case TOKEN_NPROCESSES:
+#ifdef  STRAND_THREAD_ONLY
+			snprintf(err, sizeof (err),
+				"Processes are not supported on this platform");
+			add_error(err);
+			return (NULL);
+#else
 			curr_grp->nthreads = string2int(list->symbol);
 			curr_grp->strand_flag |= STRAND_TYPE_PROCESS;
 			break;
