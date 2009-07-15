@@ -26,6 +26,9 @@ case "$CC" in
 
 esac
 
+AM_CONDITIONAL([HAVE_PTHREAD_PROCESS_SHARED], [true])
+AM_CONDITIONAL([HAVE_CPC], [false])
+AM_CONDITIONAL([HAVE_KSTAT], [false])
 
 #enable these by default
 netstat_default="yes"
@@ -102,22 +105,38 @@ AC_LINK_IFELSE([[#include <sys/sendfile.h>
 		], 
 		[AC_MSG_RESULT(no)
 		])
-# Earlier versions of FreeBSD did not support PTHREAD_PROCESS_SHARED
-AM_CONDITIONAL([HAVE_PTHREAD_PROCESS_SHARED], [true])
-AC_MSG_CHECKING(if we can have PTHREAD_PROCESS_SHARED)
-AC_COMPILE_IFELSE([[#include <pthread.h>
-		int i=PTHREAD_PROCESS_SHARED;]],
-		[AC_MSG_RESULT(yes)
-	  	 ##AC_DEFINE([USE_],[1],[Have PTHREAD_PROCESS_SHARED])
-		], 
-		[
-		 AC_MSG_RESULT(no)
-		 AC_DEFINE([STRAND_THREAD_ONLY], [1], [Use proc])
-		 AM_CONDITIONAL([HAVE_PTHREAD_PROCESS_SHARED], [false])
-		])
 
-AM_CONDITIONAL([HAVE_CPC], [false])
-AM_CONDITIONAL([HAVE_KSTAT], [false])
+# Check for PTHREAD_PROCESS_SHARED. Have to run it to see if it works
+# as its declared, but does not work on FreeBSD
+LIBS="$UPERF_LIBS"
+AC_MSG_CHECKING(if we can have working PTHREAD_PROCESS_SHARED)
+process_shared_works=yes
+AC_TRY_RUN([
+#include <pthread.h>
+#include <sys/types.h>
+int
+main(int argc, char *argv[])
+{
+	pthread_rwlockattr_t rwattr;
+	pthread_rwlock_t barrier;
+	if (pthread_rwlockattr_init(&rwattr))
+		return (1);
+	if (pthread_rwlockattr_setpshared(&rwattr, PTHREAD_PROCESS_SHARED))
+		return (1);
+	if (pthread_rwlock_init(&barrier, &rwattr))
+		return (1);
+	if (pthread_rwlock_wrlock(&barrier))
+		return (1);
+	if (pthread_rwlock_unlock(&barrier))
+		return (1);
+	return (0);
+}],[AC_MSG_RESULT(yes)],
+   [
+      AC_MSG_RESULT(no)
+      AC_DEFINE([STRAND_THREAD_ONLY], [1], [Use only threads]) 
+      AM_CONDITIONAL([HAVE_PTHREAD_PROCESS_SHARED], [false])
+   ]
+)
 # Checks for libraries.
 AC_MSG_CHECKING(whether to enable cpu performance counters support?)
 AC_ARG_ENABLE(cpc, 
@@ -163,8 +182,7 @@ AC_CHECK_LIB([kstat], [kstat_open],
 	  UPERF_LIBS="$UPERF_LIBS -lkstat"
 	  AM_CONDITIONAL([ENABLE_NETSTAT], [true])
 	],
-	[ AC_MSG_RESULT(no)
-	  AM_CONDITIONAL([ENABLE_NETSTAT], [false])
+	[ AM_CONDITIONAL([ENABLE_NETSTAT], [false])
 	]
 )
 
