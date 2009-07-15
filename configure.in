@@ -26,7 +26,7 @@ case "$CC" in
 
 esac
 
-AM_CONDITIONAL([HAVE_PTHREAD_PROCESS_SHARED], [true])
+AM_CONDITIONAL([HAVE_PROCESSES], [true])
 AM_CONDITIONAL([HAVE_CPC], [false])
 AM_CONDITIONAL([HAVE_KSTAT], [false])
 
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
    [
       AC_MSG_RESULT(no)
       AC_DEFINE([STRAND_THREAD_ONLY], [1], [Use only threads]) 
-      AM_CONDITIONAL([HAVE_PTHREAD_PROCESS_SHARED], [false])
+      AM_CONDITIONAL([HAVE_PROCESSES], [false])
    ]
 )
 # Checks for libraries.

@@ -657,8 +657,8 @@ HAVE_KSTAT_FALSE
 HAVE_KSTAT_TRUE
 HAVE_CPC_FALSE
 HAVE_CPC_TRUE
-HAVE_PTHREAD_PROCESS_SHARED_FALSE
-HAVE_PTHREAD_PROCESS_SHARED_TRUE
+HAVE_PROCESSES_FALSE
+HAVE_PROCESSES_TRUE
 RANLIB
 am__fastdepCC_FALSE
 am__fastdepCC_TRUE
@@ -3598,11 +3598,11 @@ $as_echo "$as_me: *** Setting flags for Sun Compiler ***" >&6;}
 esac
 
  if true; then
-  HAVE_PTHREAD_PROCESS_SHARED_TRUE=
-  HAVE_PTHREAD_PROCESS_SHARED_FALSE='#'
+  HAVE_PROCESSES_TRUE=
+  HAVE_PROCESSES_FALSE='#'
 else
-  HAVE_PTHREAD_PROCESS_SHARED_TRUE='#'
-  HAVE_PTHREAD_PROCESS_SHARED_FALSE=
+  HAVE_PROCESSES_TRUE='#'
+  HAVE_PROCESSES_FALSE=
 fi
 
  if false; then
@@ -4219,11 +4219,11 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
        if false; then
-  HAVE_PTHREAD_PROCESS_SHARED_TRUE=
-  HAVE_PTHREAD_PROCESS_SHARED_FALSE='#'
+  HAVE_PROCESSES_TRUE=
+  HAVE_PROCESSES_FALSE='#'
 else
-  HAVE_PTHREAD_PROCESS_SHARED_TRUE='#'
-  HAVE_PTHREAD_PROCESS_SHARED_FALSE=
+  HAVE_PROCESSES_TRUE='#'
+  HAVE_PROCESSES_FALSE=
 fi
 
 
@@ -6878,10 +6878,10 @@ $as_echo "$as_me: error: conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${HAVE_PTHREAD_PROCESS_SHARED_TRUE}" && test -z "${HAVE_PTHREAD_PROCESS_SHARED_FALSE}"; then
-  { { $as_echo "$as_me:$LINENO: error: conditional \"HAVE_PTHREAD_PROCESS_SHARED\" was never defined.
+if test -z "${HAVE_PROCESSES_TRUE}" && test -z "${HAVE_PROCESSES_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"HAVE_PROCESSES\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-$as_echo "$as_me: error: conditional \"HAVE_PTHREAD_PROCESS_SHARED\" was never defined.
+$as_echo "$as_me: error: conditional \"HAVE_PROCESSES\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -6899,10 +6899,10 @@ $as_echo "$as_me: error: conditional \"HAVE_KSTAT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${HAVE_PTHREAD_PROCESS_SHARED_TRUE}" && test -z "${HAVE_PTHREAD_PROCESS_SHARED_FALSE}"; then
-  { { $as_echo "$as_me:$LINENO: error: conditional \"HAVE_PTHREAD_PROCESS_SHARED\" was never defined.
+if test -z "${HAVE_PROCESSES_TRUE}" && test -z "${HAVE_PROCESSES_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"HAVE_PROCESSES\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-$as_echo "$as_me: error: conditional \"HAVE_PTHREAD_PROCESS_SHARED\" was never defined.
+$as_echo "$as_me: error: conditional \"HAVE_PROCESSES\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
