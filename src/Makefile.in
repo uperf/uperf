@@ -51,8 +51,12 @@ am__uperf_SOURCES_DIST = workorder.c strand.c execute.c \
 	flowops_library.c flowops.c common.c main.c slave.c stats.c \
 	handshake.c parse.c shm.c master.c print.c signals.c goodbye.c \
 	delay.c rate.c sendfilev.c logging.c netstat.c numbers.c \
-	sync.c protocol.c tcp.c generic.c hwcounter.c sctp.c ssl.c \
-	udp.c
+	sync.c protocol.c tcp.c generic.c common.h delay.h execute.h \
+	flowops.h flowops_library.h generic.h goodbye.h handshake.h \
+	hwcounter.h logging.h main.h netstat.h numbers.h parse.h \
+	print.h protocol.h rate.h sendfilev.h shm.h signals.h ssl.h \
+	stats.h strand.h sync.h uperf.h workorder.h hwcounter.c sctp.c \
+	ssl.c udp.c
 @HAVE_CPC_TRUE@am__objects_1 = hwcounter.$(OBJEXT)
 @SCTP_C_TRUE@am__objects_2 = sctp.$(OBJEXT)
 @SSL_C_TRUE@am__objects_3 = ssl.$(OBJEXT)
@@ -174,8 +178,12 @@ uperf_SOURCES = workorder.c strand.c execute.c flowops_library.c \
 	flowops.c common.c main.c slave.c stats.c handshake.c parse.c \
 	shm.c master.c print.c signals.c goodbye.c delay.c rate.c \
 	sendfilev.c logging.c netstat.c numbers.c sync.c protocol.c \
-	tcp.c generic.c $(am__append_1) $(am__append_2) \
-	$(am__append_3) $(am__append_4)
+	tcp.c generic.c common.h delay.h execute.h flowops.h \
+	flowops_library.h generic.h goodbye.h handshake.h hwcounter.h \
+	logging.h main.h netstat.h numbers.h parse.h print.h \
+	protocol.h rate.h sendfilev.h shm.h signals.h ssl.h stats.h \
+	strand.h sync.h uperf.h workorder.h $(am__append_1) \
+	$(am__append_2) $(am__append_3) $(am__append_4)
 uperf_LDADD = $(UPERF_LIBS)
 all: all-am
 
