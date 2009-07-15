@@ -604,6 +604,8 @@ releaseinfo:
 	echo $(TODAY)
 	@sed -e 's/version/'$(VERSION)'/'  -e 's/builddate/'$(TODAY)'/' release.template > release
 	cp release $(distdir)/release
+	cp server.pem $(distdir)/server.pem
+	cp client.pem $(distdir)/client.pem
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

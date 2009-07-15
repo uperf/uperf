@@ -1,6 +1,6 @@
 # uperf configure file
 # neel@sun.com
-AC_INIT(uPerf, 1.0.2,neel@sun.com)
+AC_INIT(uPerf, 1.0.3-beta,neel@sun.com)
 AC_CONFIG_SRCDIR([src/flowops.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -9,7 +9,7 @@ UPERF_LIBS="${UPERF_LIBS=}"
 UPERF_LIBS="$UPERF_LIBS -lpthread -lrt -lm"
 
 # Checks for programs.
-AM_INIT_AUTOMAKE(uperf, 1.0.2)
+AM_INIT_AUTOMAKE(uperf, 1.0.3-beta)
 AC_PROG_CC
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET

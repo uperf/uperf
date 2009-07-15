@@ -33,7 +33,7 @@ POST_UNINSTALL = :
 @HAVE_PROCESSES_TRUE@	test-ssize-flowop-count-dur.xml test-ssize-iperf.xml
 
 @SCTP_C_TRUE@am__append_2 = 01simple_sctp.xml 3proto.xml accept-sctp.xml multi_proto_connect.xml \
-@SCTP_C_TRUE@	throughput_sctp.xml
+@SCTP_C_TRUE@	throughput_sctp.xml 02_2proto1group.xml a.xml 
 
 @SSL_C_TRUE@am__append_3 = 01simple_ssl.xml
 @UDP_C_TRUE@am__append_4 = 01simple_udp.xml test_udp.xml
@@ -138,12 +138,12 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 TESTS_ENVIRONMENT = $(top_srcdir)/tests/test.sh $(top_srcdir)/src/uperf
 TESTS = unknown_proto.xml parse_err.xml 01simple_tcp.xml \
-	02two_groups.xml 02_2proto1group.xml accept-tcp.xml \
-	accept-connect.xml a.xml canfail.xml disconnect_iter.xml \
-	friendliness.xml high_connection_count.xml test_4groups.xml \
-	test_netperf.xml test-sendfilev-chunked.xml test-sendfile.xml \
-	test_send_recv.xml test-rate.xml $(am__append_1) \
-	$(am__append_2) $(am__append_3) $(am__append_4)
+	02two_groups.xml accept-tcp.xml accept-connect.xml canfail.xml \
+	disconnect_iter.xml friendliness.xml high_connection_count.xml \
+	test_4groups.xml test_netperf.xml test-sendfilev-chunked.xml \
+	test-sendfile.xml test_send_recv.xml test-rate.xml \
+	$(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 XFAIL_TESTS = unknown_proto.xml parse_err.xml
 all: all-am
 
