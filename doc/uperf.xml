@@ -504,11 +504,27 @@
     <title>Common profiles</title>
     <sect2>
       <title>One way throughput test</title>
-      <para></para>
+      <para>In a one way throughput test, we have one host transmitting
+          (or receiving) data from a client. Since we are interested in
+          in maximizing throughput, you need to transmit large messages
+          using multiple threads or processes. The following profile
+          demonstrates this. 
+     </para>
+     <para>
+      <programlisting>
+        <xi:include href="throughput.xml" parse="text"
+            xmlns:xi="http://www.w3.org/2001/XInclude" />
+      </programlisting>
+     </para>
     </sect2>
+
     <sect2>
       <title>Bi-directional test</title>
-      <para></para>
+      <para>In this test, we have both the peers transmitting(or receiving)
+            messages. On the master this means that there are N threads
+            transmitting, and N threads receving data. The following profile
+            shows how to do it.
+      </para>
     </sect2>
     <sect2>
       <title>Connection setup/teardown test</title>

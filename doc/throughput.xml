@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<profile name="OneWayThroughput">
+  <group nthreads="16">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=$proto" />
+        </transaction>
+        <transaction duration="30s">
+            <flowop type="write" options="size=64k"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+</profile>
