@@ -93,6 +93,12 @@
         </itemizedlist>
       </para>
     </sect2>
+
+    <sect2>
+      <title>Supported Platforms</title>
+      <para>Uperf is supported on Solaris, OpenSolaris, Linux and FreeBSD. 
+      </para> 
+    </sect2>
   </sect1>
   
   <sect1><title>Using uperf</title>
@@ -512,7 +518,7 @@
      </para>
      <para>
       <programlisting>
-        <xi:include href="throughput.xml" parse="text"
+<xi:include href="throughput.xml" parse="text"
             xmlns:xi="http://www.w3.org/2001/XInclude" />
       </programlisting>
      </para>
@@ -525,10 +531,28 @@
             transmitting, and N threads receving data. The following profile
             shows how to do it.
       </para>
+     <para>
+      <programlisting>
+<xi:include href="bidirectional.xml" parse="text"
+            xmlns:xi="http://www.w3.org/2001/XInclude" />
+      </programlisting>
+     </para>
     </sect2>
+
     <sect2>
       <title>Connection setup/teardown test</title>
-      <para></para>
+      <para>
+       In this test we are interested in finding out how fast we can
+       setup and teardown network connections. The following profiles
+       shows how to do it
+      </para>
+     <para>
+      <programlisting>
+<xi:include href="../tests/canfail.xml" parse="text"
+            xmlns:xi="http://www.w3.org/2001/XInclude" />
+      </programlisting>
+     </para>
+ 
     </sect2>
     <sect2>
       <title>Throughput test with multiple hosts</title>
