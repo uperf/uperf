@@ -135,6 +135,8 @@ flowop_rw(strand_t *s, flowop_t *f)
 			return (-1);
 		}
 		sz += n;
+		if (FO_RANDOM_SIZE(fo))
+			break;
 	}
 
 	return (sz);
