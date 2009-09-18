@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<profile name="netperf">
+	<group nthreads="$nth">
+		<transaction iterations="1">
+			<flowop type="connect" options="localhost=$hostlo1 remotehost=$host1 protocol=rds wndsz=256k"/>
+		</transaction>
+		<transaction duration="$dur">
+			<flowop type="write" options="count=1 size=$msg_w"/>
+			<flowop type="read" options="count=1 size=$msg_r"/>	
+		</transaction>
+		<transaction iterations="1">
+			<flowop type="disconnect" />
+		</transaction>
+	</group>
+</profile>

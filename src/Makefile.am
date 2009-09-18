@@ -26,5 +26,8 @@ endif
 if UDP_C
 uperf_SOURCES += udp.c
 endif
+if RDS_C
+uperf_SOURCES +=rds.c
+endif
 
 #uperf_CPPFLAGS = -DBUILD_DATE="\"$(BUILD_DATE)\""

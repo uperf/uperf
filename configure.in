@@ -33,6 +33,7 @@ AM_CONDITIONAL([HAVE_KSTAT], [false])
 #enable these by default
 netstat_default="yes"
 udp_default="yes"
+rds_default="no"
 sctp_default="yes"
 ssl_default="yes"
 cpc_default="yes"
@@ -245,6 +246,21 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+#check for rds 
+AC_MSG_CHECKING(whether to enable rds support)
+AC_ARG_ENABLE(rds,
+        AC_HELP_STRING([--enable-rds], [Turn on rds support]),,
+        enable_rds=$rds_default)
+if test "x$enable_rds" = "xyes"; then
+        AM_CONDITIONAL([RDS_C], [true])
+        AC_DEFINE([HAVE_RDS],[1],[Have rds])
+        AC_MSG_RESULT(yes)
+else
+        RDS_C=
+        AM_CONDITIONAL([RDS_C], [false])
+        AC_MSG_RESULT(no)
+fi
+
 AC_MSG_CHECKING(whether to enable sctp support)
 AC_ARG_ENABLE(sctp, 
 	AC_HELP_STRING([--enable-sctp],[Turn on sctp support ]),,
@@ -323,6 +339,7 @@ echo "+------------------------------------------------+"
 echo "| Supported Protocols:                           |"
 printf "|%20s:%5s%22s|\n" "TCP" "yes" " "
 printf "|%20s:%5s%22s|\n" "UDP" "${enable_udp}" " "
+printf "|%20s:%5s%22s|\n" "RDS" "${enable_rds}" " "
 printf "|%20s:%5s%22s|\n" "SSL" "${enable_ssl}" " "
 printf "|%20s:%5s%22s|\n" "SCTP" "${enable_sctp}" " "
 echo "+------------------------------------------------+"

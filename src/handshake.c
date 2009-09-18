@@ -122,6 +122,7 @@ rx_group_t(protocol_t *p, int my_endian)
 	group_t *worklist;
 	txn_t *txn, *tptr;
 	flowop_t *fptr;
+	char temp[256];
 
 	tptr = NULL;
 
@@ -159,7 +160,20 @@ rx_group_t(protocol_t *p, int my_endian)
 				free(f);
 				return (NULL);
 			}
-			(void) strlcpy(f->options.remotehost, p->host, 256);
+			/* If localhost is present, swap */
+			if (f->options.localhost[0] != '\0') {
+				/* Swap remotehost and localhost */
+				(void) strlcpy(temp,
+					f->options.remotehost, 256);
+				(void) strlcpy(f->options.remotehost,
+					f->options.localhost, 256);
+				(void) strlcpy(f->options.localhost, temp, 256);
+			}
+			else
+			{
+				(void) strlcpy(f->options.remotehost,
+						p->host, 256);
+			}
 			if (bitswap == 1)
 				f->type = BSWAP_32(f->type);
 			f->execute = flowop_get_execute_func(f->type);

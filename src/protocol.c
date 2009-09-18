@@ -43,6 +43,7 @@
 protocol_t *protocol_tcp_init(char *host, int port);
 protocol_t *protocol_udp_init(char *rhost, int port);
 void protocol_udp_fini(protocol_t *p);
+void protocol_rds_fini(protocol_t *p);
 
 int tcp_init(void *);
 int udp_init(void *);
@@ -52,8 +53,11 @@ protocol_t *protocol_tcp_create(char *, int);
 protocol_t *protocol_udp_create(char *, int);
 protocol_t *protocol_ssl_create(char *, int);
 protocol_t *protocol_sctp_create(char *, int);
+protocol_t *protocol_rds_create(char *, int);
+
 void generic_fini(protocol_t *);
 void udp_fini(protocol_t *);
+void rds_fini(protocol_t *);
 void ssl_fini(protocol_t *);
 
 typedef int (*init_func)(void *);
@@ -71,6 +75,9 @@ typedef struct pdetails {
 static proto_list_t plist[] = {
 	{ "tcp", PROTOCOL_TCP, NULL, protocol_tcp_create, generic_fini},
 	{ "udp", PROTOCOL_UDP, NULL, protocol_udp_create, udp_fini },
+#ifdef HAVE_RDS
+	{ "rds", PROTOCOL_RDS, NULL, protocol_rds_create, rds_fini },
+#endif /* HAVE_RDS */
 #ifdef HAVE_SCTP
 	{ "sctp", PROTOCOL_SCTP, NULL, protocol_sctp_create, generic_fini},
 #endif /* HAVE_SCTP */

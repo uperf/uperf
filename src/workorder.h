@@ -56,6 +56,7 @@ struct flowop_options {
 	uint64_t	poll_timeout;	/* nanoseconds */
 	char		dir[PATHMAX];
 	char		remotehost[MAXHOSTNAME];
+	char 		localhost[MAXHOSTNAME]; /* Localhost info as may be required in some protocols such as RDS */
 	char		engine[20];	/*bundled engine, openssl is default*/
 	char		cipher[50];	/*cipher suite*/
 	char		method[5];	/*ssl or tls, ssl is default*/

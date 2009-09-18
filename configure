@@ -644,6 +644,8 @@ SSL_C_FALSE
 SSL_C_TRUE
 SCTP_C_FALSE
 SCTP_C_TRUE
+RDS_C_FALSE
+RDS_C_TRUE
 UDP_C_FALSE
 UDP_C_TRUE
 DEBUG_FALSE
@@ -744,6 +746,7 @@ enable_cpc
 enable_netstat
 enable_debug
 enable_udp
+enable_rds
 enable_sctp
 with_ssl_includes
 with_ssl_libs
@@ -1390,6 +1393,7 @@ Optional Features:
   --enable-netstat        Collect network stats? default=yes
   --enable-debug          Turn on debugging
   --enable-udp            Turn on udp support
+  --enable-rds            Turn on rds support
   --enable-sctp           Turn on sctp support
   --enable-ssl            Turn on ssl support
 
@@ -3625,6 +3629,7 @@ fi
 #enable these by default
 netstat_default="yes"
 udp_default="yes"
+rds_default="no"
 sctp_default="yes"
 ssl_default="yes"
 cpc_default="yes"
@@ -6491,6 +6496,46 @@ fi
 $as_echo "no" >&6; }
 fi
 
+#check for rds
+{ $as_echo "$as_me:$LINENO: checking whether to enable rds support" >&5
+$as_echo_n "checking whether to enable rds support... " >&6; }
+# Check whether --enable-rds was given.
+if test "${enable_rds+set}" = set; then
+  enableval=$enable_rds;
+else
+  enable_rds=$rds_default
+fi
+
+if test "x$enable_rds" = "xyes"; then
+         if true; then
+  RDS_C_TRUE=
+  RDS_C_FALSE='#'
+else
+  RDS_C_TRUE='#'
+  RDS_C_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_RDS 1
+_ACEOF
+
+        { $as_echo "$as_me:$LINENO: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+        RDS_C=
+         if false; then
+  RDS_C_TRUE=
+  RDS_C_FALSE='#'
+else
+  RDS_C_TRUE='#'
+  RDS_C_FALSE=
+fi
+
+        { $as_echo "$as_me:$LINENO: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
 { $as_echo "$as_me:$LINENO: checking whether to enable sctp support" >&5
 $as_echo_n "checking whether to enable sctp support... " >&6; }
 # Check whether --enable-sctp was given.
@@ -6980,6 +7025,20 @@ if test -z "${UDP_C_TRUE}" && test -z "${UDP_C_FALSE}"; then
   { { $as_echo "$as_me:$LINENO: error: conditional \"UDP_C\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"UDP_C\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${RDS_C_TRUE}" && test -z "${RDS_C_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"RDS_C\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"RDS_C\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${RDS_C_TRUE}" && test -z "${RDS_C_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"RDS_C\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"RDS_C\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -8137,22 +8196,21 @@ $as_echo "$as_me: error: could not create -" >&2;}
    { (exit 1); exit 1; }; }
   fi
 # Compute "$ac_file"'s index in $config_headers.
-_am_arg="$ac_file"
 _am_stamp_count=1
 for _am_header in $config_headers :; do
   case $_am_header in
-    $_am_arg | $_am_arg:* )
+    "$ac_file" | "$ac_file":* )
       break ;;
     * )
       _am_stamp_count=`expr $_am_stamp_count + 1` ;;
   esac
 done
-echo "timestamp for $_am_arg" >`$as_dirname -- "$_am_arg" ||
-$as_expr X"$_am_arg" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$_am_arg" : 'X\(//\)[^/]' \| \
-	 X"$_am_arg" : 'X\(//\)$' \| \
-	 X"$_am_arg" : 'X\(/\)' \| . 2>/dev/null ||
-$as_echo X"$_am_arg" |
+echo "timestamp for "$ac_file"" >`$as_dirname -- "$ac_file" ||
+$as_expr X"$ac_file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$ac_file" : 'X\(//\)[^/]' \| \
+	 X"$ac_file" : 'X\(//\)$' \| \
+	 X"$ac_file" : 'X\(/\)' \| . 2>/dev/null ||
+$as_echo X"$ac_file" |
     sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{
 	    s//\1/
 	    q
@@ -8179,28 +8237,18 @@ $as_echo "$as_me: executing $ac_file commands" >&6;}
 
 
   case $ac_file$ac_mode in
-    "depfiles":C) test x"$AMDEP_TRUE" != x"" || {
-  # Autoconf 2.62 quotes --file arguments for eval, but not when files
-  # are listed without --file.  Let's play safe and only enable the eval
-  # if we detect the quoting.
-  case $CONFIG_FILES in
-  *\'*) eval set x "$CONFIG_FILES" ;;
-  *)   set x $CONFIG_FILES ;;
-  esac
-  shift
-  for mf
-  do
-    # Strip MF so we end up with the name of the file.
-    mf=`echo "$mf" | sed -e 's/:.*$//'`
-    # Check whether this is an Automake generated Makefile or not.
-    # We used to match only the files named `Makefile.in', but
-    # some people rename them; so instead we look at the file content.
-    # Grep'ing the first line is not enough: some people post-process
-    # each Makefile.in and add a new line on top of each file to say so.
-    # Grep'ing the whole file is not good either: AIX grep has a line
-    # limit of 2048, but all sed's we know have understand at least 4000.
-    if sed -n 's,^#.*generated by automake.*,X,p' "$mf" | grep X >/dev/null 2>&1; then
-      dirpart=`$as_dirname -- "$mf" ||
+    "depfiles":C) test x"$AMDEP_TRUE" != x"" || for mf in $CONFIG_FILES; do
+  # Strip MF so we end up with the name of the file.
+  mf=`echo "$mf" | sed -e 's/:.*$//'`
+  # Check whether this is an Automake generated Makefile or not.
+  # We used to match only the files named `Makefile.in', but
+  # some people rename them; so instead we look at the file content.
+  # Grep'ing the first line is not enough: some people post-process
+  # each Makefile.in and add a new line on top of each file to say so.
+  # Grep'ing the whole file is not good either: AIX grep has a line
+  # limit of 2048, but all sed's we know have understand at least 4000.
+  if sed 10q "$mf" | grep '^#.*generated by automake' > /dev/null 2>&1; then
+    dirpart=`$as_dirname -- "$mf" ||
 $as_expr X"$mf" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
 	 X"$mf" : 'X\(//\)[^/]' \| \
 	 X"$mf" : 'X\(//\)$' \| \
@@ -8223,28 +8271,28 @@ $as_echo X"$mf" |
 	    q
 	  }
 	  s/.*/./; q'`
-    else
-      continue
-    fi
-    # Extract the definition of DEPDIR, am__include, and am__quote
-    # from the Makefile without running `make'.
-    DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
-    test -z "$DEPDIR" && continue
-    am__include=`sed -n 's/^am__include = //p' < "$mf"`
-    test -z "am__include" && continue
-    am__quote=`sed -n 's/^am__quote = //p' < "$mf"`
-    # When using ansi2knr, U may be empty or an underscore; expand it
-    U=`sed -n 's/^U = //p' < "$mf"`
-    # Find all dependency output files, they are included files with
-    # $(DEPDIR) in their names.  We invoke sed twice because it is the
-    # simplest approach to changing $(DEPDIR) to its actual value in the
-    # expansion.
-    for file in `sed -n "
-      s/^$am__include $am__quote\(.*(DEPDIR).*\)$am__quote"'$/\1/p' <"$mf" | \
-	 sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g' -e 's/\$U/'"$U"'/g'`; do
-      # Make sure the directory exists.
-      test -f "$dirpart/$file" && continue
-      fdir=`$as_dirname -- "$file" ||
+  else
+    continue
+  fi
+  # Extract the definition of DEPDIR, am__include, and am__quote
+  # from the Makefile without running `make'.
+  DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
+  test -z "$DEPDIR" && continue
+  am__include=`sed -n 's/^am__include = //p' < "$mf"`
+  test -z "am__include" && continue
+  am__quote=`sed -n 's/^am__quote = //p' < "$mf"`
+  # When using ansi2knr, U may be empty or an underscore; expand it
+  U=`sed -n 's/^U = //p' < "$mf"`
+  # Find all dependency output files, they are included files with
+  # $(DEPDIR) in their names.  We invoke sed twice because it is the
+  # simplest approach to changing $(DEPDIR) to its actual value in the
+  # expansion.
+  for file in `sed -n "
+    s/^$am__include $am__quote\(.*(DEPDIR).*\)$am__quote"'$/\1/p' <"$mf" | \
+       sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g' -e 's/\$U/'"$U"'/g'`; do
+    # Make sure the directory exists.
+    test -f "$dirpart/$file" && continue
+    fdir=`$as_dirname -- "$file" ||
 $as_expr X"$file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
 	 X"$file" : 'X\(//\)[^/]' \| \
 	 X"$file" : 'X\(//\)$' \| \
@@ -8267,7 +8315,7 @@ $as_echo X"$file" |
 	    q
 	  }
 	  s/.*/./; q'`
-      { as_dir=$dirpart/$fdir
+    { as_dir=$dirpart/$fdir
   case $as_dir in #(
   -*) as_dir=./$as_dir;;
   esac
@@ -8308,11 +8356,10 @@ $as_echo X"$as_dir" |
   } || test -d "$as_dir" || { { $as_echo "$as_me:$LINENO: error: cannot create directory $as_dir" >&5
 $as_echo "$as_me: error: cannot create directory $as_dir" >&2;}
    { (exit 1); exit 1; }; }; }
-      # echo "creating $dirpart/$file"
-      echo '# dummy' > "$dirpart/$file"
-    done
+    # echo "creating $dirpart/$file"
+    echo '# dummy' > "$dirpart/$file"
   done
-}
+done
  ;;
 
   esac
@@ -8369,6 +8416,7 @@ echo "+------------------------------------------------+"
 echo "| Supported Protocols:                           |"
 printf "|%20s:%5s%22s|\n" "TCP" "yes" " "
 printf "|%20s:%5s%22s|\n" "UDP" "${enable_udp}" " "
+printf "|%20s:%5s%22s|\n" "RDS" "${enable_rds}" " "
 printf "|%20s:%5s%22s|\n" "SSL" "${enable_ssl}" " "
 printf "|%20s:%5s%22s|\n" "SCTP" "${enable_sctp}" " "
 echo "+------------------------------------------------+"

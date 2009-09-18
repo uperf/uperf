@@ -1,0 +1,10 @@
+RDS Support in Uperf
+====================
+
+RDS is a low overhead, low latency, high bandwidth, ultra reliable socket off-load driver and inter-processor communication protocol. RDS was initially contributed to the OpenIB community by Silverstorm Technologies and Oracle. RDS can now be used by multiple network protocol stacks such as TCP/IP, Infiniband, IWARP, etc.
+
+Since RDS support is currently available on very specific operating systems, RDS support is disabled by default. To compile a version of uperf which supports RDS, please use the --enable-rds flag in ./configure.
+
+To run a RDS test using Uperf please choose the rdstest.xml profile in the workloads directory. 
+
+

@@ -60,6 +60,9 @@
 /* Define to 1 if you have the `pthread_self' function. */
 #undef HAVE_PTHREAD_SELF
 
+/* Have rds */
+#undef HAVE_RDS
+
 /* Have sctp */
 #undef HAVE_SCTP
 
