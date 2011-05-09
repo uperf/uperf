@@ -301,8 +301,10 @@ netstat_snap(int snaptype)
  */
 #define	NETSTAT_HDR	"/usr/bin/netstat -bi"
 #define	NETSTAT_DEV	"/usr/bin/netstat -bi | grep Link"
-#define NETSTAT_SEP	" "
+#define	NETSTAT_SEP	" "
+#define	NETSTAT_ADDRLEN	17
 static int i_rbytes, i_rpkts, i_tbytes, i_tpkts;
+static int o_address;
 
 int
 netstat_init()
@@ -321,6 +323,7 @@ netstat_init()
 
 	fgets(buffer, 1024, f);
 
+	o_address = (int)(strstr(buffer, "Address") - buffer);
 	token = strtok(buffer, NETSTAT_SEP);
 	index = 0;
 	while (token) {
@@ -333,15 +336,18 @@ netstat_init()
 		} else if (strcmp(token, "Obytes") == 0) {
 			i_tbytes = index;
 		}
+		/* skip Address column */
+		if (strcmp(token, "Address") != 0) {
+			index++;
+		}
 		token = strtok(NULL, NETSTAT_SEP);
-		index++;
 	}
 	if ((i_rpkts == i_tpkts) || (i_rbytes == i_tbytes)) {
 		printf("Error parsing header from %s\n", NETSTAT_HDR);
 		printf("%d %d %d %d\n", i_rbytes, i_rpkts, i_tbytes, i_tpkts);
 		return (UPERF_FAILURE);
 	}
-	fclose(f);
+	pclose(f);
 
 	return (UPERF_SUCCESS);
 }
@@ -393,11 +399,9 @@ netstat_snap(int snaptype)
 		printf("Cannot open %s\n", NETSTAT_DEV);
 		return (UPERF_FAILURE);
 	}
-	/* ignore headers */
-	fgets(buffer, 1024, f);
-	fgets(buffer, 1024, f);
 
 	while (fgets(buffer, 1024, f) > 0) {
+		memset(buffer + o_address, ' ', NETSTAT_ADDRLEN);
 		strncpy(hdr, buffer, 1024);
 		interface = strtok(hdr, NETSTAT_SEP);
 
@@ -415,7 +419,7 @@ netstat_snap(int snaptype)
 			}
 		}
 	}
-	fclose(f);
+	pclose(f);
 
 	return (UPERF_SUCCESS);
 }
@@ -437,7 +441,7 @@ print_netstat()
 #endif /* HAVE_LIBKSTAT */
 
 	(void) uperf_line();
-	(void) printf("%-5s  %10s  %10s  %10s  %10s\n",
+	(void) printf("%-5s  %10s  %10s  %11s  %11s\n",
 	    "Nic", "opkts/s", "ipkts/s", "obits/s", "ibits/s");
 	for (i = 0; i < no_nics; i++) {
 		op = nics[i].s[1].tx_pkts - nics[i].s[0].tx_pkts;
@@ -447,10 +451,11 @@ print_netstat()
 		t =  (nics[i].s[1].stamp -  nics[i].s[0].stamp)/1.0e+9;
 		if (ip == 0 && op == 0)
 			continue;
-		(void) printf("%-5s  %10.0f  %10.0f ",
+		(void) printf("%-5s  %10.0f  %10.0f  ",
 		    nics[i].interface, op/t, ip/t);
-		PRINT_NUMb(ob*8/t, 10);
-		PRINT_NUMb(ib*8/t, 10);
+		PRINT_NUMb(ob*8/t, 11);
+		printf(" ");
+		PRINT_NUMb(ib*8/t, 11);
 		printf("\n");
 	}
 	(void) uperf_line();

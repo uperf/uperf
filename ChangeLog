@@ -1,3 +1,5 @@
+May 9 2011 neel
+* FreeBSD fixes contributed by Michael Tuexen
 Sep 18 2009 hiamitabha
 * Support for RDS added. To test RDS, you either need latest OpenSolaris or 
   any standard Linux flavor with the OFED stack.
