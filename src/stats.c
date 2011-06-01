@@ -33,15 +33,21 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include "uperf.h"
 #include "main.h"
 #include "workorder.h"
 #include "stats.h"
 #include "strand.h"
 
+#ifdef HAVE_MACH_ABSOLUTE_TIME
+#include <mach/mach.h>
+#include <mach/mach_time.h>
+#endif /* HAVE_MACH_ABSOLUTE_TIME */
+
 #ifdef USE_CPC
 #include "hwcounter.h"
-#endif
+#endif /* USE_CPC */
 #include "shm.h"
 
 extern options_t options;
@@ -61,6 +67,17 @@ GETHRTIME()
 	ret = now.tv_sec * SEC2NANOSEC + now.tv_nsec;
 
 	return (ret);
+}
+#elif HAVE_MACH_ABSOLUTE_TIME
+uint64_t
+GETHRTIME()
+{
+	static mach_timebase_info_data_t sTimebaseInfo;
+
+	if ( sTimebaseInfo.denom == 0 ) {
+		(void) mach_timebase_info(&sTimebaseInfo);
+	}
+	return mach_absolute_time() * sTimebaseInfo.numer/sTimebaseInfo.denom;
 }
 #else
 #error "Could not find gethrtime nor clock_gettime"

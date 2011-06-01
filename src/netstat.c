@@ -294,15 +294,24 @@ netstat_snap(int snaptype)
 }
 #endif /* UPERF_LINUX */
 
-#ifdef UPERF_FREEBSD
+#ifdef UPERF_FREEBSD || defined(UPERF_DARWIN)
 
+#ifdef UPERF_FREEBSD
 /*
- * Parse netstat -bi output to on FreeBSD
+ * Parse netstat -bi output to on FreeBSD & MacOS
  */
 #define	NETSTAT_HDR	"/usr/bin/netstat -bi"
 #define	NETSTAT_DEV	"/usr/bin/netstat -bi | grep Link"
 #define	NETSTAT_SEP	" "
 #define	NETSTAT_ADDRLEN	17
+#else
+/* UPERF_DARWIN */
+#define	NETSTAT_HDR	"/usr/sbin/netstat -bi"
+#define	NETSTAT_DEV	"/usr/sbin/netstat -bi | grep Link"
+#define	NETSTAT_SEP	" "
+#define	NETSTAT_ADDRLEN	17
+#endif
+
 static int i_rbytes, i_rpkts, i_tbytes, i_tpkts;
 static int o_address;
 
@@ -423,7 +432,7 @@ netstat_snap(int snaptype)
 
 	return (UPERF_SUCCESS);
 }
-#endif /* UPERF_FREEBSD */
+#endif /* UPERF_FREEBSD || UPERF_DARWIN */
 
 void
 print_netstat()

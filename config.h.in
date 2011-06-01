@@ -48,6 +48,9 @@
 /* Define to 1 if you have the <linux/unistd.h> header file. */
 #undef HAVE_LINUX_UNISTD_H
 
+/* Define to 1 if you have the `mach_absolute_time' function. */
+#undef HAVE_MACH_ABSOLUTE_TIME
+
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
@@ -168,6 +171,9 @@
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
 
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
@@ -176,6 +182,9 @@
 
 /* Use only threads */
 #undef STRAND_THREAD_ONLY
+
+/* Setting machine os to Darwin */
+#undef UPERF_DARWIN
 
 /* Setting machine os to FreeBSD */
 #undef UPERF_FREEBSD
