@@ -294,7 +294,7 @@ netstat_snap(int snaptype)
 }
 #endif /* UPERF_LINUX */
 
-#ifdef defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
+#if defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
 
 #ifdef UPERF_FREEBSD
 /*
