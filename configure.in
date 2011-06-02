@@ -75,7 +75,7 @@ case "$(uname -s)" in
 		AC_MSG_NOTICE([*** Darwin Machine ***])
 		AC_DEFINE([UPERF_DARWIN],[1],[Setting machine os to Darwin])
 		good_os="no"
-		sctp_default="yes"
+		sctp_default="no"
 		ssl_default="yes"
 		UPERF_LIBS="$UPERF_LIBS -lm"
 		CFLAGS="-D_GNU_SOURCE $CFLAGS"
@@ -131,6 +131,24 @@ main(int argc, char *argv[])
 {
 	pthread_rwlockattr_t rwattr;
 	pthread_rwlock_t barrier;
+	pthread_mutexattr_t attr;
+	pthread_mutex_t lock;
+
+	if (pthread_mutexattr_init(&attr)) {
+		return (1);
+	}
+	if (pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED)) {
+		return (1);
+	}
+	if (pthread_mutex_init(&lock, &attr)) {
+		return (1);
+	}
+	if (pthread_mutex_lock(&lock)) {
+		return (1);
+	}
+	if (pthread_mutex_unlock(&lock)) {
+		return (1);
+	}
 	if (pthread_rwlockattr_init(&rwattr))
 		return (1);
 	if (pthread_rwlockattr_setpshared(&rwattr, PTHREAD_PROCESS_SHARED))
