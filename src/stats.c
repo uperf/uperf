@@ -241,8 +241,8 @@ flush_history(strand_t *s)
 	}
 	for (i = 0; i < s->hsize; i++) {
 		history_t *h = &(s->history[i]);
-		fprintf(options.history_fd, "%6d %6d %2d %15lld %15lld\n",
-		    (int) s->pid, s->tid, h->type, h->etime, h->delta);
+		fprintf(options.history_fd, "%6d %6lu %2d %15lld %15lld\n",
+		    (int) s->pid, (unsigned long)s->tid, h->type, h->etime, h->delta);
 	}
 	s->hsize = 0;
 }

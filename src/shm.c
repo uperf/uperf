@@ -220,8 +220,8 @@ shm_init(workorder_t *w)
 	    MAP_SHARED | MAP_ANON, -1, 0);
 	if (shared == (void *)-1) {
 		char msg[1024];
-		(void) snprintf(msg, sizeof (msg), "mmap for size %d failed",
-		    shm_size);
+		(void) snprintf(msg, sizeof (msg), "mmap for size %lu failed",
+		    (unsigned long)shm_size);
 		perror(msg);
 		return (NULL);
 	}
