@@ -645,7 +645,7 @@ build_worklist(struct symbol *list)
 			}
 			curr_flowop->execute = flowop_get_execute_func(
 			    curr_flowop->type);
-			snprintf(curr_flowop->name, sizeof (curr_flowop->name),
+			snprintf(curr_flowop->name, sizeof (curr_flowop->name), "%s",
 			    list->symbol);
 			break;
 		case TOKEN_OPTIONS:
@@ -714,13 +714,13 @@ parse_app_profile(char *filename)
 		return (0);
 	}
 	if ((buffer = calloc(size, sizeof (char))) == NULL) {
-		fprintf(stderr, "Cannot malloc %ld bytes: %s\n", size,
+		fprintf(stderr, "Cannot malloc %ld bytes: %s\n", (long)size,
 			strerror(errno));
 		return (0);
 
 	}
 	if (read(fd, buffer, size) != size) {
-		fprintf(stderr, "Cannot read %ld bytes from %s: %s\n", size,
+		fprintf(stderr, "Cannot read %ld bytes from %s: %s\n", (long)size,
 			filename, strerror(errno));
 		return (0);
 	}
