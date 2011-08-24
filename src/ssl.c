@@ -133,7 +133,7 @@ file_present(char *file)
 		return (-1);
 	}
 	if (!S_ISREG(rbuf.st_mode)) {
-		printf("%s is not a regular file\n");
+		printf("%s is not a regular file\n", file);
 		return (-1);
 	}
 	return (0);
