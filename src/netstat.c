@@ -333,6 +333,10 @@ netstat_init()
 	fgets(buffer, 1024, f);
 
 	o_address = (int)(strstr(buffer, "Address") - buffer);
+#ifdef UPERF_DARWIN
+	/* Mac OS X 10.6 and 10.7 do not align the addresses correctly. */
+	o_address -= 2;
+#endif
 	token = strtok(buffer, NETSTAT_SEP);
 	index = 0;
 	while (token) {
