@@ -193,7 +193,7 @@ if test "x$enable_cpc" = "xyes"; then
           		AC_DEFINE([HAVE_CPC],[1],[Have libcpc ])
 	  		cpc="CPC version 1"
      	  		 #AC_MSG_RESULT(yes)
-			]
+			],
 	  		[ AM_CONDITIONAL([HAVE_CPC], [false])
 	  	        	cpc="Not supported"
           		  AC_DEFINE([HAVE_CPC],[0],[Have libcpc ])
