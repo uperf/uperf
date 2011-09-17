@@ -117,18 +117,9 @@ print_summary(newstats_t *ns, int same_line)
 	}
 	printf("%-6s ", ns->name);
 	PRINT_NUM(ns->size, 8);
-	printf("/%.2f(s) = ", time/1.0e+9);
+	printf("/%7.2f(s) = ", time/1.0e+9);
 	PRINT_NUMb(throughput, 12);
-	if (ns->count > 0) {
-		printf(" %10.0fop/s ", ops);
-		/*
-		 * double us_op = time / ns->count;
-		 * We can print us_op, but it is confusing when multiple threads
-		 * are present. Hence we do not print it.
-		 * PRINT_TIME(us_op, 12);
-		 * printf("/op");
-		 */
-	}
+	printf(" %10.0fop/s ", ops);
 	if (same_line == 0)
 		(void) printf("\n");
 	(void) fflush(stdout);
@@ -262,7 +253,7 @@ print_flowop_averages(uperf_shm_t *shm)
 void
 print_goodbye_stat_header()
 {
-	printf("\nRun Statistics\nHostname           Time        Data   \
+	printf("\nRun Statistics\nHostname            Time       Data   \
 Throughput   Operations      Errors\n");
 	uperf_line();
 }
@@ -304,7 +295,7 @@ print_difference(goodbye_stat_t local, goodbye_stat_t remote)
 	em = (100.0 * local.error)/local.count;
 	es = (100.0 * remote.error)/remote.count;
 	(void) uperf_line();
-	(void) printf("%-15s %7.2f%% %9.2f%% %11.2f%% %11.2f%% %11.2f%%\n\n",
+	(void) printf("%-15s %7.2f%% %9.2f%% %11.2f%% %11.2f%% %10.2f%%\n\n",
 		"Difference(%)",
 		ERR_PER(local.elapsed_time, remote.elapsed_time),
 		ERR_PER(local.bytes_xfer, remote.bytes_xfer),

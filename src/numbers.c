@@ -205,26 +205,27 @@ print_decimal(double value, int size, int is_bit)
 void
 adaptive_print_time(double value, int width)
 {
-	double newvalue;
 	char str[128];
-	/* 2 space for us/ms/ns/s,1 for '.', 1 for '\0' */
-	int acutal_width = width - 4;
+	int acutal_width;
 	int index = 0;
-	static char suffix[] = "nums";
-	char s = 's';
+	static char prefix[] = "num";
 	char format[16];
 
-	newvalue = value;
-	while ((newvalue >= pow(10, 3)) && (index < strlen(suffix) - 1)) {
+	if (width > 127) {
+		width = 127;
+	}
+	while ((value >= 1000.0) && (index < strlen(prefix))) {
 		index++;
-		newvalue = newvalue/1000.0;
+		value /= 1000.0;
 	}
-	if (index == strlen(suffix) - 1) { /* we have an extra space */
-		acutal_width++;
-		s = ' ';
+	if (index == strlen(prefix)) {
+		acutal_width = width - 1;
+		(void) snprintf(format, sizeof(format), "%%%d.%dfs", acutal_width, 2);
+		(void) snprintf(str, width + 1, format, value);
+	} else {
+		acutal_width = width - 2;
+		(void) snprintf(format, sizeof(format), "%%%d.%df%%cs", acutal_width, 2);
+		(void) snprintf(str, width + 1, format, value, prefix[index]);
 	}
-	(void) snprintf(format, sizeof (format), "%%%d.%df%%c%%c",
-			acutal_width, 2);
-	(void) snprintf(str, width, format, newvalue, suffix[index], s);
 	(void) printf("%*s ", width, str);
 }
