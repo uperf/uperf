@@ -229,13 +229,13 @@ netstat_parse(char line[], struct packet_stats *ps)
 	token = strtok(line, NETSTAT_SEP);
 	while (token) {
 		if (index == i_rbytes) {
-			ps->rx_bytes = atol(token);
+			ps->rx_bytes = atoll(token);
 		} else if (index == i_tbytes) {
-			ps->tx_bytes = atol(token);
+			ps->tx_bytes = atoll(token);
 		} else if (index == i_tpkts) {
-			ps->tx_pkts = atol(token);
+			ps->tx_pkts = atoll(token);
 		} else if (index == i_rpkts) {
-			ps->rx_pkts = atol(token);
+			ps->rx_pkts = atoll(token);
 		}
 		token = strtok(NULL, NETSTAT_SEP);
 		index++;
