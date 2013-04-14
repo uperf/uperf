@@ -293,7 +293,7 @@ slave_master(protocol_t *p)
 	g = shm->worklist;
 
 	if (strand_init_group(shm, g, 0) != UPERF_SUCCESS) {
-		uperf_error("error in strand_init_all");
+		uperf_error("error in strand_init_all\n");
 		slave_handshake_p2_failure("error in strand_init_all",
 		    p, 0);
 		free(shm);
@@ -302,7 +302,7 @@ slave_master(protocol_t *p)
 
 	if (shm->rx_no_slave_info > 0) {
 		if (slave_handshake_p2_complete(shm, p) != UPERF_SUCCESS) {
-			uperf_error("error in strand_init_all");
+			uperf_error("error in strand_init_all\n");
 			slave_handshake_p2_failure("error in strand_init_all",
 			    p, 0);
 			free(shm);

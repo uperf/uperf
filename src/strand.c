@@ -446,7 +446,7 @@ strand_run(void *sp)
 	}
 
 	if (setup_strand_signal() != UPERF_SUCCESS) {
-		uperf_error("Cannot setup signal handlers");
+		uperf_error("Cannot setup signal handlers\n");
 		return (NULL);
 	}
 	/* set the pid of the process, will be used in accessing the /proc */

@@ -120,7 +120,7 @@ get_multiplier(char *suffix)
 	case 'n':
 		return (1.0);
 	default:
-		uperf_error("%s not valid time suffin", suffix);
+		uperf_error("%s not valid time suffix\n", suffix);
 		return (-1.0);
 	}
 }

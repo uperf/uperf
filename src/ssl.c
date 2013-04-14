@@ -374,7 +374,7 @@ protocol_ssl_write(protocol_t * p, void *buffer, int size, void *options)
 static int
 protocol_ssl_undefined(protocol_t * p, void *options)
 {
-	uperf_error("Undefined function in protocol called ");
+	uperf_error("Undefined function in protocol called\n");
 	return (-1);
 }
 

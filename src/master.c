@@ -426,7 +426,7 @@ master_init(workorder_t *w)
 	shm->workorder = w;
 
 	if (strand_init_all(shm, w) != UPERF_SUCCESS) {
-		uperf_error("error in strand_init_all");
+		uperf_error("error in strand_init_all\n");
 		shm_fini(shm);
 		return (NULL);
 	}
@@ -464,7 +464,7 @@ spawn_strands_group(uperf_shm_t *shm, group_t *gp, int id)
 				s->pid = rc;
 			} else {
 				perror("fork");
-				uperf_error("fork failed");
+				uperf_error("fork failed\n");
 				return (1);
 			}
 		} else {
@@ -474,7 +474,7 @@ spawn_strands_group(uperf_shm_t *shm, group_t *gp, int id)
 					(void *) s);
 			if (rc) {
 				perror("pthread_create");
-				uperf_error("pthread_create failed");
+				uperf_error("pthread_create failed\n");
 				return (1);
 			}
 		}
