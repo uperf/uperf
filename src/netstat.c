@@ -128,7 +128,6 @@ netstat_init()
 	return (0);
 }
 
-
 void
 netstat_snap(int snaptype)
 {
@@ -189,8 +188,16 @@ netstat_init()
 		return (UPERF_FAILURE);
 	}
 	i_rbytes = i_rpkts = i_tbytes = i_tpkts = 0;
-	fgets(buffer, 1024, f); /* Ignore first line */
-	fgets(buffer, 1024, f);
+	/* Ignore first line */
+	if (fgets(buffer, 1024, f) == NULL) {
+		fclose(f);
+		return (UPERF_FAILURE);
+	}
+	if (fgets(buffer, 1024, f) == NULL) {
+		fclose(f);
+		return (UPERF_FAILURE);
+	}
+	fclose(f);
 
 	token = strtok(buffer, NETSTAT_SEP);
 	index = 0;
@@ -215,10 +222,10 @@ netstat_init()
 		printf("Error parsing header from %s\n", NETSTAT_DEV);
 		return (UPERF_FAILURE);
 	}
-	fclose(f);
 
 	return (UPERF_SUCCESS);
 }
+
 static int
 netstat_parse(char line[], struct packet_stats *ps)
 {
@@ -229,13 +236,13 @@ netstat_parse(char line[], struct packet_stats *ps)
 	token = strtok(line, NETSTAT_SEP);
 	while (token) {
 		if (index == i_rbytes) {
-			ps->rx_bytes = atoll(token);
+			ps->rx_bytes = strtoull(token, NULL, 10);
 		} else if (index == i_tbytes) {
-			ps->tx_bytes = atoll(token);
+			ps->tx_bytes = strtoull(token, NULL, 10);
 		} else if (index == i_tpkts) {
-			ps->tx_pkts = atoll(token);
+			ps->tx_pkts = strtoull(token, NULL, 10);
 		} else if (index == i_rpkts) {
-			ps->rx_pkts = atoll(token);
+			ps->rx_pkts = strtoull(token, NULL, 10);
 		}
 		token = strtok(NULL, NETSTAT_SEP);
 		index++;
@@ -244,10 +251,12 @@ netstat_parse(char line[], struct packet_stats *ps)
 
 	return (UPERF_SUCCESS);
 }
+
 static int
 find_nic(char *name)
 {
 	int i;
+
 	for (i = 0; i < no_nics; i++)
 		if (strncmp(nics[i].interface, name, INTERFACE_LEN) == 0)
 			return (i);
@@ -267,8 +276,14 @@ netstat_snap(int snaptype)
 		return (UPERF_FAILURE);
 	}
 	/* ignore headers */
-	fgets(buffer, 1024, f);
-	fgets(buffer, 1024, f);
+	if (fgets(buffer, 1024, f) == NULL) {
+		fclose(f);
+		return (UPERF_FAILURE);
+	}
+	if (fgets(buffer, 1024, f) == NULL) {
+		fclose(f);
+		return (UPERF_FAILURE);
+	}
 
 	while (fgets(buffer, 1024, f) > 0) {
 		strncpy(hdr, buffer, 1024);
@@ -330,7 +345,11 @@ netstat_init()
 	}
 	i_rbytes = i_rpkts = i_tbytes = i_tpkts = 0;
 
-	fgets(buffer, 1024, f);
+	if (fgets(buffer, 1024, f) == NULL) {
+		pclose(f);
+		return (UPERF_FAILURE);
+	}
+	pclose(f);
 
 	o_address = (int)(strstr(buffer, "Address") - buffer);
 #ifdef UPERF_DARWIN
@@ -360,10 +379,10 @@ netstat_init()
 		printf("%d %d %d %d\n", i_rbytes, i_rpkts, i_tbytes, i_tpkts);
 		return (UPERF_FAILURE);
 	}
-	pclose(f);
 
 	return (UPERF_SUCCESS);
 }
+
 static int
 netstat_parse(char line[], struct packet_stats *ps)
 {
@@ -374,13 +393,13 @@ netstat_parse(char line[], struct packet_stats *ps)
 	token = strtok(line, NETSTAT_SEP);
 	while (token) {
 		if (index == i_rbytes) {
-			ps->rx_bytes = atol(token);
+			ps->rx_bytes = strtoull(token, NULL, 10);
 		} else if (index == i_tbytes) {
-			ps->tx_bytes = atol(token);
+			ps->tx_bytes = strtoull(token, NULL, 10);
 		} else if (index == i_tpkts) {
-			ps->tx_pkts = atol(token);
+			ps->tx_pkts = strtoull(token, NULL, 10);
 		} else if (index == i_rpkts) {
-			ps->rx_pkts = atol(token);
+			ps->rx_pkts = strtoull(token, NULL, 10);
 		}
 		token = strtok(NULL, NETSTAT_SEP);
 		index++;
@@ -389,10 +408,12 @@ netstat_parse(char line[], struct packet_stats *ps)
 
 	return (UPERF_SUCCESS);
 }
+
 static int
 find_nic(char *name)
 {
 	int i;
+
 	for (i = 0; i < no_nics; i++)
 		if (strncmp(nics[i].interface, name, INTERFACE_LEN) == 0)
 			return (i);
