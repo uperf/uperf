@@ -60,15 +60,29 @@
 #define	USE_POLL_ACCEPT	1
 #define	LISTENQ		10240	/* 2nd argument to listen() */
 #define	TIMEOUT		1200000	/* Argument to poll */
-#define	SOCK_PORT(sin)	((sin).sin_port)
 
 int
-name_to_addr(const char *address, struct sockaddr_in *saddr)
+name_to_addr(const char *address, struct sockaddr_storage *saddr)
 {
-	struct addrinfo *res;
+	struct addrinfo *res, hints;
 	int error;
+	char buf[INET6_ADDRSTRLEN];
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
 	if ((error = getaddrinfo(address, NULL, NULL, &res)) == 0) {
-		(void) memcpy(saddr, res->ai_addr, sizeof (struct sockaddr_in));
+		switch (res->ai_addr->sa_family) {
+		case AF_INET:
+			(void) memcpy(saddr, res->ai_addr, sizeof(struct sockaddr_in));
+			break;
+		case AF_INET6:
+			(void) memcpy(saddr, res->ai_addr, sizeof(struct sockaddr_in6));
+			break;
+		default:
+			ulog_err("getaddrinfo(%s) returned protocol family %d.\n", address, res->ai_addr->sa_family);
+			break;
+		}
 		freeaddrinfo(res);
 	} else {
 		ulog_err("getaddrinfo(%s): %s\n", address, gai_strerror(error));
@@ -77,43 +91,60 @@ name_to_addr(const char *address, struct sockaddr_in *saddr)
 }
 
 int
-generic_socket(protocol_t *p, int pflag)
+generic_socket(protocol_t *p, int domain, int protocol)
 {
-	if ((p->fd = socket(AF_INET, SOCK_STREAM, pflag)) < 0) {
+	if ((p->fd = socket(domain, SOCK_STREAM, protocol)) < 0) {
 		ulog_err("%s: Cannot create socket", protocol_to_str(p->type));
-		return (-1);
+		return (UPERF_FAILURE);
 	}
-	return (0);
+	return (UPERF_SUCCESS);
 }
 
 /* ARGSUSED */
 int
-generic_connect(protocol_t *p, int pflag)
+generic_connect(protocol_t *p, int protocol)
 {
-	struct sockaddr_in serv;
+	struct sockaddr_storage serv;
+	socklen_t len;
+	const int off = 0;
 
 	uperf_debug("Connecting to %s:%d\n", p->host, p->port);
 
-	if ((generic_socket(p, pflag)) < 0)
-		return (-1);
-
-	(void) memset(&serv, 0, sizeof (serv));
+	(void) memset(&serv, 0, sizeof(struct sockaddr_storage));
 	if (name_to_addr(p->host, &serv)) {
 		/* Error is already reported by name_to_addr, so just return */
-		return (-1);
+		return (UPERF_FAILURE);
 	}
 
-	serv.sin_port = htons(p->port);
-	serv.sin_family = AF_INET;
-
-	if ((connect(p->fd, (struct sockaddr *)&serv, sizeof (serv))) < 0) {
+	if (generic_socket(p, serv.ss_family, protocol) < 0) {
+		return (UPERF_FAILURE);
+	}
+	switch (serv.ss_family) {
+	case  AF_INET:
+		((struct sockaddr_in *)&serv)->sin_port = htons(p->port);
+		len = (socklen_t)sizeof(struct sockaddr_in);
+		break;
+	case AF_INET6:
+		((struct sockaddr_in6 *)&serv)->sin6_port = htons(p->port);
+		len = (socklen_t)sizeof(struct sockaddr_in6);
+		if (setsockopt(p->fd, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(int)) < 0) {
+			return (UPERF_FAILURE);
+		}
+		break;
+	default:
+		uperf_debug("Unsupported protocol family: %d\n", serv.ss_family);
+		return (UPERF_FAILURE);
+		break;
+	}
+	if (connect(p->fd, (const struct sockaddr *)&serv, len) < 0) {
 		ulog_err("%s: Cannot connect to %s:%d",
-			protocol_to_str(p->type), p->host, p->port);
-		return (-1);
+		         protocol_to_str(p->type), p->host, p->port);
+		return (UPERF_FAILURE);
 	}
 
-	return (0);
+	return (UPERF_SUCCESS);
 }
+
 int
 generic_setfd_nonblock(int fd)
 {
@@ -182,34 +213,71 @@ generic_verify_socket_buffer(int fd, int wndsz)
 int
 generic_listen(protocol_t *p, int pflag)
 {
-	int reuse = 1;
-	struct sockaddr_in serv;
+	const int on = 1;
+	const int off = 0;
+	int use_ipv6_socket;
+	socklen_t len;
 
-	if (setsockopt(p->fd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse,
-		sizeof (int)) < 0) {
+	if (setsockopt(p->fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(int)) < 0) {
 		ulog_err("%s: Cannot set SO_REUSEADDR",
 			protocol_to_str(p->type));
 	}
-	(void) memset(&serv, 0, sizeof (struct sockaddr_in));
-	serv.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv.sin_family = AF_INET;
-	serv.sin_port = htons(p->port);
-	if ((bind(p->fd, (struct sockaddr *)&serv, sizeof (serv))) != 0) {
-		ulog_err("%s: Cannot bind to port %d",
-			protocol_to_str(p->type), serv.sin_port);
-		return (-1);
+	if (setsockopt(p->fd, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(int)) < 0) {
+		use_ipv6_socket = 0;
+	} else {
+		use_ipv6_socket = 1;
 	}
-	if (serv.sin_port == ANY_PORT) {
-		socklen_t tmp = sizeof (serv);
-		if ((getsockname(p->fd, (struct sockaddr *)&serv, &tmp)) != 0) {
-			ulog_err("%s: Cannot getsockname",
-				protocol_to_str(p->type));
-			return (-1);
+	if (use_ipv6_socket) {
+		struct sockaddr_in6 sin6;
+
+		memset(&sin6, 0, sizeof(struct sockaddr_in6));
+		sin6.sin6_family = AF_INET6;
+		sin6.sin6_port = htons(p->port);
+		sin6.sin6_addr = in6addr_any;
+		if (bind(p->fd, (const struct sockaddr *)&sin6, sizeof(struct sockaddr_in6)) < 0) {
+			ulog_err("%s: Cannot bind to port %d",
+			         protocol_to_str(p->type), p->port);
+			return (UPERF_FAILURE);
+		} else {
+			if (p->port == ANY_PORT) {
+				memset(&sin6, 0, sizeof(struct sockaddr_in6));
+				len = (socklen_t)sizeof(struct sockaddr_in6);
+				if ((getsockname(p->fd, (struct sockaddr *)&sin6, &len)) < 0) {
+					ulog_err("%s: Cannot getsockname",
+					         protocol_to_str(p->type));
+					return (UPERF_FAILURE);
+				} else {
+					p->port = ntohs(sin6.sin6_port);
+				}
+			}
+		}
+	} else {
+		struct sockaddr_in sin;
+
+		memset(&sin, 0, sizeof(struct sockaddr_in));
+		sin.sin_family = AF_INET;
+		sin.sin_port = htons(p->port);
+		sin.sin_addr.s_addr = htonl(INADDR_ANY);
+		if (bind(p->fd, (const struct sockaddr *)&sin, sizeof(struct sockaddr_in)) < 0) {
+			ulog_err("%s: Cannot bind to port %d",
+			         protocol_to_str(p->type), p->port);
+			return (UPERF_FAILURE);
+		} else {
+			if (p->port == ANY_PORT) {
+				memset(&sin, 0, sizeof(struct sockaddr_in));
+				len = (socklen_t)sizeof(struct sockaddr_in);
+				if ((getsockname(p->fd, (struct sockaddr *)&sin, &len)) < 0) {
+					ulog_err("%s: Cannot getsockname",
+					         protocol_to_str(p->type));
+					return (UPERF_FAILURE);
+				} else {
+					p->port = ntohs(sin.sin_port);
+				}
+			}
 		}
 	}
 	listen(p->fd, LISTENQ);
-	p->port = ntohs(serv.sin_port);
-	uperf_debug("Listening on port %d\n",  p->port);
+	uperf_debug("Listening on port %d\n", p->port);
 
 	return (p->port);
 }
@@ -294,12 +362,12 @@ generic_accept(protocol_t *oldp, protocol_t *newp, void *options)
 	socklen_t addrlen;
 	int timeout;
 	char hostname[NI_MAXHOST];
-	struct sockaddr_in remote;
+	struct sockaddr_storage remote;
 
 	assert(oldp);
 	assert(newp);
 
-	addrlen = sizeof (remote);
+	addrlen = (socklen_t)sizeof(struct sockaddr_storage);
 	timeout = 10000;
 
 	if ((generic_poll(oldp->fd, timeout, POLLIN)) <= 0)
@@ -308,23 +376,45 @@ generic_accept(protocol_t *oldp, protocol_t *newp, void *options)
 	if ((newp->fd = accept(oldp->fd, (struct sockaddr *)&remote,
 	    &addrlen)) < 0) {
 		ulog_err("accept:");
-		return (-1);
+		return (UPERF_FAILURE);
 	}
+	switch (remote.ss_family) {
+	case AF_INET:
+	{
+		struct sockaddr_in *sin;
 
-	inet_ntop(remote.sin_family, &remote.sin_addr, hostname,
-	    sizeof (hostname));
-	(void) strlcpy(newp->host, hostname, sizeof (newp->host));
-	newp->port = SOCK_PORT(remote);
+		sin = (struct sockaddr_in *)&remote;
+		inet_ntop(AF_INET, &sin->sin_addr, hostname, sizeof(hostname));
+		newp->port = ntohs(sin->sin_port);
+		break;
+	}
+	case AF_INET6:
+	{
+		struct sockaddr_in6 *sin6;
 
-	uperf_info("accept connection from %s\n", hostname);
+		sin6 = (struct sockaddr_in6 *)&remote;
+		inet_ntop(AF_INET6, &sin6->sin6_addr, hostname, sizeof(hostname));
+		newp->port = ntohs(sin6->sin6_port);
+		break;
+	}
+	default:
+		return (UPERF_FAILURE);
+		break;
+	}
+	(void) strlcpy(newp->host, hostname, sizeof(newp->host));
+	uperf_info("Accepted connection from %s:%d\n", newp->host, newp->port);
 
 #if 0
-	if ((error = getnameinfo((const struct sockaddr *) &remote, addrlen,
-	    hostname, sizeof (hostname), NULL, 0, 0)) == 0) {
-		uperf_info("Accpeted connection from %s:%d\n", hostname,
-		    SOCK_PORT(remote));
+	if ((error = getnameinfo((const struct sockaddr *)&remote, addrlen,
+	                         hostname, sizeof(hostname), NULL, 0, 0)) == 0) {
+		if (remote.ss_family == AF_INET) {
+			newp->port = ntohs(((struct sockaddr_in *)&remote)->sin_port);
+		} else {
+			newp->port = ntohs(((struct sockaddr_in6 *)&remote)->sin6_port);
+		}
 		(void) strlcpy(newp->host, hostname, MAXHOSTNAME);
-		newp->port = SOCK_PORT(remote);
+		uperf_info("Accepted connection from %s:%d\n",
+		           newp->host, newp->port);
 	} else {
 		char msg[128];
 		(void) snprintf(msg, sizeof (msg),

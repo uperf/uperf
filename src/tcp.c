@@ -55,17 +55,16 @@ protocol_listen(protocol_t *p, void *options)
 
 	/* SO_RCVBUF must be set before bind */
 
-	if (generic_socket(p, IPPROTO_TCP) != UPERF_SUCCESS) {
-		(void) snprintf(msg, 128, "%s: Cannot create socket", "tcp");
-		uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
-		return (-1);
+	if (generic_socket(p, AF_INET6, IPPROTO_TCP) != UPERF_SUCCESS) {
+		if (generic_socket(p, AF_INET, IPPROTO_TCP) != UPERF_SUCCESS) {
+			(void) snprintf(msg, 128, "%s: Cannot create socket", "tcp");
+			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+			return (UPERF_FAILURE);
+		}
 	}
 	set_tcp_options(p->fd, (flowop_options_t *)options);
 
-	if (generic_listen(p, IPPROTO_TCP) != UPERF_FAILURE) {
-		return (p->port);
-	}
-	return (-1);
+	return (generic_listen(p, IPPROTO_TCP));
 }
 
 static int

@@ -40,6 +40,7 @@
 #include <assert.h>
 #ifdef  HAVE_SYS_POLL_H
 #include <sys/poll.h>
+#include <netdb.h>
 #endif /*  HAVE_SYS_POLL_H */
 
 #include "uperf.h"
@@ -57,8 +58,8 @@ typedef struct {
 	char		*rhost;
 	int		port;
 	int		refcount;
-	struct sockaddr_in addr_info;
-}udp_private_data;
+	struct sockaddr_storage addr_info;
+} udp_private_data;
 
 protocol_t *protocol_udp_create(char *host, int port);
 
@@ -83,17 +84,16 @@ set_udp_options(int fd, flowop_options_t *f)
 }
 
 static int
-read_one(int fd, char *buffer, int len, struct sockaddr *from)
+read_one(int fd, char *buffer, int len, struct sockaddr_storage *from)
 {
 	int ret;
-	int length = (socklen_t)sizeof (*from);
-
+	socklen_t length = (socklen_t)sizeof(struct sockaddr_storage);
 	/*
 	 * uperf_debug("recvfrom %s:%d\n", inet_ntoa(saddr->sin_addr),
 	 * saddr->sin_port);
 	 */
 
-	ret = recvfrom(fd, buffer, len, 0, from, &length);
+	ret = recvfrom(fd, buffer, len, 0, (struct sockaddr *)from, &length);
 	if (ret <= 0) {
 		if (errno != EWOULDBLOCK)
 			uperf_log_msg(UPERF_LOG_ERROR, errno, "recvfrom:");
@@ -102,13 +102,26 @@ read_one(int fd, char *buffer, int len, struct sockaddr *from)
 
 	return (ret);
 }
-static int
-write_one(int fd, char *buffer, int len, struct sockaddr *from)
-{
-	int length = (socklen_t)sizeof (*from);
 
-	return (sendto(fd, buffer, len, 0, from, length));
+static int
+write_one(int fd, char *buffer, int len, struct sockaddr *to)
+{
+	socklen_t length;
+	
+	switch (to->sa_family) {
+	case AF_INET:
+		length = (socklen_t)sizeof(struct sockaddr_in);
+		break;
+	case AF_INET6:
+		length = (socklen_t)sizeof(struct sockaddr_in6);
+		break;
+	default:
+		return (-1);
+		break;
+	}
+	return (sendto(fd, buffer, len, 0, to, length));
 }
+
 static int
 protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 {
@@ -131,8 +144,7 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 		 * First try to read, if EWOULDBLOCK, then
 		 * poll for fo->timeout seconds
 		 */
-		ret = read_one(pd->sock, buffer, n,
-			(struct sockaddr *)&pd->addr_info);
+		ret = read_one(pd->sock, buffer, n, &pd->addr_info);
 		/* Lets fallback to poll/read */
 		if ((ret <= 0) && (errno != EWOULDBLOCK)) {
 			uperf_log_msg(UPERF_LOG_ERROR, errno,
@@ -144,19 +156,18 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 	if ((nleft > 0) && (timeout > 0)) {
 		ret = generic_poll(pd->sock, timeout, POLLIN);
 		if (ret > 0)
-			return (read_one(pd->sock, buffer, nleft,
-				(struct sockaddr *)&pd->addr_info));
+			return (read_one(pd->sock, buffer, nleft, &pd->addr_info));
 		else
 			return (-1); /* ret == 0 means timeout (error); */
 	} else if ((nleft > 0) && (timeout <= 0)) {
 		/* Vanilla read */
-		return (read_one(pd->sock, buffer, nleft,
-			(struct sockaddr *)&pd->addr_info));
+		return (read_one(pd->sock, buffer, nleft, &pd->addr_info));
 	}
 	assert(0); /* Not reached */
 
 	return (UPERF_FAILURE);
 }
+
 /*
  * Function: protocol_udp_write Description: udp implementation of write We
  * cannot use send() as the server may not have done a connect()
@@ -219,35 +230,68 @@ static int
 protocol_udp_listen(protocol_t *p, void *options)
 {
 	udp_private_data *pd = (udp_private_data *)p->_protocol_p;
+	socklen_t len;
+	char hostname[NI_MAXHOST];
+	char msg[128];
+	
+	if ((pd->sock = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
+		if ((pd->sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+			(void) snprintf(msg, 128, "%s: Cannot create socket", "udp");
+			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+			return (UPERF_FAILURE);
+		} else {
+			struct sockaddr_in *sin;
 
-	pd->sock = socket(AF_INET, SOCK_DGRAM, 0);
-	if (pd->sock < 0) {
-		uperf_log_msg(UPERF_LOG_ERROR, errno, "socket");
-		return (UPERF_FAILURE);
-	}
+			sin = (struct sockaddr_in *)&pd->addr_info;
+			memset(sin, 0, sizeof(struct sockaddr_in));
+			sin->sin_family = AF_INET;
+			sin->sin_port = htons(pd->port);
+			sin->sin_addr.s_addr = htonl(INADDR_ANY);
+			if (bind(pd->sock, (const struct sockaddr *)sin, sizeof(struct sockaddr_in)) < 0) {
+				uperf_log_msg(UPERF_LOG_ERROR, errno, "bind");
+				return (UPERF_FAILURE);
+			} else {
+				if (pd->port == ANY_PORT) {
+					memset(sin, 0, sizeof(struct sockaddr_in));
+					len = (socklen_t)sizeof(struct sockaddr_in);
+					if ((getsockname(pd->sock, (struct sockaddr *)sin, &len)) < 0) {
+						uperf_log_msg(UPERF_LOG_ERROR, errno, "getsockname");
+						return (UPERF_FAILURE);
+					} else {
+						pd->port = ntohs(sin->sin_port);
+					}
+				}
+			}
+		}
+	} else {
+		struct sockaddr_in6 *sin6;
+		const int off = 0;
 
-	(void) bzero((char *)&pd->addr_info, sizeof (struct sockaddr_in));
-	pd->addr_info.sin_family = AF_INET;
-	pd->addr_info.sin_addr.s_addr = htonl(INADDR_ANY);
-	pd->addr_info.sin_port = htons(pd->port);
-	if ((bind(pd->sock, (struct sockaddr *)&pd->addr_info,
-		    sizeof (pd->addr_info))) < 0) {
-		uperf_log_msg(UPERF_LOG_ERROR, errno, "bind");
-		return (UPERF_FAILURE);
-	}
-	if (pd->addr_info.sin_port == ANY_PORT) {
-		int tmp = sizeof (pd->addr_info);
-		if ((getsockname(pd->sock, (struct sockaddr *)&pd->addr_info,
-			    &tmp)) != 0) {
-			uperf_log_msg(UPERF_LOG_ERROR, errno, "getsockname");
+		if (setsockopt(pd->sock, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(int)) < 0) {
 			return (UPERF_FAILURE);
 		}
+		sin6 = (struct sockaddr_in6 *)&pd->addr_info;
+		memset(sin6, 0, sizeof(struct sockaddr_in6));
+		sin6->sin6_family = AF_INET6;
+		sin6->sin6_port = htons(pd->port);
+		sin6->sin6_addr = in6addr_any;
+		if (bind(pd->sock, (const struct sockaddr *)sin6, sizeof(struct sockaddr_in6)) < 0) {
+			uperf_log_msg(UPERF_LOG_ERROR, errno, "bind");
+			return (UPERF_FAILURE);
+		} else {
+			if (pd->port == ANY_PORT) {
+				memset(sin6, 0, sizeof(struct sockaddr_in6));
+				len = (socklen_t)sizeof(struct sockaddr_in6);
+				if ((getsockname(pd->sock, (struct sockaddr *)sin6, &len)) < 0) {
+					uperf_log_msg(UPERF_LOG_ERROR, errno, "getsockname");
+					return (UPERF_FAILURE);
+				} else {
+					pd->port = ntohs(sin6->sin6_port);
+				}
+			}
+		}
 	}
-	pd->port = ntohs(pd->addr_info.sin_port);
-
-	uperf_debug("listening on port %s:%d\n",
-	    inet_ntoa(pd->addr_info.sin_addr), pd->addr_info.sin_port);
-
+	uperf_debug("Listening on port %d\n", pd->port);
 	return (pd->port);
 }
 
@@ -255,6 +299,8 @@ static protocol_t *
 protocol_udp_accept(protocol_t *p, void *options)
 {
 	char msg[32];
+	char hostname[NI_MAXHOST];
+	int port;
 	udp_private_data *pd = (udp_private_data *)p->_protocol_p;
 	flowop_options_t *fo = (flowop_options_t *)options;
 
@@ -271,10 +317,30 @@ protocol_udp_accept(protocol_t *p, void *options)
 	if (strcmp(msg, UDP_HANDSHAKE) != 0)
 		return (NULL);
 	pd->refcount++;
+	switch (pd->addr_info.ss_family) {
+	case AF_INET:
+	{
+		struct sockaddr_in *sin;
 
-	uperf_info("Handshake[%s] with %s:%d\n", msg,
-	    inet_ntoa(pd->addr_info.sin_addr), pd->addr_info.sin_port);
+		sin = (struct sockaddr_in *)&pd->addr_info;
+		inet_ntop(AF_INET, &sin->sin_addr, hostname, sizeof(hostname));
+		port = ntohs(sin->sin_port);
+		break;
+	}
+	case AF_INET6:
+	{
+		struct sockaddr_in6 *sin6;
 
+		sin6 = (struct sockaddr_in6 *)&pd->addr_info;
+		inet_ntop(AF_INET6, &sin6->sin6_addr, hostname, sizeof(hostname));
+		port = ntohs(sin6->sin6_port);
+		break;
+	}
+	default:
+		return (NULL);
+		break;
+	}
+	uperf_info("Handshake[%s] with %s:%d\n", msg, hostname, port);
 	return (p);
 }
 
@@ -283,17 +349,31 @@ protocol_udp_connect(protocol_t *p, void *options)
 {
 	udp_private_data *pd = (udp_private_data *)p->_protocol_p;
 	flowop_options_t *fo = (flowop_options_t *)options;
+	const int off = 0;
 
-	(void) bzero(&pd->addr_info, sizeof (struct sockaddr_in));
-	if (name_to_addr(pd->rhost, &(pd->addr_info)) != 0) {
-		perror("name_to_addr:");
-		uperf_fatal("Unknown host: %s\n", pd->rhost);
+	(void) memset(&pd->addr_info, 0, sizeof(struct sockaddr_storage));
+	if (name_to_addr(pd->rhost, &pd->addr_info) != 0) {
+		/* Error is already reported by name_to_addr, so just return */
+		return (UPERF_FAILURE);
 	}
-	pd->addr_info.sin_port = htons(pd->port);
-	pd->addr_info.sin_family = AF_INET;
-	pd->sock = socket(AF_INET, SOCK_DGRAM, 0);
-	if (pd->sock < 0) {
-		uperf_fatal("udp - Error opening socket");
+	if ((pd->sock = socket(pd->addr_info.ss_family, SOCK_DGRAM, 0)) < 0) {
+		ulog_err("%s: Cannot create socket", protocol_to_str(p->type));
+		return (UPERF_FAILURE);
+	}
+	switch (pd->addr_info.ss_family) {
+	case  AF_INET:
+		((struct sockaddr_in *)&pd->addr_info)->sin_port = htons(pd->port);
+		break;
+	case AF_INET6:
+		((struct sockaddr_in6 *)&pd->addr_info)->sin6_port = htons(pd->port);
+		if (setsockopt(pd->sock, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(int)) < 0) {
+			return (UPERF_FAILURE);
+		}
+		break;
+	default:
+		uperf_debug("Unsupported protocol family: %d\n", pd->addr_info.ss_family);
+		return (UPERF_FAILURE);
+		break;
 	}
 	(void) set_udp_options(pd->sock, fo);
 	if ((protocol_udp_write(p, UDP_HANDSHAKE, strlen(UDP_HANDSHAKE),

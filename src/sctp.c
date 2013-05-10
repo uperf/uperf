@@ -48,7 +48,6 @@
 #define	USE_POLL_ACCEPT	1
 #define	LISTENQ		10240	/* 2nd argument to listen() */
 #define	TCP_TIMEOUT	1200000	/* Argument to poll */
-#define	SOCK_PORT(sin)	((sin).sin_port)
 
 static void
 set_sctp_options(int fd, flowop_options_t *f)
@@ -69,9 +68,16 @@ set_sctp_options(int fd, flowop_options_t *f)
 static int
 protocol_listen(protocol_t *p, void *options)
 {
-	if (generic_socket(p, IPPROTO_SCTP) != UPERF_SUCCESS) {
-		return (UPERF_FAILURE);
+	char msg[128];
+
+	if (generic_socket(p, AF_INET6, IPPROTO_SCTP) != UPERF_SUCCESS) {
+		if (generic_socket(p, AF_INET, IPPROTO_SCTP) != UPERF_SUCCESS) {
+			(void) snprintf(msg, 128, "%s: Cannot create socket", "sctp");
+			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+			return (UPERF_FAILURE);
+		}
 	}
+	set_sctp_options(p->fd, options);
 	return (generic_listen(p, IPPROTO_SCTP));
 }
 

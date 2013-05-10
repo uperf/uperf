@@ -22,9 +22,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
-int name_to_addr(const char *, struct sockaddr_in *);
-int generic_socket(protocol_t *, int);
+int name_to_addr(const char *, struct sockaddr_storage *);
+int generic_socket(protocol_t *, int, int);
 int generic_connect(protocol_t *, int);
 int generic_listen(protocol_t *, int);
 int generic_undefined(protocol_t *, void *);

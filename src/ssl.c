@@ -199,18 +199,16 @@ protocol_ssl_listen(protocol_t * p, void *o)
 {
 	char msg[128];
 
-	if (generic_socket(p, IPPROTO_TCP) != UPERF_SUCCESS) {
-		(void) snprintf(msg, 128, "%s: Cannot create socket", "tcp");
-		uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
-		return (UPERF_FAILURE);
+	if (generic_socket(p, AF_INET6, IPPROTO_TCP) != UPERF_SUCCESS) {
+		if (generic_socket(p, AF_INET, IPPROTO_TCP) != UPERF_SUCCESS) {
+			(void) snprintf(msg, 128, "%s: Cannot create socket", "tcp");
+			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+			return (UPERF_FAILURE);
+		}
 	}
 	set_tcp_options(p->fd, (flowop_options_t *)o);
 
-	if (generic_listen(p, IPPROTO_TCP) != UPERF_FAILURE) {
-		return (p->port);
-	}
-
-	return (UPERF_FAILURE);
+	return (generic_listen(p, IPPROTO_TCP));
 }
 
 static protocol_t *
@@ -382,7 +380,7 @@ protocol_ssl_undefined(protocol_t * p, void *options)
 SSL_CTX *
 initialize_ctx(char *keyfile, char *password, const char *method)
 {
-	SSL_METHOD *meth;
+	const SSL_METHOD *meth;
 	SSL_CTX *ctx;
 
 	SSL_library_init();

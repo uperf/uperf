@@ -273,7 +273,7 @@ print_goodbye_stat(char *host,  goodbye_stat_t *gstat)
 		thro = (gstat->bytes_xfer*8)/(gstat->elapsed_time/1.0e+9);
 	err = (100.0 * gstat->error)/gstat->count;
 
-	(void) printf("%-15s ", host);
+	(void) printf("%-15.15s ", host);
 	PRINT_TIME(gstat->elapsed_time, 8);
 	PRINT_NUM((double)gstat->bytes_xfer, 10);
 	PRINT_NUMb(thro, 12);
