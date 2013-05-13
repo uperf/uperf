@@ -69,6 +69,12 @@
 /* Have sctp */
 #undef HAVE_SCTP
 
+/* Have sctp_sendmsg() */
+#undef HAVE_SCTP_SENDMSG
+
+/* Have sctp_sendv() */
+#undef HAVE_SCTP_SENDV
+
 /* Have sendfilev */
 #undef HAVE_SENDFILEV
 

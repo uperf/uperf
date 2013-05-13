@@ -239,6 +239,17 @@ optimize_txn_for_slave(txn_t *txn)
 	txn->iter /= optimized;
 }
 
+static int
+option_oposite(flowop_options_t* option)
+{
+	uint16_t temp;
+
+	temp = option->sctp_in_streams;
+	option->sctp_in_streams = option->sctp_out_streams;
+	option->sctp_out_streams = temp;
+	return (UPERF_SUCCESS);
+}
+
 int
 group_opposite(group_t *grp)
 {
@@ -253,6 +264,7 @@ group_opposite(group_t *grp)
 				fptr->options.size = UPERF_SLAVE_READ_SIZE;
 			}
 			fptr->type = flowop_opposite(fptr->type);
+			option_oposite(&fptr->options);
 		}
 		optimize_txn_for_slave(txn);
 	}

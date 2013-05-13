@@ -272,7 +272,7 @@ protocol_ssl_connect(protocol_t * p, void *options)
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
 	flowop_options_t *flowop_options = (flowop_options_t *) options;
 
-	uperf_debug("ssl - Connecting to %s:%d ", ssl_p->host, ssl_p->port);
+	uperf_debug("ssl - Connecting to %s:%d ", p->host, p->port);
 
 	status = generic_connect(p, IPPROTO_TCP);
 	if (status == UPERF_SUCCESS)

@@ -426,7 +426,14 @@ parse_option(char *option, flowop_t *flowop)
 	} else if (strcasecmp(option, "non_blocking") == 0) {
 		flowop->options.flag |= O_NONBLOCKING;
 		return (UPERF_SUCCESS);
-	} else {
+	}
+#ifdef HAVE_SCTP
+	else if (strcasecmp(option, "sctp_unordered") == 0) {
+		flowop->options.flag |= O_SCTP_UNORDERED;
+		return (UPERF_SUCCESS);
+	}
+#endif
+	else {
 		key = strtok(option, "=");
 		value = strtok(NULL, " ");
 
@@ -517,6 +524,59 @@ parse_option(char *option, flowop_t *flowop)
 				return (1);
 			}
 		}
+#ifdef HAVE_SCTP
+		else if (strcasecmp(key, "sctp_in_streams") == 0) {
+			int res;
+			
+			res = string2int(value);
+			if ((res > 0) && (res <= 65535)) {
+				flowop->options.sctp_in_streams = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_in_streams:%s\n", value);
+				add_error(err);
+				return (1);
+			}
+		} else if (strcasecmp(key, "sctp_out_streams") == 0) {
+			int res;
+
+			res = string2int(value);
+			if ((res > 0) && (res <= 65535)) {
+				flowop->options.sctp_out_streams = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_out_streams:%s\n", value);
+				add_error(err);
+				return (1);
+			}
+		} else if (strcasecmp(key, "sctp_stream_id") == 0) {
+			int res;
+
+			res = string2int(value);
+			if ((res >= 0) && (res <= 65535)) {
+				flowop->options.sctp_stream_id = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_stream_id:%s\n", value);
+				add_error(err);
+				return (1);
+			}
+		} else if (strcasecmp(key, "sctp_pr_value") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_pr_value = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_pr_value:%s\n", value);
+				add_error(err);
+				return (1);
+			}
+		} else if (strcasecmp(key, "sctp_pr_policy") == 0) {
+			strlcpy(flowop->options.sctp_pr_policy, value, 4);
+		}
+#endif
 #ifdef HAVE_SSL
 		else if (strcasecmp(key, "engine") == 0) {
 			strlcpy(flowop->options.engine, value,

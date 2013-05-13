@@ -31,6 +31,7 @@
 #define	O_THINK_IDLE		(1 << 4)
 #define	O_THINK_BUSY		(1 << 5)
 #define	O_SIZE_RAND		(1 << 6)
+#define	O_SCTP_UNORDERED	(1 << 7)
 
 #define	FO_TCP_NODELAY(fo)	((fo)->flag & O_TCP_NODELAY)
 #define	FO_CANFAIL(fo)		((fo)->flag & O_CANFAIL)
@@ -38,6 +39,7 @@
 #define	FO_THINK_BUSY(fo)	((fo)->flag & O_THINK_BUSY)
 #define	FO_THINK_IDLE(fo)	((fo)->flag & O_THINK_IDLE)
 #define	FO_RANDOM_SIZE(fo)	((fo)->flag & O_SIZE_RAND)
+#define	FO_SCTP_UNORDERED(fo)	((fo)->flag & O_SCTP_UNORDERED)
 
 #define	CLEAR_FO_NONBLOCKING(f)	((f->flag &= ~O_NONBLOCKING))
 
@@ -52,11 +54,16 @@ struct flowop_options {
 	uint32_t	nfiles;
 	uint64_t	duration;	/* In nanoseconds */
 	uint64_t	wndsz;		/* TCP/UDP Window size */
-	uint64_t 	count;		/* Flowop execute Count */
+	uint64_t	count;		/* Flowop execute Count */
 	uint64_t	poll_timeout;	/* nanoseconds */
+	uint16_t	sctp_out_streams;	/* Number of outgoing streams */
+	uint16_t	sctp_in_streams;	/* Number of incoming streams */
+	uint16_t	sctp_stream_id;		/* Id of the sctp stream */
+	uint32_t	sctp_pr_value;		/* Value for PR-SCTP */
+	char		sctp_pr_policy[4];	/* Method of PR-SCTP */
 	char		dir[PATHMAX];
 	char		remotehost[MAXHOSTNAME];
-	char 		localhost[MAXHOSTNAME]; /* Localhost info as may be required in some protocols such as RDS */
+	char		localhost[MAXHOSTNAME]; /* Localhost info as may be required in some protocols such as RDS */
 	char		engine[20];	/*bundled engine, openssl is default*/
 	char		cipher[50];	/*cipher suite*/
 	char		method[5];	/*ssl or tls, ssl is default*/

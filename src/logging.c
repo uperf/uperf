@@ -38,6 +38,13 @@
 #endif /* HAVE_SYS_VARARGS_H */
 
 
+#ifdef UPERF_SOLARIS
+#ifndef __builtin_stdarg_start
+#define __builtin_stdarg_start __builtin_va_start
+#endif
+#endif
+
+
 static int log_level;	/* Log level */
 static uperf_log_t *log;
 
@@ -53,11 +60,12 @@ void
 uperf_printer(uperf_log_level level, uperf_msg_type flag, const char *fmt, ...)
 {
 	va_list ap;
+
 	va_start(ap, fmt);
 	if (level <= log_level) {
 		(void) vprintf(fmt, ap);
-		va_end(ap);
 	}
+	va_end(ap);
 }
 
 int
