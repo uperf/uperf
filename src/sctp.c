@@ -292,3 +292,4 @@ protocol_sctp_create(char *host, int port)
 
 	return (p);
 }
+
