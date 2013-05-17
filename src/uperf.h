@@ -145,7 +145,7 @@ typedef enum {
  */
 #ifdef HAVE_STRNCPY
 #define	strlcpy		strncpy
-#define	strlcat		strncat
+#define	strlcat(_dst,_src,_size)	strncat(_dst,_src,_size - strlen(_dst) - 1)
 #else
 #error "Cannot find safe string manipulation functions (strl* nor strn*)"
 #endif /* HAVE_STRNCPY */
