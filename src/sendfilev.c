@@ -227,8 +227,13 @@ do_sendfile(int sock, char *dir, int chunk_size)
 	int r = select_file(s);
 	if (chunk_size == 0) {
 #if defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
+#if defined(UPERF_FREEBSD)
+		len = 0;
+		if (sendfile(s->flist[r].fd, sock, off, s->flist[r].size, NULL, &len, 0) < 0) {
+#else
 		len = s->flist[r].size;
 		if (sendfile(s->flist[r].fd, sock, off, &len, NULL, 0) < 0) {
+#endif
 			return (-1);
 		} else {
 			return (len);
@@ -239,10 +244,13 @@ do_sendfile(int sock, char *dir, int chunk_size)
 	} else {
 #if defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
 		while (off < s->flist[r].size) {
-			int n;
-
+#if defined(UPERF_FREEBSD)
+			len = 0;
+			if (sendfile(s->flist[r].fd, sock, off, chunk_size, NULL, &len, 0) < 0) {
+#else
 			len = chunk_size;
 			if (sendfile(s->flist[r].fd, sock, off, &len, NULL, 0) < 0) {
+#endif
 				return (-1);
 			}
 			off += len;
