@@ -31,6 +31,7 @@
 #include <fcntl.h>
 #include <ftw.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <stdio.h>
@@ -211,6 +212,9 @@ do_sendfilev(int sock, char *dir, int nfiles, int chunk_size)
 ssize_t
 do_sendfile(int sock, char *dir, int chunk_size)
 {
+#if defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
+	off_t len;
+#endif
 	off_t off = 0;
 	sfv_list_t *s;
 
@@ -218,18 +222,36 @@ do_sendfile(int sock, char *dir, int chunk_size)
 	assert(s);
 
 	int r = select_file(s);
-	if (chunk_size == 0)
-		return (sendfile(sock, s->flist[r].fd, &off, s->flist[r].size));
-	else {
-		int size = 0;
-		int n;
-		while (size < s->flist[r].size) {
-			if ((n = sendfile(sock, s->flist[r].fd, &off,
-			    s->flist[r].size)) < 0)
-			return (n);
-			size += n;
+	if (chunk_size == 0) {
+#if defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
+		len = s->flist[r].size;
+		if (sendfile(s->flist[r].fd, sock, off, &len, NULL, 0) < 0) {
+			return (-1);
+		} else {
+			return (len);
 		}
-		return (size);
+#else
+		return (sendfile(sock, s->flist[r].fd, &off, s->flist[r].size));
+#endif
+	} else {
+#if defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
+		while (off < s->flist[r].size) {
+			int n;
+
+			len = chunk_size;
+			if (sendfile(s->flist[r].fd, sock, off, &len, NULL, 0) < 0) {
+				return (-1);
+			}
+			off += len;
+		}
+#else
+		while (off < s->flist[r].size) {
+			if (sendfile(sock, s->flist[r].fd, &off, chunk_size) < 0) {
+				return (-1);
+			}
+		}
+#endif
+		return (s->flist[r].size);
 	}
 }
 
