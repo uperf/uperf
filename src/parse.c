@@ -102,7 +102,7 @@ add_error(char *str)
 static char *
 next_token(char *s1)
 {
-	char symbol[128];
+	char symbol[1024];
 	int i = 0;
 	static char *p = NULL;
 
@@ -110,11 +110,11 @@ next_token(char *s1)
 		p = s1;
 
 	if (*p == '\0')
-		return (0);
+		return (NULL);
 	while (is_seperator(*p))
 		p++;
 	if (*p == '\0')
-		return (0);
+		return (NULL);
 
 	/* Remove comments. Comments begin with <!-- and end with --> */
 	if (strncmp(p, "<!--", 4) == 0) {
@@ -140,11 +140,11 @@ next_token(char *s1)
 		return (next_token(NULL));
 
 	}
-	while (!is_seperator(*p) && *p != '\0') {
+	while (!is_seperator(*p) && *p != '\0' && i < sizeof(symbol)) {
 		if (*p == '"') {
 			if (*p == '"')
 				p++; /* Ignore " */
-			while (*p != '"' && *p != '\0') {
+			while (*p != '"' && *p != '\0' && i < sizeof(symbol)) {
 				/* replace newline by space */
 				if (*p == '\n' || *p == '\r')
 					*p = ' ';
@@ -157,9 +157,14 @@ next_token(char *s1)
 		}
 		symbol[i++] = tolower(*p++);
 	}
-	symbol[i] = '\0';
+	if (i < sizeof(symbol)) {
+		symbol[i] = '\0';
+		return (strdup(symbol));
+	} else {
+		add_error("token too long.");
+		return (NULL);
+	}
 
-	return (strdup(symbol));
 }
 
 static int
@@ -196,7 +201,7 @@ get_symbol(char *s)
 		char *tmp = getenv((s+1));
 		if (tmp == NULL || *tmp == '\0') {
 			char msg[1024];
-			snprintf(msg, 1024, "%s is not set\n", s);
+			snprintf(msg, 1024, "%s is not set", s);
 			add_error(msg);
 		} else {
 			return (tmp);
@@ -334,7 +339,7 @@ string2int(char *value)
 	int val = string_to_int(value);
 	if (val < 0) {
 		char err[1024];
-		snprintf(err, 1024, "Cannot parse %s\n", value);
+		snprintf(err, 1024, "Cannot parse %s", value);
 		add_error(err);
 	}
 	return (val);
@@ -399,7 +404,7 @@ string2nsec(char *value)
 	uint64_t val = string_to_nsec(value);
 	if (val == 0) {
 		char err[1024];
-		snprintf(err, 1024, "Cannot convert %s to nsecs\n", value);
+		snprintf(err, 1024, "Cannot convert %s to nsecs", value);
 		add_error(err);
 	}
 	return (val);
@@ -440,7 +445,7 @@ parse_option(char *option, flowop_t *flowop)
 
 		if (value == NULL) {
 			snprintf(err, sizeof (err),
-				"option %s is not of type key=value\n",
+				"option %s is not of type key=value",
 				option);
 			add_error(err);
 			return (1);
@@ -450,7 +455,7 @@ parse_option(char *option, flowop_t *flowop)
 			tmp = getenv(&value[1]);
 			if (tmp == NULL) {
 				snprintf(err, sizeof (err),
-					"Env variable %s = %s not set\n",
+					"Env variable %s = %s not set",
 					key, value);
 				add_error(err);
 				return (1);
@@ -462,7 +467,7 @@ parse_option(char *option, flowop_t *flowop)
 			flowop->options.size = parse_size(flowop, value);
 			if (flowop->options.size == -1) {
 				snprintf(err, sizeof (err),
-				    "Could not parse %s\n", value);
+				    "Could not parse %s", value);
 				add_error(err);
 				return (1);
 			}
@@ -474,7 +479,7 @@ parse_option(char *option, flowop_t *flowop)
 			strlcpy(flowop->options.dir, value, PATHMAX);
 			if (sendfile_init(value) != 0) {
 				snprintf(err, sizeof (err),
-					"Error initializing dir: %s\n",
+					"Error initializing dir: %s",
 					value);
 				add_error(err);
 				return (1);
@@ -487,7 +492,7 @@ parse_option(char *option, flowop_t *flowop)
 			flowop->options.protocol = protocol_type(value);
 			if (protocol_type(value) == PROTOCOL_UNSUPPORTED) {
 				snprintf(err, sizeof (err),
-					"Protocol %s not supported\n",
+					"Protocol %s not supported",
 					value);
 				add_error(err);
 				return (1);
@@ -495,7 +500,7 @@ parse_option(char *option, flowop_t *flowop)
 		} else if (strcasecmp(key, "conn") == 0) {
 			if ((flowop->p_id = atoi(value)) <= 0) {
 				snprintf(err, sizeof (err),
-				    "connection id (conn=%s) should be > 0\n",
+				    "connection id (conn=%s) should be > 0",
 				    value);
 				add_error(err);
 				return (1);
@@ -510,7 +515,7 @@ parse_option(char *option, flowop_t *flowop)
 			flowop->options.poll_timeout = string2nsec(value);
 			if (flowop->options.poll_timeout == 0) {
 				snprintf(err, sizeof (err),
-					"Cannot understand timeout:%s\n",
+					"Cannot understand timeout:%s",
 					value);
 				add_error(err);
 				return (1);
@@ -519,7 +524,7 @@ parse_option(char *option, flowop_t *flowop)
 			flowop->options.duration = string2nsec(value);
 			if (flowop->options.duration == 0) {
 				snprintf(err, sizeof (err),
-					"Cannot understand duration:%s\n",
+					"Cannot understand duration:%s",
 					value);
 				add_error(err);
 				return (1);
@@ -534,7 +539,7 @@ parse_option(char *option, flowop_t *flowop)
 				flowop->options.sctp_in_streams = res;
 			} else {
 				snprintf(err, sizeof(err),
-				         "Cannot understand sctp_in_streams:%s\n", value);
+				         "Cannot understand sctp_in_streams:%s", value);
 				add_error(err);
 				return (1);
 			}
@@ -546,7 +551,7 @@ parse_option(char *option, flowop_t *flowop)
 				flowop->options.sctp_out_streams = res;
 			} else {
 				snprintf(err, sizeof(err),
-				         "Cannot understand sctp_out_streams:%s\n", value);
+				         "Cannot understand sctp_out_streams:%s", value);
 				add_error(err);
 				return (1);
 			}
@@ -558,7 +563,7 @@ parse_option(char *option, flowop_t *flowop)
 				flowop->options.sctp_stream_id = res;
 			} else {
 				snprintf(err, sizeof(err),
-				         "Cannot understand sctp_stream_id:%s\n", value);
+				         "Cannot understand sctp_stream_id:%s", value);
 				add_error(err);
 				return (1);
 			}
@@ -570,7 +575,7 @@ parse_option(char *option, flowop_t *flowop)
 				flowop->options.sctp_pr_value = res;
 			} else {
 				snprintf(err, sizeof(err),
-				         "Cannot understand sctp_pr_value:%s\n", value);
+				         "Cannot understand sctp_pr_value:%s", value);
 				add_error(err);
 				return (1);
 			}
@@ -700,7 +705,7 @@ build_worklist(struct symbol *list)
 			curr_flowop->type = flowop_type(list->symbol);
 			if (curr_flowop->type == FLOWOP_ERROR) {
 				snprintf(err, sizeof (err),
-				    "Unknown flowop %s\n", list->symbol);
+				    "Unknown flowop %s", list->symbol);
 				add_error(err);
 				return (NULL);
 			}
@@ -737,7 +742,7 @@ build_worklist(struct symbol *list)
 #endif /* STRAND_THREAD_ONLY */
 		case TOKEN_ERROR:
 			snprintf(err, sizeof (err),
-				"Unknown symbol: %s\n", list->symbol);
+				"Unknown symbol: %s", list->symbol);
 			add_error(err);
 			return (NULL);
 		}
