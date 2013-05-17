@@ -33,6 +33,10 @@
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif /* HAVE_STDINT_H */
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif /* HAVE_SYS_IOCTL_H */
+#include <inttypes.h>
 #include "uperf.h"
 #include "print.h"
 #include "main.h"
@@ -136,7 +140,7 @@ print_average(newstats_t *ns)
 	avg = ns->time_used/ns->count;
 	cpu = ns->cpu_time/ns->count;
 
-	printf("%-15s %8lld ", ns->name, ns->count);
+	printf("%-15s %8"PRIu64" ", ns->name, ns->count);
 	PRINT_TIME(avg, 11);
 	PRINT_TIME(cpu, 11);
 	PRINT_TIME(ns->max, 11),
@@ -277,7 +281,7 @@ print_goodbye_stat(char *host,  goodbye_stat_t *gstat)
 	PRINT_TIME(gstat->elapsed_time, 8);
 	PRINT_NUM((double)gstat->bytes_xfer, 10);
 	PRINT_NUMb(thro, 12);
-	printf("%12lld %11.2f\n", gstat->count, err);
+	printf("%12"PRIu64" %11.2f\n", gstat->count, err);
 
 	return (0);
 }

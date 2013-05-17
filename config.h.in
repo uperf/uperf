@@ -120,6 +120,9 @@
 /* Define to 1 if you have the <sys/int_limits.h> header file. */
 #undef HAVE_SYS_INT_LIMITS_H
 
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#undef HAVE_SYS_IOCTL_H
+
 /* Define to 1 if you have the <sys/lwp.h> header file. */
 #undef HAVE_SYS_LWP_H
 
@@ -137,6 +140,9 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <sys/uio.h> header file. */
+#undef HAVE_SYS_UIO_H
 
 /* Define to 1 if you have the <sys/varargs.h> header file. */
 #undef HAVE_SYS_VARARGS_H

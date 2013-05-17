@@ -43,6 +43,9 @@
 #include "main.h"
 #include "flowops.h"
 #include "workorder.h"
+#ifdef USE_CPC
+#include "hwcounter.h"
+#endif /* USE_CPC */
 #ifdef ENABLE_NETSTAT
 #include "netstat.h"
 #endif /* ENABLE_NETSTAT */

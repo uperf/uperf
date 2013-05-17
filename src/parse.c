@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <assert.h>
+#include <inttypes.h>
 
 #include "parse.h"
 #include "uperf.h"
@@ -279,9 +280,9 @@ void
 print_txn_t(txn_t *t)
 {
 	(void) printf("\ttxn_t [");
-	(void) printf("iter = %llu  ", t->iter);
+	(void) printf("iter = %"PRIu64"  ", t->iter);
 	(void) printf("nflowops = %d  ", t->nflowop);
-	(void) printf("duration = %llu  ", t->duration);
+	(void) printf("duration = %"PRIu64"  ", t->duration);
 	(void) printf("rate = %s  ", t->rate_str);
 	(void) printf("]\n");
 }
@@ -292,7 +293,7 @@ print_flowop_t(flowop_t *t)
 	(void) printf("type = %s, ", t->name);
 	(void) printf("remote = %s ", t->options.remotehost);
 	(void) printf("protocol = %d ", t->options.protocol);
-	(void) printf("duration = %llu ", t->options.duration);
+	(void) printf("duration = %"PRIu64" ", t->options.duration);
 	(void) printf("]\n");
 }
 void

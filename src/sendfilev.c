@@ -42,6 +42,9 @@
 #ifdef HAVE_SYS_SENDFILE_H
 #include <sys/sendfile.h>
 #endif /* HAVE_SYS_SENDFILE_H */
+#ifdef HAVE_SYS_UIO_H
+#include <sys/uio.h>
+#endif /* HAVE_SYS_UIO_H */
 
 #include "uperf.h"
 

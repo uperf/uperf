@@ -10,7 +10,7 @@ UPERF_LIBS="${UPERF_LIBS=}"
 
 # Checks for programs.
 AM_INIT_AUTOMAKE(uperf, 1.0-dev)
-AC_PROG_CC
+AC_PROG_CC_C99
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 
@@ -222,7 +222,7 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-AC_CHECK_HEADERS([atomic.h siginfo.h sys/int_limits.h sys/lwp.h signal.h sys/byteorder.h poll.h sys/poll.h sys/varargs.h stdint.h termio.h stropts.h sys/ttycom.h wait.h alloca.h sys/sendfile.h sys/types.h linux/unistd.h])
+AC_CHECK_HEADERS([atomic.h siginfo.h sys/int_limits.h sys/lwp.h signal.h sys/byteorder.h poll.h sys/poll.h sys/varargs.h stdint.h termio.h stropts.h sys/ttycom.h wait.h alloca.h sys/sendfile.h sys/types.h linux/unistd.h sys/ioctl.h sys/uio.h])
 
 LIBS="$UPERF_LIBS"
 AC_CHECK_FUNCS([nanosleep])

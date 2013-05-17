@@ -315,7 +315,7 @@ signal_strand(strand_t *s, int signal)
 
 		uperf_info("Sending signal %s to %lu\n",
 			signal == SIGUSR1 ? "SIGUSR1(kill)": "SIGUSR2",
-			s->tid);
+			(unsigned long)s->tid);
 		errno = 0;
 		if ((status = pthread_kill(s->tid, signal)) != 0) {
 			if (status != ESRCH) {
@@ -346,8 +346,8 @@ print_stacks(uperf_shm_t *shm)
 				snprintf(cmd, 128, "/usr/bin/pstack %d",
 					s->pid);
 			} else {
-				snprintf(cmd, 128, "/usr/bin/pstack %d/%d",
-					getpid(), s->tid);
+				snprintf(cmd, 128, "/usr/bin/pstack %d/%lu",
+					getpid(), (unsigned long)s->tid);
 			}
 			system(cmd);
 			printf("Strand is at %d\n", s->strand_state);

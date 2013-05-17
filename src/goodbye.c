@@ -34,6 +34,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include "uperf.h"
 #include "protocol.h"
