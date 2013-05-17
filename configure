@@ -3767,7 +3767,7 @@ _ACEOF
 		sctp_default="no"
 		ssl_default="yes"
 		UPERF_LIBS="$UPERF_LIBS -lm"
-		CFLAGS="-D_GNU_SOURCE $CFLAGS"
+		CFLAGS="-D_GNU_SOURCE -Wno-deprecated-declarations $CFLAGS"
 		;;
 esac
 
@@ -6887,16 +6887,14 @@ fi
 
 # Check whether --with-ssl-includes was given.
 if test "${with_ssl_includes+set}" = set; then
-  withval=$with_ssl_includes; CPPFLAGS="$CPPFLAGS -I$withval"
-else
-  CPPFLAGS="$CPPFLAGS -I/usr/sfw/include"
+  withval=$with_ssl_includes; CFLAGS="$CFLAGS -I$withval"
 fi
 
 
 
 # Check whether --with-ssl-libs was given.
 if test "${with_ssl_libs+set}" = set; then
-  withval=$with_ssl_libs;
+  withval=$with_ssl_libs; LDFLAGS="$LDFLAGS -L$withval"
 fi
 
 	##[LDFLAGS="$LDFLAGS -L$withval -R$withval"],
