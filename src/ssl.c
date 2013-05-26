@@ -380,7 +380,11 @@ protocol_ssl_undefined(protocol_t * p, void *options)
 SSL_CTX *
 initialize_ctx(char *keyfile, char *password, const char *method)
 {
+#if OPENSSL_VERSION_NUMBER > 0x000908fff
 	const SSL_METHOD *meth;
+#else
+	SSL_METHOD *meth;
+#endif
 	SSL_CTX *ctx;
 
 	SSL_library_init();
