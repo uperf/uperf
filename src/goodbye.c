@@ -47,7 +47,9 @@
 #include "shm.h"
 #include "goodbye.h"
 
-/* Guaranteed to return within timeout msecs. returns 0 on success */
+/* Guaranteed to return within timeout msecs.
+ * Returns UPERF_SUCCESS on success.
+ */
 static int
 safe_read(int fd, char *buffer, int size, int timeout)
 {
@@ -61,41 +63,45 @@ safe_read(int fd, char *buffer, int size, int timeout)
 
 	if ((ret = generic_setfd_nonblock(fd)) != 0) {
 		perror("goodbye:");
-		return (ret);
+		return (UPERF_FAILURE);
 	}
 	while ((remain > 0) && (GETHRTIME() < stop)) {
 		if ((ret = generic_poll(fd, 3000, POLLIN)) < 0)
-			return (ret);
+			return (UPERF_FAILURE);
 		else if (ret == 0) {
 			errno = ETIMEDOUT;
-			return (-1);
+			return (UPERF_FAILURE);
 		}
 
 		/* Try to read, might return EAGAIN */
 		if ((ret = read(fd, &buffer[index], remain)) <= 0) {
-			if (errno == EAGAIN)
+			if (ret == 0)
+				return (UPERF_SUCCESS);
+			else if (errno == EAGAIN)
 				continue;
 			else
-				return (ret);
+				return (UPERF_FAILURE);
 		}
 		index += ret;
 		remain -= ret;
 	}
 	if (remain == 0)
-		return (0);
-	return (-1);
+		return (UPERF_SUCCESS);
+	return (UPERF_FAILURE);
 }
+
 int
 bitswap_goodbye_t(goodbye_t *g)
 {
+	assert(g);
 	g->msg_type = BSWAP_64(g->msg_type);
 	g->gstat.elapsed_time = BSWAP_64(g->gstat.elapsed_time);
 	g->gstat.error = BSWAP_64(g->gstat.error);
 	g->gstat.bytes_xfer = BSWAP_64(g->gstat.bytes_xfer);
 	g->gstat.count = BSWAP_64(g->gstat.count);
-
-	return (0);
+	return (UPERF_SUCCESS);
 }
+
 int
 send_goodbye(goodbye_t *g, protocol_t *p)
 {
@@ -107,14 +113,13 @@ send_goodbye(goodbye_t *g, protocol_t *p)
 		return (UPERF_FAILURE);
 	}
 	return (UPERF_SUCCESS);
-
 }
+
 int
 recv_goodbye(goodbye_t *g, protocol_t *p, int timeout)
 {
 	assert(p);
 	assert(g);
-
 	(void) bzero(g, sizeof (goodbye_t));
 	if (safe_read(p->fd, (char *)g, sizeof (goodbye_t), timeout)
 	    != UPERF_SUCCESS) {
@@ -123,7 +128,7 @@ recv_goodbye(goodbye_t *g, protocol_t *p, int timeout)
 	}
 	if (strncmp(g->magic, GOODBYE_MAGIC, sizeof (g->magic)) != 0) {
 		(void) printf("Wrong goodbye magic: %s\n", g->magic);
-		return (-1);
+		return (UPERF_FAILURE);
 	}
 	return (UPERF_SUCCESS);
 }
