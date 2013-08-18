@@ -329,11 +329,13 @@ main(int argc, char **argv)
 #endif
 	/* Bump up our descriptor level */
 	if (setrlimit(RLIMIT_NOFILE, &rl) == -1) {
-		uperf_warn("Unable to increase file descriptors:%s\n",
+		uperf_warn("Unable to increase file descriptors: %s\n",
 		    strerror(errno));
+#ifdef UPERF_SOLARIS
 		uperf_warn("You can use\n");
-uperf_warn("prctl  -n process.max-file-descriptor -r -v <no> -i process $$\n");
-	uperf_warn("to bump number of file descriptors on Solaris 10+\n");
+		uperf_warn("prctl  -n process.max-file-descriptor -r -v <no> -i process $$\n");
+		uperf_warn("to bump number of file descriptors on Solaris 10+\n");
+#endif
 	}
 
 	if (IS_SLAVE(options))
