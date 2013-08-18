@@ -221,7 +221,7 @@ protocol_rds_listen(protocol_t *p, void *options)
 	rds_private_data *pd = (rds_private_data *)p->_protocol_p;
 
 	flowop_options_t *fo = (flowop_options_t *)options;
-#ifdef linux
+#ifdef UPERF_LINUX
 	pd->sock = socket(PF_RDS, SOCK_SEQPACKET, 0);
 #else
 	/* Assumption that it is Solaris here and not NSD etc */
@@ -232,7 +232,7 @@ protocol_rds_listen(protocol_t *p, void *options)
 		return (UPERF_FAILURE);
 	}
 	memset((char *) &pd->addr_info_from, 0, sizeof (pd->addr_info_from));
-#ifdef linux
+#ifdef UPERF_LINUX
 	pd->addr_info_from.sin_family = AF_INET;
 #else
 	pd->addr_info_from.sin_family = AF_INET_OFFLOAD;
@@ -261,7 +261,7 @@ protocol_rds_listen(protocol_t *p, void *options)
 
 	memset((char *) &pd->addr_info_to, 0, sizeof (pd->addr_info_to));
 
-#ifdef linux
+#ifdef UPERF_LINUX
 	pd->addr_info_to.sin_family = AF_INET;
 #else
 	pd->addr_info_to.sin_family = AF_INET_OFFLOAD;
@@ -304,7 +304,7 @@ protocol_rds_connect(protocol_t *p, void *options)
 	rds_private_data *pd = (rds_private_data *)p->_protocol_p;
 	flowop_options_t *fo = (flowop_options_t *)options;
 
-#ifdef linux
+#ifdef UPERF_LINUX
 	pd->sock = socket(PF_RDS, SOCK_SEQPACKET, 0);
 #else
 	pd->sock = socket(AF_INET_OFFLOAD, SOCK_DGRAM, 0);
@@ -314,7 +314,7 @@ protocol_rds_connect(protocol_t *p, void *options)
 	}
 
 	/* Bind the socket */
-#ifdef linux
+#ifdef UPERF_LINUX
 	pd->addr_info_from.sin_family = AF_INET;
 #else
 	pd->addr_info_from.sin_family = AF_INET_OFFLOAD;
@@ -338,7 +338,7 @@ protocol_rds_connect(protocol_t *p, void *options)
 		uperf_fatal("Unknown host: %s\n", pd->rhost);
 	}
 
-#ifdef linux
+#ifdef UPERF_LINUX
 	pd->addr_info_to.sin_family = AF_INET;
 #else
 	pd->addr_info_to.sin_family = AF_INET_OFFLOAD;
