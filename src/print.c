@@ -193,7 +193,7 @@ print_group_details(uperf_shm_t *shm)
 	workorder_t *w = shm->workorder;
 	newstats_t ns;
 
-	printf("Group Details\n");
+	printf("\nGroup Details\n");
 	uperf_line();
 	for (i = 0; i < w->ngrp; i++) {
 		bzero(&ns, sizeof (ns));
