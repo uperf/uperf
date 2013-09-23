@@ -216,7 +216,7 @@ print_strand_details(uperf_shm_t *shm)
 	printf("\nStrand Details\n");
 	uperf_line();
 	for (i = 0; i < shm->no_strands; i++) {
-		print_summary(STRAND_STAT(shm_get_strand(shm, 0)), 0);
+		print_summary(STRAND_STAT(shm_get_strand(shm, i)), 0);
 	}
 	printf("\n");
 }
