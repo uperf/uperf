@@ -170,6 +170,7 @@ print_txn_averages(uperf_shm_t *shm)
 		for (txn = g->tlist; txn; txn = txn->next) {
 			bzero(&ns, sizeof (ns));
 			ns.min = ULONG_MAX;
+			ns.start_time = ULONG_MAX;
 			for (j = 0; j < shm->nstat_count; j++) {
 				newstats_t *p = &shm->nstats[j];
 				if ((p->type == NSTAT_TXN) &&
@@ -238,6 +239,7 @@ print_flowop_averages(uperf_shm_t *shm)
 			for (f = txn->flist; f; f = f->next) {
 				bzero(&ns, sizeof (ns));
 				ns.min = ULONG_MAX;
+				ns.start_time = ULONG_MAX;
 				strlcpy(ns.name, f->name, sizeof (ns.name));
 				for (j = 0; j < shm->nstat_count; j++) {
 					newstats_t *p = &shm->nstats[j];

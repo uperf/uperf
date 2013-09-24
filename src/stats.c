@@ -203,7 +203,7 @@ add_stats(newstats_t *s1, newstats_t *s2)
 	s1->pic0 += s2->pic0;
 	s1->pic1 += s2->pic1;
 
-	s1->start_time = MAX(s1->start_time, s2->start_time);
+	s1->start_time = MIN(s1->start_time, s2->start_time);
 	s1->end_time = MAX(s1->end_time, s2->end_time);
 	s1->max = MAX(s1->max, s2->max);
 	s1->min = MIN(s1->min, s2->min);
