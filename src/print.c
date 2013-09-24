@@ -192,19 +192,32 @@ print_group_details(uperf_shm_t *shm)
 {
 	int i, j;
 	workorder_t *w = shm->workorder;
+	group_t *g;
+	txn_t *txn;
+	flowop_t *fptr;
 	newstats_t ns;
 
 	printf("\nGroup Details\n");
 	uperf_line();
 	for (i = 0; i < w->ngrp; i++) {
+		g = &w->grp[i];
 		bzero(&ns, sizeof (ns));
 		ns.min = ULONG_MAX;
-		for (j = 0; j < shm->nstat_count; j++) {
-			newstats_t *p = &shm->nstats[j];
-			if ((p->type == NSTAT_GROUP) && (p->gid == i))
-				break;
+		ns.start_time = ULONG_MAX;
+		strlcpy(ns.name, g->name, sizeof (ns.name));
+		for (txn = g->tlist; txn; txn = txn->next) {
+			for (fptr = txn->flist; fptr; fptr = fptr->next) {
+				for (j = 0; j < shm->nstat_count; j++) {
+					newstats_t *p = &shm->nstats[j];
+
+					if ((p->type == NSTAT_FLOWOP) &&
+					    (p->gid == GROUP_ID(g)) &&
+					    (p->tid == TXN_ID(txn)))
+						add_stats(&ns, p);
+				}
+			}
 		}
-		print_summary(&shm->nstats[j], 0);
+		print_summary(&ns, 0);
 	}
 	printf("\n");
 }
