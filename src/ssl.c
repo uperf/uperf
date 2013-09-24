@@ -216,7 +216,8 @@ protocol_ssl_accept(protocol_t * p, void *options)
 {
 	protocol_t *newp;
 	struct sockaddr_in remote;
-	int addrlen, ret;
+	socklen_t addrlen;
+	int ret;
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
 	ssl_private_t *new_ssl_p;
 	struct sockaddr name;
@@ -226,7 +227,7 @@ protocol_ssl_accept(protocol_t * p, void *options)
 
 	newp = protocol_ssl_new();
 	new_ssl_p = (ssl_private_t *) newp->_protocol_p;
-	addrlen = sizeof (remote);
+	addrlen = (socklen_t) sizeof (remote);
 	uperf_debug("ssl - ssl obj waiting for accept");
 	newp->fd = accept(p->fd, (struct sockaddr *) &remote,
 		&addrlen);
