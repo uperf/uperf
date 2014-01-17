@@ -113,7 +113,7 @@ protocol_connect(protocol_t *p, void *options)
 	}
 	set_sctp_options(p->fd, options);
 	switch (serv.ss_family) {
-	case  AF_INET:
+	case AF_INET:
 		((struct sockaddr_in *)&serv)->sin_port = htons(p->port);
 		len = (socklen_t)sizeof(struct sockaddr_in);
 		break;
