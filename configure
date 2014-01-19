@@ -3666,19 +3666,15 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-case "$CC" in
-	gcc)
-		{ echo "$as_me:$LINENO: *** Setting flags for gcc ***" >&5
-echo "$as_me: *** Setting flags for gcc ***" >&6;}
-		CFLAGS="$CFLAGS -O2 -D_REENTRANT"
-		;;
-	cc)
-		{ echo "$as_me:$LINENO: *** Setting flags for Sun Compiler ***" >&5
+if test "x$CC" = "xcc" -a "x$(uname -s)" = "xSunOS"; then
+	{ echo "$as_me:$LINENO: *** Setting flags for Sun Compiler ***" >&5
 echo "$as_me: *** Setting flags for Sun Compiler ***" >&6;}
-		CFLAGS="$CFLAGS -mt -xO3"
-		;;
-
-esac
+	CFLAGS="$CFLAGS -mt -xO3"
+else
+	{ echo "$as_me:$LINENO: *** Setting flags for gcc ***" >&5
+echo "$as_me: *** Setting flags for gcc ***" >&6;}
+	CFLAGS="$CFLAGS -O2 -D_REENTRANT"
+fi
 
  if true; then
   HAVE_PROCESSES_TRUE=

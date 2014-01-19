@@ -14,17 +14,13 @@ AC_PROG_CC_C99
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 
-case "$CC" in
-	gcc)
-		AC_MSG_NOTICE([*** Setting flags for gcc ***])
-		CFLAGS="$CFLAGS -O2 -D_REENTRANT"
-		;;
-	cc)
-		AC_MSG_NOTICE([*** Setting flags for Sun Compiler ***])
-		CFLAGS="$CFLAGS -mt -xO3"
-		;;
-
-esac
+if test "x$CC" = "xcc" -a "x$(uname -s)" = "xSunOS"; then
+	AC_MSG_NOTICE([*** Setting flags for Sun Compiler ***])
+	CFLAGS="$CFLAGS -mt -xO3"
+else
+	AC_MSG_NOTICE([*** Setting flags for gcc ***])
+	CFLAGS="$CFLAGS -O2 -D_REENTRANT"
+fi
 
 AM_CONDITIONAL([HAVE_PROCESSES], [true])
 AM_CONDITIONAL([HAVE_CPC], [false])
