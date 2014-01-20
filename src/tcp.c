@@ -49,7 +49,7 @@
 
 /* returns the port number */
 static int
-protocol_listen(protocol_t *p, void *options)
+protocol_tcp_listen(protocol_t *p, void *options)
 {
 	char msg[128];
 
@@ -68,7 +68,7 @@ protocol_listen(protocol_t *p, void *options)
 }
 
 static int
-protocol_connect(protocol_t *p, void *options)
+protocol_tcp_connect(protocol_t *p, void *options)
 {
 	flowop_options_t *flowop_options = (flowop_options_t *)options;
 	int status;
@@ -80,7 +80,7 @@ protocol_connect(protocol_t *p, void *options)
 	return (status);
 }
 
-static protocol_t *tcp_accept(protocol_t *p, void *options);
+static protocol_t *protocol_tcp_accept(protocol_t *p, void *options);
 
 static protocol_t *
 protocol_tcp_new()
@@ -91,10 +91,10 @@ protocol_tcp_new()
 		perror("calloc");
 		return (NULL);
 	}
-	newp->connect = protocol_connect;
+	newp->connect = protocol_tcp_connect;
 	newp->disconnect = generic_disconnect;
-	newp->listen = protocol_listen;
-	newp->accept = tcp_accept;
+	newp->listen = protocol_tcp_listen;
+	newp->accept = protocol_tcp_accept;
 	newp->read = generic_read;
 	newp->write = generic_write;
 	newp->send = generic_send;
@@ -110,7 +110,7 @@ protocol_tcp_new()
 }
 
 static protocol_t *
-tcp_accept(protocol_t *p, void *options)
+protocol_tcp_accept(protocol_t *p, void *options)
 {
 	protocol_t *newp;
 

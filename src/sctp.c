@@ -75,7 +75,7 @@ set_sctp_options(int fd, flowop_options_t *f)
 /* returns the port number */
 /* ARGSUSED */
 static int
-protocol_listen(protocol_t *p, void *options)
+protocol_sctp_listen(protocol_t *p, void *options)
 {
 	char msg[128];
 
@@ -91,7 +91,7 @@ protocol_listen(protocol_t *p, void *options)
 }
 
 static int
-protocol_connect(protocol_t *p, void *options)
+protocol_sctp_connect(protocol_t *p, void *options)
 {
 	struct sockaddr_storage serv;
 	socklen_t len;
@@ -139,7 +139,7 @@ protocol_connect(protocol_t *p, void *options)
 }
 
 int
-sctp_write(protocol_t *p, void *buffer, int size, void *options)
+protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 #if defined(HAVE_SCTP_SENDV)
 {
 	ssize_t len;
@@ -243,7 +243,7 @@ sctp_write(protocol_t *p, void *buffer, int size, void *options)
 }
 #endif
 
-static protocol_t *sctp_accept(protocol_t *p, void *options);
+static protocol_t *protocol_sctp_accept(protocol_t *p, void *options);
 
 static protocol_t *
 protocol_sctp_new()
@@ -253,12 +253,12 @@ protocol_sctp_new()
 	newp = calloc(sizeof (protocol_t), 1);
 	if (!newp)
 		return (NULL);
-	newp->connect = protocol_connect;
+	newp->connect = protocol_sctp_connect;
 	newp->disconnect = generic_disconnect;
-	newp->listen = protocol_listen;
-	newp->accept = sctp_accept;
+	newp->listen = protocol_sctp_listen;
+	newp->accept = protocol_sctp_accept;
 	newp->read = generic_read;
-	newp->write = sctp_write;
+	newp->write = protocol_sctp_write;
 	newp->wait = generic_undefined;
 	newp->type = PROTOCOL_SCTP;
 	(void) strlcpy(newp->host, "Init", MAXHOSTNAME);
@@ -268,7 +268,7 @@ protocol_sctp_new()
 }
 
 static protocol_t *
-sctp_accept(protocol_t *p, void *options)
+protocol_sctp_accept(protocol_t *p, void *options)
 {
 	protocol_t *newp;
 
