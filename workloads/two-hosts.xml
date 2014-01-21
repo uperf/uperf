@@ -7,7 +7,7 @@
         </transaction>
         <transaction duration="100s">
             <flowop type="write" options="size=300"/>
-            <flowop type="read" options="conn=1 size=300 "/>
+            <flowop type="read" options="conn=1 size=300"/>
         </transaction>
         <transaction>
             <flowop type="disconnect" />
