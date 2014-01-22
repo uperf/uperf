@@ -100,8 +100,6 @@ write_one(int fd, char *buffer, int len, struct sockaddr_in to)
 	/* Write a message after configuring the IOV buffers */
 	struct msghdr   msg;
 	struct iovec    iov;
-	int	ret;
-	char	error[256];
 
 	iov.iov_base = buffer;
 	iov.iov_len = len;
