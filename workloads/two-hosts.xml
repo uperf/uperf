@@ -3,7 +3,7 @@
   <group nthreads="2">
         <transaction>
             <flowop type="connect" options="remotehost=$h1 protocol=tcp"/>
-            <flowop type="connect" options="remotehost=$h2 protocol=udp"/>
+            <flowop type="connect" options="conn=1 remotehost=$h2 protocol=udp"/>
         </transaction>
         <transaction duration="100s">
             <flowop type="write" options="size=300"/>
