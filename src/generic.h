@@ -27,7 +27,7 @@
 int name_to_addr(const char *, struct sockaddr_storage *);
 int generic_socket(protocol_t *, int, int);
 int generic_connect(protocol_t *, int);
-int generic_listen(protocol_t *, int);
+int generic_listen(protocol_t *, int, void *);
 int generic_undefined(protocol_t *, void *);
 int generic_write(protocol_t *, void *, int, void *);
 int generic_disconnect(protocol_t *);

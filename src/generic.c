@@ -211,7 +211,7 @@ generic_verify_socket_buffer(int fd, int wndsz)
 
 /* ARGSUSED */
 int
-generic_listen(protocol_t *p, int pflag)
+generic_listen(protocol_t *p, int pflag, void* options)
 {
 	const int on = 1;
 	const int off = 0;

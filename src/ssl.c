@@ -208,7 +208,7 @@ protocol_ssl_listen(protocol_t * p, void *o)
 	}
 	set_tcp_options(p->fd, (flowop_options_t *)o);
 
-	return (generic_listen(p, IPPROTO_TCP));
+	return (generic_listen(p, IPPROTO_TCP, o));
 }
 
 static protocol_t *

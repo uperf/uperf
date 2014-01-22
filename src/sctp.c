@@ -87,7 +87,8 @@ protocol_sctp_listen(protocol_t *p, void *options)
 		}
 	}
 	set_sctp_options(p->fd, options);
-	return (generic_listen(p, IPPROTO_SCTP));
+
+	return (generic_listen(p, IPPROTO_SCTP, options));
 }
 
 static int

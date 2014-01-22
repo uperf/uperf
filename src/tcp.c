@@ -64,7 +64,7 @@ protocol_tcp_listen(protocol_t *p, void *options)
 	}
 	set_tcp_options(p->fd, (flowop_options_t *)options);
 
-	return (generic_listen(p, IPPROTO_TCP));
+	return (generic_listen(p, IPPROTO_TCP, options));
 }
 
 static int
