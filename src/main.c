@@ -91,12 +91,15 @@ uperf_usage(char *prog)
 }
 
 static char *proto[] = {
-	"Supported protocols: TCP, UDP, ",
+	"Supported protocols: TCP, UDP",
+#ifdef HAVE_RDS
+	", RDS",
+#endif
 #ifdef HAVE_SSL
-	"SSL, ",
+	", SSL",
 #endif
 #ifdef HAVE_SCTP
-	"SCTP",
+	", SCTP",
 #endif
 	NULL
 };
