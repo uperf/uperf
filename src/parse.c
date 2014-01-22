@@ -506,9 +506,9 @@ parse_option(char *option, flowop_t *flowop)
 				return (1);
 			}
 		} else if (strcasecmp(key, "remotehost") == 0) {
-			strlcpy(flowop->options.remotehost, value, 256);
+			strlcpy(flowop->options.remotehost, value, MAXHOSTNAME);
 		} else if (strcasecmp(key, "localhost") == 0) {
-			strlcpy(flowop->options.localhost, value, 256);
+			strlcpy(flowop->options.localhost, value, MAXHOSTNAME);
 		} else if (strcasecmp(key, "wndsz") == 0) {
 			flowop->options.wndsz = string2int(value);
 		} else if (strcasecmp(key, "timeout") == 0) {

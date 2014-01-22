@@ -122,7 +122,7 @@ rx_group_t(protocol_t *p, int my_endian)
 	group_t *worklist;
 	txn_t *txn, *tptr;
 	flowop_t *fptr;
-	char temp[256];
+	char temp[MAXHOSTNAME];
 
 	tptr = NULL;
 
@@ -164,15 +164,15 @@ rx_group_t(protocol_t *p, int my_endian)
 			if (f->options.localhost[0] != '\0') {
 				/* Swap remotehost and localhost */
 				(void) strlcpy(temp,
-					f->options.remotehost, 256);
+					f->options.remotehost, MAXHOSTNAME);
 				(void) strlcpy(f->options.remotehost,
-					f->options.localhost, 256);
-				(void) strlcpy(f->options.localhost, temp, 256);
+					f->options.localhost, MAXHOSTNAME);
+				(void) strlcpy(f->options.localhost, temp, MAXHOSTNAME);
 			}
 			else
 			{
 				(void) strlcpy(f->options.remotehost,
-						p->host, 256);
+						p->host, MAXHOSTNAME);
 			}
 			if (bitswap == 1)
 				f->type = BSWAP_32(f->type);
