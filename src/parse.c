@@ -94,6 +94,7 @@ add_error(char *str)
 	}
 	parse_errors[no_errs++] = strdup(str);
 }
+
 /*
  * Return the next token. Words within quotes are considered
  * to be one token.
@@ -274,6 +275,7 @@ parse(char *buffer, struct symbol *list)
 
 	return (0);
 }
+
 static void
 print_symbols(struct symbol *list) {
 	while (list) {
@@ -291,6 +293,7 @@ print_txn_t(txn_t *t)
 	(void) printf("rate = %s  ", t->rate_str);
 	(void) printf("]\n");
 }
+
 void
 print_flowop_t(flowop_t *t)
 {
@@ -301,6 +304,7 @@ print_flowop_t(flowop_t *t)
 	(void) printf("duration = %"PRIu64" ", t->options.duration);
 	(void) printf("]\n");
 }
+
 void
 print_group_t(group_t *t)
 {
@@ -323,6 +327,7 @@ print_group_t_recurse(group_t *t)
 			print_flowop_t(fptr);
 	}
 }
+
 static void
 print_workorder_t(workorder_t *w) {
 	int i;
@@ -817,6 +822,7 @@ parse_app_profile(char *filename)
 #endif
 	return (w);
 }
+
 #ifdef TEST_PARSE
 int
 main(int argc, char *argv[])
