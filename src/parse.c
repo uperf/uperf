@@ -453,7 +453,7 @@ parse_option(char *option, flowop_t *flowop)
 				"option %s is not of type key=value",
 				option);
 			add_error(err);
-			return (1);
+			return (UPERF_FAILURE);
 		}
 
 		if (value[0] == '$') {
@@ -463,7 +463,7 @@ parse_option(char *option, flowop_t *flowop)
 					"Env variable %s = %s not set",
 					key, value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 			value = tmp;
 		}
@@ -474,7 +474,7 @@ parse_option(char *option, flowop_t *flowop)
 				snprintf(err, sizeof (err),
 				    "Could not parse %s", value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "rsize") == 0) {
 			flowop->options.rsize = string2int(value);
@@ -487,7 +487,7 @@ parse_option(char *option, flowop_t *flowop)
 					"Error initializing dir: %s",
 					value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "count") == 0) {
 			flowop->options.count = atoi(value);
@@ -500,7 +500,7 @@ parse_option(char *option, flowop_t *flowop)
 					"Protocol %s not supported",
 					value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "conn") == 0) {
 			if ((flowop->p_id = atoi(value)) <= 0) {
@@ -508,7 +508,7 @@ parse_option(char *option, flowop_t *flowop)
 				    "connection id (conn=%s) should be > 0",
 				    value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "remotehost") == 0) {
 			strlcpy(flowop->options.remotehost, value, MAXHOSTNAME);
@@ -523,7 +523,7 @@ parse_option(char *option, flowop_t *flowop)
 					"Cannot understand timeout:%s",
 					value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "duration") == 0) {
 			flowop->options.duration = string2nsec(value);
@@ -532,7 +532,7 @@ parse_option(char *option, flowop_t *flowop)
 					"Cannot understand duration:%s",
 					value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		}
 #ifdef HAVE_SCTP
@@ -546,7 +546,7 @@ parse_option(char *option, flowop_t *flowop)
 				snprintf(err, sizeof(err),
 				         "Cannot understand sctp_in_streams:%s", value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "sctp_out_streams") == 0) {
 			int res;
@@ -558,7 +558,7 @@ parse_option(char *option, flowop_t *flowop)
 				snprintf(err, sizeof(err),
 				         "Cannot understand sctp_out_streams:%s", value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "sctp_stream_id") == 0) {
 			int res;
@@ -570,7 +570,7 @@ parse_option(char *option, flowop_t *flowop)
 				snprintf(err, sizeof(err),
 				         "Cannot understand sctp_stream_id:%s", value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "sctp_pr_value") == 0) {
 			int res;
@@ -582,7 +582,7 @@ parse_option(char *option, flowop_t *flowop)
 				snprintf(err, sizeof(err),
 				         "Cannot understand sctp_pr_value:%s", value);
 				add_error(err);
-				return (1);
+				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "sctp_pr_policy") == 0) {
 			strlcpy(flowop->options.sctp_pr_policy, value, 4);
@@ -603,10 +603,10 @@ parse_option(char *option, flowop_t *flowop)
 				"parser - Option unrecognized %s=%s",
 				key, value);
 			add_error(err);
-			return (1);
+			return (UPERF_FAILURE);
 		}
 	}
-	return (0);
+	return (UPERF_SUCCESS);
 }
 
 static int
