@@ -126,7 +126,7 @@ uperf_log_flush_to_string(char *buffer, int size)
 		} else {
 			if (log->msg[i].type == UPERF_LOG_WARN) {
 				(void) snprintf(&buffer[index], size - index,
-					"Warning:");
+					"Warning: ");
 			} else {
 				(void) snprintf(&buffer[index], size - index,
 					" ");
@@ -165,7 +165,7 @@ uperf_log_flush()
 			    log->msg[i].str, e);
 		} else {
 			if (log->msg[i].type == UPERF_LOG_WARN)
-				(void) printf("** Warning:");
+				(void) printf("** Warning: ");
 			else
 				(void) printf("** ");
 			(void) printf("%s %s\n", log->msg[i].str, e);
