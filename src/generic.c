@@ -187,8 +187,8 @@ generic_verify_socket_buffer(int fd, int wndsz)
 	}
 	diff = 1.0*nwsz/wndsz;
 	if (diff < 0.9 || diff > 1.1) {
-		ulog_warn("%s: %.2fKB (Requested:%.2fKB)", "SNDBUF",
-			nwsz/1024.0, wndsz/1024.0);
+		ulog_warn("%s: %.2fKB (Requested:%.2fKB)",
+		          "Send buffer", nwsz/1024.0, wndsz/1024.0);
 	} else {
 		uperf_info("Set Send buffer size to %.2fKB\n", nwsz/1024.0);
 	}
@@ -201,7 +201,7 @@ generic_verify_socket_buffer(int fd, int wndsz)
 	diff = 1.0*nwsz/wndsz;
 	if (diff < 0.9 || diff > 1.1) {
 		ulog_warn("%s: %.2fKB (Requested:%.2fKB)",
-		    "Recv buffer", nwsz/1024.0, wndsz/1024.0);
+		          "Recv buffer", nwsz/1024.0, wndsz/1024.0);
 	} else {
 		uperf_info("Set Recv buffer size to %.2fKB\n", nwsz/1024.0);
 	}
