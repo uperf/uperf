@@ -228,7 +228,7 @@ protocol_ssl_accept(protocol_t * p, void *options)
 	newp = protocol_ssl_new();
 	new_ssl_p = (ssl_private_t *) newp->_protocol_p;
 	addrlen = (socklen_t) sizeof (remote);
-	uperf_debug("ssl - ssl obj waiting for accept");
+	uperf_debug("ssl - ssl obj waiting for accept\n");
 	newp->fd = accept(p->fd, (struct sockaddr *) &remote,
 		&addrlen);
 	if (newp->fd < 0) {
@@ -237,7 +237,7 @@ protocol_ssl_accept(protocol_t * p, void *options)
 	}
 	if (getnameinfo((const struct sockaddr *) & remote, addrlen,
 			hostname, sizeof (hostname), NULL, 0, 0) == 0) {
-		uperf_debug("ssl - Connection from %s:%d ", hostname,
+		uperf_debug("ssl - Connection from %s:%d\n", hostname,
 			SOCK_PORT(remote));
 		strlcpy(newp->host, hostname, sizeof (newp->host));
 		newp->port = SOCK_PORT(remote);
@@ -273,7 +273,7 @@ protocol_ssl_connect(protocol_t * p, void *options)
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
 	flowop_options_t *flowop_options = (flowop_options_t *) options;
 
-	uperf_debug("ssl - Connecting to %s:%d ", p->host, p->port);
+	uperf_debug("ssl - Connecting to %s:%d\n", p->host, p->port);
 
 	status = generic_connect(p, IPPROTO_TCP);
 	if (status == UPERF_SUCCESS)
@@ -349,7 +349,7 @@ protocol_ssl_read(protocol_t * p, void *buffer, int size, void *options)
 	char *host = p->host ? p->host : "Unknown";
 	flowop_options_t *flowop_options = (flowop_options_t *) options;
 
-	uperf_debug("ssl - Reading %d bytes from %s:%d ", size, host,
+	uperf_debug("ssl - Reading %d bytes from %s:%d\n", size, host,
 		p->port);
 
 	return (ssl_read(ssl_p->ssl, buffer, size));
@@ -365,7 +365,7 @@ protocol_ssl_write(protocol_t * p, void *buffer, int size, void *options)
 	int bufsize = size * 10;
 	flowop_options_t *flowop_options = (flowop_options_t *) options;
 
-	uperf_debug("ssl - Writing %d bytes to %s:%d ", size, host,
+	uperf_debug("ssl - Writing %d bytes to %s:%d\n", size, host,
 		p->port);
 	return (ssl_write(ssl_p->ssl, buffer, size));
 }
@@ -451,8 +451,14 @@ protocol_ssl_new()
 	protocol_t *newp;
 	ssl_private_t *new_ssl_p;
 
-	newp = calloc(sizeof (protocol_t), 1);
-	new_ssl_p = calloc(sizeof (ssl_private_t), 1);
+	if ((newp = calloc(1, sizeof(protocol_t))) == NULL) {
+		perror("calloc");
+		return (NULL);
+	}
+	if ((new_ssl_p = calloc(1, sizeof(ssl_private_t))) == NULL) {
+		perror("calloc");
+		return (NULL);
+	}
 	newp->_protocol_p = new_ssl_p;
 	newp->connect = protocol_ssl_connect;
 	newp->disconnect = protocol_ssl_disconnect;
@@ -468,17 +474,19 @@ protocol_ssl_new()
 protocol_t *
 protocol_ssl_create(char *host, int port)
 {
-	protocol_t *p = protocol_ssl_new();
-	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
+	protocol_t *newp;
 
-	if (host)
-		strlcpy(p->host, host, sizeof (p->host));
-	else
-		strlcpy(p->host, "lOcAlHoSt", sizeof (p->host));
-	p->port = port;
-	p->type = PROTOCOL_SSL;
-	uperf_debug("ssl - ssl obj created successfully ");
-	return (p);
+	if ((newp = protocol_ssl_new()) == NULL) {
+		return (NULL);
+	}
+	if (strlen(host) == 0) {
+		(void) strlcpy(newp->host, "lOcAlHoSt", MAXHOSTNAME);
+	} else{
+		(void) strlcpy(newp->host, host, MAXHOSTNAME);
+	}
+	newp->port = port;
+	uperf_debug("ssl - Creating SSL Protocol to %s (%s):%d\n", host, port);
+	return (newp);
 }
 
 void
@@ -495,5 +503,5 @@ ssl_fini(protocol_t * p)
 		free(p->_protocol_p);
 	}
 	free(p);
-	uperf_debug("ssl - destroyed ssl object successfully ");
+	uperf_debug("ssl - destroyed ssl object successfully\n");
 }

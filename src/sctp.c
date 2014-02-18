@@ -343,9 +343,10 @@ protocol_sctp_new()
 {
 	protocol_t *newp;
 
-	newp = calloc(sizeof (protocol_t), 1);
-	if (!newp)
+	if ((newp = calloc(1, sizeof(protocol_t))) == NULL) {
+		perror("calloc");
 		return (NULL);
+	}
 	newp->connect = protocol_sctp_connect;
 	newp->disconnect = generic_disconnect;
 	newp->listen = protocol_sctp_listen;
@@ -365,22 +366,29 @@ protocol_sctp_accept(protocol_t *p, void *options)
 {
 	protocol_t *newp;
 
-	newp = protocol_sctp_new();
-	if (generic_accept(p, newp, options) != UPERF_SUCCESS)
+	if ((newp = protocol_sctp_new()) == NULL) {
 		return (NULL);
-
+	}
+	if (generic_accept(p, newp, options) != 0) {
+		return (NULL);
+	}
 	return (newp);
 }
 
 protocol_t *
 protocol_sctp_create(char *host, int port)
 {
-	protocol_t *p = protocol_sctp_new();
+	protocol_t *newp;
 
-	(void) strlcpy(p->host, host, sizeof (p->host));
-	if (strlen(host) == 0)
-		(void) strlcpy(host, "localhost", MAXHOSTNAME);
-	p->port = port;
-
-	return (p);
+	if ((newp = protocol_sctp_new()) == NULL) {
+		return (NULL);
+	}
+	if (strlen(host) == 0) {
+		(void) strlcpy(newp->host, "localhost", MAXHOSTNAME);
+	} else{
+		(void) strlcpy(newp->host, host, MAXHOSTNAME);
+	}
+	newp->port = port;
+	uperf_debug("sctp - Creating SCTP Protocol to %s:%d\n", host, port);
+	return (newp);
 }

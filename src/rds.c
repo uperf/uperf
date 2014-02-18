@@ -358,7 +358,7 @@ static int
 protocol_rds_disconnect(protocol_t *p)
 {
 	rds_private_data *pd = (rds_private_data *) p->_protocol_p;
-	uperf_debug("rds - disconnect done");
+	uperf_debug("rds - disconnect done\n");
 	pd->refcount--;
 	return (UPERF_SUCCESS);
 }
@@ -366,26 +366,32 @@ protocol_rds_disconnect(protocol_t *p)
 protocol_t *
 protocol_rds_create(char *host, int port)
 {
-	protocol_t *p;
-	rds_private_data *d;
+	protocol_t *newp;
+	rds_private_data *new_rds_p;
 
-	p = calloc(1, sizeof (protocol_t));
+	if ((newp = calloc(1, sizeof(protocol_t))) == NULL {
+		perror("calloc");
+		return (NULL);
+	}
 	/* Allocating a local data structure */
-	d = calloc(1, sizeof (rds_private_data));
-	p->connect = &protocol_rds_connect;
-	p->disconnect = &protocol_rds_disconnect;
-	p->read = &protocol_rds_read;
-	p->write = &protocol_rds_write;
-	p->listen = &protocol_rds_listen;
-	p->accept = &protocol_rds_accept;
-	p->wait = &generic_undefined;
-	d->rhost = strdup(host);
-	d->port = port;
-	p->type = PROTOCOL_RDS;
-	p->_protocol_p = d;
-	d->refcount = 0;
-	uperf_debug("rds - Creating RDS Protocol to %s:%d", host, port);
-	return (p);
+	if ((new_rds_p = calloc(1, sizeof(rds_private_data))) == NULL) {
+		perror("calloc");
+		return (NULL);
+	}
+	newp->connect = &protocol_rds_connect;
+	newp->disconnect = &protocol_rds_disconnect;
+	newp->read = &protocol_rds_read;
+	newp->write = &protocol_rds_write;
+	newp->listen = &protocol_rds_listen;
+	newp->accept = &protocol_rds_accept;
+	newp->wait = &generic_undefined;
+	newp->rhost = strdup(host);
+	newp->port = port;
+	newp->type = PROTOCOL_RDS;
+	newp->_protocol_p = new_rds_p;
+	new_rds_p->refcount = 0;
+	uperf_debug("rds - Creating RDS Protocol to %s:%d\n", host, port);
+	return (newp);
 }
 
 void

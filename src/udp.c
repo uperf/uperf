@@ -389,7 +389,7 @@ static int
 protocol_udp_disconnect(protocol_t *p)
 {
 	udp_private_data *pd = (udp_private_data *) p->_protocol_p;
-	uperf_debug("udp - disconnect done");
+	uperf_debug("udp - disconnect done\n");
 
 	pd->refcount--;
 
@@ -399,25 +399,31 @@ protocol_udp_disconnect(protocol_t *p)
 protocol_t *
 protocol_udp_create(char *host, int port)
 {
-	protocol_t *p;
-	udp_private_data *d;
+	protocol_t *newp;
+	udp_private_data *new_udp_p;
 
-	p = calloc(1, sizeof (protocol_t));
-	d = calloc(1, sizeof (udp_private_data));
-	p->connect = &protocol_udp_connect;
-	p->disconnect = &protocol_udp_disconnect;
-	p->read = &protocol_udp_read;
-	p->write = &protocol_udp_write;
-	p->listen = &protocol_udp_listen;
-	p->accept = &protocol_udp_accept;
-	p->wait = &generic_undefined;
-	d->rhost = strdup(host);
-	d->port = port;
-	p->type = PROTOCOL_UDP;
-	p->_protocol_p = d;
-	d->refcount = 0;
-	uperf_debug("udp - Creating UDP Protocol to %s:%d", host, port);
-	return (p);
+	if ((newp = calloc(1, sizeof(protocol_t))) == NULL) {
+		perror("calloc");
+		return (NULL);
+	}
+	if ((new_udp_p = calloc(1, sizeof(udp_private_data))) == NULL) {
+		perror("calloc");
+		return (NULL);
+	}
+	newp->connect = &protocol_udp_connect;
+	newp->disconnect = &protocol_udp_disconnect;
+	newp->read = &protocol_udp_read;
+	newp->write = &protocol_udp_write;
+	newp->listen = &protocol_udp_listen;
+	newp->accept = &protocol_udp_accept;
+	newp->wait = &generic_undefined;
+	new_udp_p->rhost = strdup(host);
+	new_udp_p->port = port;
+	newp->type = PROTOCOL_UDP;
+	newp->_protocol_p = new_udp_p;
+	new_udp_p->refcount = 0;
+	uperf_debug("udp - Creating UDP Protocol to %s:%d\n", host, port);
+	return (newp);
 }
 
 void

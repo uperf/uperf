@@ -87,7 +87,7 @@ protocol_tcp_new()
 {
 	protocol_t *newp;
 
-	if ((newp = calloc(sizeof (protocol_t), 1)) == NULL) {
+	if ((newp = calloc(1, sizeof(protocol_t))) == NULL) {
 		perror("calloc");
 		return (NULL);
 	}
@@ -105,7 +105,6 @@ protocol_tcp_new()
 	newp->fd = -1;
 	newp->port = -1;
 	newp->next = NULL;
-
 	return (newp);
 }
 
@@ -117,26 +116,33 @@ protocol_tcp_accept(protocol_t *p, void *options)
 	if ((newp = protocol_tcp_new()) == NULL) {
 		return (NULL);
 	}
-	if (generic_accept(p, newp, options) != 0)
+	if (generic_accept(p, newp, options) != 0) {
 		return (NULL);
+	}
+	/*
+	 * XXX I don't think setting the options is necessary, since
+	 * it is done already on the listener and the options are inherited.
+	 */
 	if (options) {
 		set_tcp_options(newp->fd, options);
 	}
-
 	return (newp);
 }
 
 protocol_t *
 protocol_tcp_create(char *host, int port)
 {
-	protocol_t *p = protocol_tcp_new();
+	protocol_t *newp;
 
-	if (!p)
+	if ((newp = protocol_tcp_new()) == NULL) {
 		return (NULL);
-	(void) strlcpy(p->host, host, MAXHOSTNAME);
-	if (strlen(host) == 0)
-		(void) strlcpy(p->host, "localhost", MAXHOSTNAME);
-	p->port = port;
-
-	return (p);
+	}
+	if (strlen(host) == 0) {
+		(void) strlcpy(newp->host, "localhost", MAXHOSTNAME);
+	} else{
+		(void) strlcpy(newp->host, host, MAXHOSTNAME);
+	}
+	newp->port = port;
+	uperf_debug("tcp - Creating TCP Protocol to %s:%d\n", host, port);
+	return (newp);
 }
