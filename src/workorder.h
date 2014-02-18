@@ -70,8 +70,9 @@ struct flowop_options {
 	uint16_t	sctp_out_streams;	/* Number of outgoing SCTP streams */
 	uint16_t	sctp_in_streams;	/* Number of incoming SCTP streams */
 	uint16_t	sctp_stream_id;		/* SCTP stream identifier (SID) */
+	uint16_t	sctp_padding;		/* To be 32-bit aligned */
 	uint32_t	sctp_pr_value;		/* Value for PR-SCTP */
-	char		sctp_pr_policy[4];	/* Method of PR-SCTP */
+	char		sctp_pr_policy[8];	/* Method of PR-SCTP */
 	char		dir[PATHMAX];
 	char		remotehost[MAXHOSTNAME];
 	char		localhost[MAXHOSTNAME]; /* Localhost info as may be required in some protocols such as RDS */

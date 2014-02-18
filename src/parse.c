@@ -696,7 +696,7 @@ parse_option(char *option, flowop_t *flowop)
 				return (UPERF_FAILURE);
 			}
 		} else if (strcasecmp(key, "sctp_pr_policy") == 0) {
-			strlcpy(flowop->options.sctp_pr_policy, value, 4);
+			strlcpy(flowop->options.sctp_pr_policy, value, 8);
 		}
 #endif
 #ifdef HAVE_SSL
