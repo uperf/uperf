@@ -157,7 +157,7 @@ generic_set_socket_buffer(int fd, int size)
 	int w = size;
 
 	if (w == 0)
-		return (0);
+		return (UPERF_SUCCESS);
 	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&w, sizeof (w))) {
 		ulog_warn("Cannot set SO_SNDBUF");
 	}
@@ -177,7 +177,7 @@ generic_verify_socket_buffer(int fd, int wndsz)
 	float diff;
 
 	if (wndsz == 0)
-		return (0);
+		return (UPERF_SUCCESS);
 
 	/* Now verify */
 	len = sizeof (wndsz);
@@ -206,7 +206,7 @@ generic_verify_socket_buffer(int fd, int wndsz)
 		uperf_info("Set Recv buffer size to %.2fKB\n", nwsz/1024.0);
 	}
 
-	return (0);
+	return (UPERF_SUCCESS);
 }
 
 /* ARGSUSED */
