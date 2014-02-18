@@ -52,6 +52,10 @@ set_sctp_options(int fd, int family, flowop_options_t *f)
 	if (f == NULL) {
 		return;
 	}
+	if (f->wndsz > 0) {
+		generic_set_socket_buffer(fd, f->wndsz);
+		generic_verify_socket_buffer(fd, f->wndsz);
+	}
 	if (FO_SCTP_NODELAY(f)) {
 		const int on = 1;
 

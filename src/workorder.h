@@ -55,7 +55,7 @@ struct flowop_options {
 	uint32_t	flag;
 	uint32_t	nfiles;
 	uint64_t	duration;	/* In nanoseconds */
-	uint64_t	wndsz;		/* TCP/UDP Window size */
+	uint64_t	wndsz;		/* SCTP/TCP/UDP Window size */
 	uint64_t	count;		/* Flowop execute Count */
 	uint64_t	poll_timeout;	/* In nanoseconds */
 	uint32_t	sctp_rto_min;		/* Minimum SCTP RTO */
