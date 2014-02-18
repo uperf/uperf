@@ -134,6 +134,7 @@ uperf_log_flush_to_string(char *buffer, int size)
 			index = strlen(buffer);
 			(void) snprintf(&buffer[index], size - index,
 				"%s %s\n", log->msg[i].str, e);
+			index = strlen(buffer);
 		}
 	}
 	(void) pthread_mutex_unlock(&log->lock);
