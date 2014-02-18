@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<profile name="SCTP flowop test">
+    <group nthreads="1">
+        <transaction iterations="1">
+            <flowop type="connect"
+                    options="remotehost=$h
+                             protocol=sctp
+                             wndsz=12345
+                             sctp_nodelay
+                             sctp_in_streams=64 sctp_out_streams=128
+                             sctp_rto_min=100 sctp_rto_max=1000 sctp_rto_initial=100
+                             sctp_sack_delay=50 sctp_sack_frequency=3
+                             sctp_max_fragment_size=1000
+                             sctp_hb_interval=10000"/>
+        </transaction>
+        <transaction iterations="10">
+            <flowop type="write" options="count=1 size=256 sctp_stream_id=127"/>
+            <flowop type="think" options="duration=10ms idle"/>
+        </transaction>
+        <transaction iterations="0">
+            <flowop type="think" options="duration=10s idle"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+    </group>
+</profile>
