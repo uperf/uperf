@@ -756,6 +756,7 @@ build_worklist(struct symbol *list)
 	char err[1024];
 	int txnid = 0;
 	int fid = 0;
+	int in_group = 0;
 
 	w.ngrp = 0;
 	bzero(&w, sizeof (workorder_t));
@@ -773,10 +774,12 @@ build_worklist(struct symbol *list)
 			curr_txn = 0;
 			curr_flowop = 0;
 			txnid = 0;
+			in_group = 1;
 			snprintf(curr_grp->name, UPERF_NAME_LEN, "Group%d",
 			    w.ngrp - 1);
 			break;
 		case TOKEN_GROUP_END:
+			in_group = 0;
 			break;
 		case TOKEN_TXN_START:
 			curr_grp->ntxn++;
@@ -812,7 +815,11 @@ build_worklist(struct symbol *list)
 		case TOKEN_XML_END:
 			break;
 		case TOKEN_NAME:
-			strlcpy(w.name, list->symbol, NAMELEN);
+			if (in_group) {
+				strlcpy(curr_grp->name, list->symbol, UPERF_NAME_LEN);
+			} else {
+				strlcpy(w.name, list->symbol, NAMELEN);
+			}
 			break;
 		case TOKEN_ITERATIONS:
 			curr_txn->iter = string2int(list->symbol);
