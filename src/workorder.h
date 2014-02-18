@@ -32,6 +32,7 @@
 #define	O_THINK_BUSY		(1 << 5)
 #define	O_SIZE_RAND		(1 << 6)
 #define	O_SCTP_UNORDERED	(1 << 7)
+#define	O_SCTP_NODELAY		(1 << 8)
 
 #define	FO_TCP_NODELAY(fo)	((fo)->flag & O_TCP_NODELAY)
 #define	FO_CANFAIL(fo)		((fo)->flag & O_CANFAIL)
@@ -40,6 +41,7 @@
 #define	FO_THINK_IDLE(fo)	((fo)->flag & O_THINK_IDLE)
 #define	FO_RANDOM_SIZE(fo)	((fo)->flag & O_SIZE_RAND)
 #define	FO_SCTP_UNORDERED(fo)	((fo)->flag & O_SCTP_UNORDERED)
+#define	FO_SCTP_NODELAY(fo)	((fo)->flag & O_SCTP_NODELAY)
 
 #define	CLEAR_FO_NONBLOCKING(f)	((f->flag &= ~O_NONBLOCKING))
 
@@ -55,10 +57,19 @@ struct flowop_options {
 	uint64_t	duration;	/* In nanoseconds */
 	uint64_t	wndsz;		/* TCP/UDP Window size */
 	uint64_t	count;		/* Flowop execute Count */
-	uint64_t	poll_timeout;	/* nanoseconds */
-	uint16_t	sctp_out_streams;	/* Number of outgoing streams */
-	uint16_t	sctp_in_streams;	/* Number of incoming streams */
-	uint16_t	sctp_stream_id;		/* Id of the sctp stream */
+	uint64_t	poll_timeout;	/* In nanoseconds */
+	uint32_t	sctp_rto_min;		/* Minimum SCTP RTO */
+	uint32_t	sctp_rto_max;		/* Maximum SCTP RTO */
+	uint32_t	sctp_rto_initial;	/* Initial SCTP RTO */
+	uint32_t	sctp_sack_delay;	/* SCTP SACK delay in ms */
+	uint32_t	sctp_sack_frequency;	/* SCTP SACK frequency */
+	uint32_t	sctp_max_burst_size;	/* SCTP Maximum burst size in MTU */
+	uint32_t	sctp_max_fragment_size;	/* SCTP Maximum fragment size in bytes */
+	uint32_t	sctp_hb_interval;	/* SCTP HEARTBEAT interval in ms */
+	uint32_t	sctp_path_mtu;		/* SCTP path MTU in bytes */
+	uint16_t	sctp_out_streams;	/* Number of outgoing SCTP streams */
+	uint16_t	sctp_in_streams;	/* Number of incoming SCTP streams */
+	uint16_t	sctp_stream_id;		/* SCTP stream identifier (SID) */
 	uint32_t	sctp_pr_value;		/* Value for PR-SCTP */
 	char		sctp_pr_policy[4];	/* Method of PR-SCTP */
 	char		dir[PATHMAX];

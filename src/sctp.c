@@ -45,29 +45,114 @@
 #include "protocol.h"
 #include "generic.h"
 
-#define	USE_POLL_ACCEPT	1
-#define	LISTENQ		10240	/* 2nd argument to listen() */
-#define	TCP_TIMEOUT	1200000	/* Argument to poll */
 
 static void
-set_sctp_options(int fd, flowop_options_t *f)
+set_sctp_options(int fd, int family, flowop_options_t *f)
 {
-	struct sctp_initmsg init;
+	if (f == NULL) {
+		return;
+	}
+	if (FO_SCTP_NODELAY(f)) {
+		const int on = 1;
 
-	if (f && FO_TCP_NODELAY(f)) {
-		int nodelay = 1;
 		if (setsockopt(fd, IPPROTO_SCTP, SCTP_NODELAY,
-			(char *)&nodelay, sizeof (nodelay))) {
+		               &on, (socklen_t)sizeof (int))) {
 			uperf_log_msg(UPERF_LOG_WARN, errno,
-			    "Cannot set SCTP_NODELAY");
+			             "Cannot disable Nagle Algorithm for SCTP");
 		}
 	}
-	if (f && ((f->sctp_in_streams > 0) || (f->sctp_out_streams > 0))) {
+	if ((f->sctp_in_streams > 0) || (f->sctp_out_streams > 0)) {
+		struct sctp_initmsg init;
+
 		memset(&init, 0, sizeof(struct sctp_initmsg));
 		init.sinit_max_instreams = f->sctp_in_streams;
 		init.sinit_num_ostreams = f->sctp_out_streams;
-		if (setsockopt(fd, IPPROTO_SCTP, SCTP_INITMSG, &init, (socklen_t)sizeof(struct sctp_initmsg)) < 0) {
-			uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot set sctp streams");
+		if (setsockopt(fd, IPPROTO_SCTP, SCTP_INITMSG,
+		               &init, (socklen_t)sizeof(struct sctp_initmsg)) < 0) {
+			uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot set SCTP streams");
+		}
+	}
+	if ((f->sctp_rto_min > 0) ||
+	    (f->sctp_rto_max > 0) ||
+	    (f->sctp_rto_initial > 0)) {
+		struct sctp_rtoinfo rtoinfo;
+
+		memset(&rtoinfo, 0, sizeof(struct sctp_rtoinfo));
+		rtoinfo.srto_min = f->sctp_rto_min;
+		rtoinfo.srto_max = f->sctp_rto_max;
+		rtoinfo.srto_initial = f->sctp_rto_initial;
+		if (setsockopt(fd, IPPROTO_SCTP, SCTP_RTOINFO,
+		               &rtoinfo, (socklen_t)sizeof(struct sctp_rtoinfo)) < 0) {
+			uperf_log_msg(UPERF_LOG_WARN, errno,
+			              "Cannot set SCTP RTO parameters");
+		}
+	}
+	if ((f->sctp_sack_delay > 0) || (f->sctp_sack_frequency > 0)) {
+#if defined(SCTP_DELAYED_SACK)
+		struct sctp_sack_info sackinfo;
+
+		memset(&sackinfo, 0, sizeof(struct sctp_sack_info));
+		sackinfo.sack_delay = f->sctp_sack_delay;
+		sackinfo.sack_freq = f->sctp_sack_frequency;
+		if (setsockopt(fd, IPPROTO_SCTP, SCTP_DELAYED_SACK,
+		               &sackinfo, (socklen_t)sizeof(struct sctp_sack_info)) < 0) {
+			uperf_log_msg(UPERF_LOG_WARN, errno,
+			              "Cannot set SCTP SACK parameters");
+		}
+#else
+		uperf_log_msg(UPERF_LOG_WARN, ENOPROTOOPT,
+		              "Cannot set SCTP SACK parameters");
+#endif
+	}
+	if (f->sctp_max_burst_size > 0) {
+		struct sctp_assoc_value maxburst;
+
+		memset(&maxburst, 0, sizeof(struct sctp_assoc_value));
+		maxburst.assoc_value = f->sctp_max_burst_size;
+		if (setsockopt(fd, IPPROTO_SCTP, SCTP_MAX_BURST,
+		               &maxburst, (socklen_t)sizeof(struct sctp_assoc_value)) < 0) {
+			uperf_log_msg(UPERF_LOG_WARN, errno,
+			              "Cannot set max. burst parameter for SCTP");
+		}
+	}
+	if (f->sctp_max_fragment_size > 0) {
+		struct sctp_assoc_value maxfrag;
+
+		memset(&maxfrag, 0, sizeof(struct sctp_assoc_value));
+		maxfrag.assoc_value = f->sctp_max_fragment_size;
+		if (setsockopt(fd, IPPROTO_SCTP, SCTP_MAXSEG,
+		               &maxfrag, (socklen_t)sizeof(struct sctp_assoc_value)) < 0) {
+			uperf_log_msg(UPERF_LOG_WARN, errno,
+			              "Cannot set max. fragment size of SCTP");
+		}
+	}
+	if ((f->sctp_hb_interval > 0) || (f->sctp_path_mtu > 0)) {
+		struct sctp_paddrparams param;
+
+		memset(&param, 0, sizeof(struct sctp_paddrparams));
+		param.spp_address.ss_family = family;
+#if defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
+		switch (family) {
+		case AF_INET:
+			param.spp_address.ss_len = sizeof(struct sockaddr_in);
+			break;
+		case AF_INET6:
+			param.spp_address.ss_len = sizeof(struct sockaddr_in6);
+			break;
+		}
+#endif
+		param.spp_hbinterval = f->sctp_hb_interval;
+		param.spp_pathmtu = f->sctp_path_mtu;
+		if (f->sctp_hb_interval > 0) {
+			param.spp_flags |= SPP_HB_ENABLE;
+		}
+		if (f->sctp_path_mtu > 0) {
+			param.spp_flags |= SPP_PMTUD_DISABLE;
+		}
+		if (setsockopt(fd, IPPROTO_SCTP, SCTP_PEER_ADDR_PARAMS,
+		               &param, (socklen_t)sizeof(struct sctp_paddrparams)) < 0) {
+			uperf_log_msg(UPERF_LOG_WARN, errno,
+			              "Cannot set path defaults for SCTP");
 		}
 	}
 }
@@ -84,9 +169,12 @@ protocol_sctp_listen(protocol_t *p, void *options)
 			(void) snprintf(msg, 128, "%s: Cannot create socket", "sctp");
 			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
 			return (UPERF_FAILURE);
+		} else {
+			set_sctp_options(p->fd, AF_INET, options);
 		}
+	} else {
+		set_sctp_options(p->fd, AF_INET6, options);
 	}
-	set_sctp_options(p->fd, options);
 
 	return (generic_listen(p, IPPROTO_SCTP, options));
 }
@@ -112,7 +200,7 @@ protocol_sctp_connect(protocol_t *p, void *options)
 	if (generic_socket(p, serv.ss_family, IPPROTO_SCTP) < 0) {
 		return (UPERF_FAILURE);
 	}
-	set_sctp_options(p->fd, options);
+	set_sctp_options(p->fd, serv.ss_family, options);
 	switch (serv.ss_family) {
 	case AF_INET:
 		((struct sockaddr_in *)&serv)->sin_port = htons(p->port);
@@ -276,7 +364,6 @@ protocol_sctp_accept(protocol_t *p, void *options)
 	newp = protocol_sctp_new();
 	if (generic_accept(p, newp, options) != UPERF_SUCCESS)
 		return (NULL);
-	set_sctp_options(newp->fd, options);
 
 	return (newp);
 }
@@ -293,4 +380,3 @@ protocol_sctp_create(char *host, int port)
 
 	return (p);
 }
-

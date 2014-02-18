@@ -442,6 +442,9 @@ parse_option(char *option, flowop_t *flowop)
 	else if (strcasecmp(option, "sctp_unordered") == 0) {
 		flowop->options.flag |= O_SCTP_UNORDERED;
 		return (UPERF_SUCCESS);
+	} else if (strcasecmp(option, "sctp_nodelay") == 0) {
+		flowop->options.flag |= O_SCTP_NODELAY;
+		return (UPERF_SUCCESS);
 	}
 #endif
 	else {
@@ -536,7 +539,115 @@ parse_option(char *option, flowop_t *flowop)
 			}
 		}
 #ifdef HAVE_SCTP
-		else if (strcasecmp(key, "sctp_in_streams") == 0) {
+		else if (strcasecmp(key, "sctp_rto_min") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_rto_min = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_rto_min:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "sctp_rto_max") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_rto_max = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_rto_max:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "sctp_rto_initial") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_rto_initial = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_rto_initial:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "sctp_sack_delay") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_sack_delay = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_sack_delay:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "sctp_sack_frequency") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_sack_frequency = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_sack_frequency:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "sctp_max_burst_size") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_max_burst_size = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_max_burst_size:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "sctp_max_fragment_size") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_max_fragment_size = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_max_fragment_size:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "sctp_hb_interval") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_hb_interval = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_hb_interval:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "sctp_path_mtu") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.sctp_path_mtu = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand sctp_path_mtu:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "sctp_in_streams") == 0) {
 			int res;
 			
 			res = string2int(value);
