@@ -287,29 +287,30 @@ void
 print_txn_t(txn_t *t)
 {
 	(void) printf("\ttxn_t [");
-	(void) printf("iter = %"PRIu64"  ", t->iter);
-	(void) printf("nflowops = %d  ", t->nflowop);
-	(void) printf("duration = %"PRIu64"  ", t->duration);
-	(void) printf("rate = %s  ", t->rate_str);
+	(void) printf("iter = %"PRIu64", ", t->iter);
+	(void) printf("nflowops = %d, ", t->nflowop);
+	(void) printf("duration = %"PRIu64", ", t->duration);
+	(void) printf("rate = %s", t->rate_str);
 	(void) printf("]\n");
 }
 
 void
 print_flowop_t(flowop_t *t)
 {
-	(void) printf("\t\tflowop_t [ ");
+	(void) printf("\t\tflowop_t [");
 	(void) printf("type = %s, ", t->name);
-	(void) printf("remote = %s ", t->options.remotehost);
-	(void) printf("protocol = %d ", t->options.protocol);
-	(void) printf("duration = %"PRIu64" ", t->options.duration);
+	(void) printf("local = %s, ", t->options.localhost);
+	(void) printf("remote = %s, ", t->options.remotehost);
+	(void) printf("protocol = %d, ", t->options.protocol);
+	(void) printf("duration = %"PRIu64"", t->options.duration);
 	(void) printf("]\n");
 }
 
 void
 print_group_t(group_t *t)
 {
-	(void) printf("group_t [ ");
-	(void) printf("endian = %d, ", t->endian);
+	(void) printf("group_t [");
+	(void) printf("endian = 0x%x, ", t->endian);
 	(void) printf("nthreads = %d, ", t->nthreads);
 	(void) printf("ntxn = %d", t->ntxn);
 	(void) printf("]\n");
