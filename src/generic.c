@@ -64,30 +64,31 @@
 int
 name_to_addr(const char *address, struct sockaddr_storage *saddr)
 {
-	struct addrinfo *res, hints;
+	struct addrinfo *res, *res0, hints;
 	int error;
-	char buf[INET6_ADDRSTRLEN];
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = PF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
-	if ((error = getaddrinfo(address, NULL, NULL, &res)) == 0) {
-		switch (res->ai_addr->sa_family) {
-		case AF_INET:
-			(void) memcpy(saddr, res->ai_addr, sizeof(struct sockaddr_in));
-			break;
-		case AF_INET6:
-			(void) memcpy(saddr, res->ai_addr, sizeof(struct sockaddr_in6));
-			break;
-		default:
-			ulog_err("getaddrinfo(%s) returned protocol family %d.\n", address, res->ai_addr->sa_family);
+	if ((error = getaddrinfo(address, NULL, NULL, &res0)) == 0) {
+		for (res = res0; res; res = res->ai_next) {
+			if ((res->ai_addr->sa_family != AF_INET) &&
+			    (res->ai_addr->sa_family != AF_INET6)) {
+				continue;
+			}
+			memcpy(saddr, res->ai_addr, res->ai_addrlen);
 			break;
 		}
-		freeaddrinfo(res);
+		freeaddrinfo(res0);
+		if (res != NULL) {
+			return (UPERF_SUCCESS);
+		} else {
+			return (UPERF_FAILURE);
+		}
 	} else {
-		ulog_err("getaddrinfo(%s): %s\n", address, gai_strerror(error));
+		ulog_err("name_to_addr(%s): %s\n", address, gai_strerror(error));
+		return (UPERF_FAILURE);
 	}
-	return (error);
 }
 
 int
