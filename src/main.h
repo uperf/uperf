@@ -35,7 +35,6 @@
 #define	GROUP_STATS		(1<<9)
 #define	UTILIZATION_STATS	(1<<11)
 #define	NO_STATS		(1<<12)
-#define	FENXI_PRINT		(1<<14)
 
 #define	ENABLED_FLOWOP_STATS(a)		((a).copt & FLOWOP_STATS)
 #define	ENABLED_TXN_STATS(a)		((a).copt & TXN_STATS)
@@ -46,7 +45,6 @@
 #define	ENABLED_HISTORY_STATS(a)	((a).copt & HISTORY_STATS)
 #define	ENABLED_GROUP_STATS(a)		((a).copt & GROUP_STATS)
 #define	ENABLED_UTILIZATION_STATS(a)	((a).copt & UTILIZATION_STATS)
-#define	ENABLED_FENXI_PRINT(a)		((a).copt & FENXI_PRINT)
 #define	DISABLED_STATS(a)		((a).copt & NO_STATS)
 #define	ENABLED_STATS(a)		(!DISABLED_STATS(a))
 
