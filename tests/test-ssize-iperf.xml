@@ -5,7 +5,7 @@
             <flowop type="connect" options="remotehost=$h protocol=tcp
 	    wndsz=50k  tcp_nodelay"/>
         </transaction>
-        <transaction duration="10s">
+        <transaction iterations="10">
             <flowop type="write" options="size=8k rsize=128k"/>
         </transaction>
         <transaction iterations="1">

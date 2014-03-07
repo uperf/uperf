@@ -46,9 +46,42 @@
       collection of CPU counter statistics, and much more. 
     </para>
     <sect2>
+      <title>Features</title>
+      <para> 
+        The following list is a short overview of some of the features supported
+        by uperf:
+        <itemizedlist>
+          <listitem>Support modeling of workloads using profiles</listitem>
+          <listitem>Support for Multiple protocols (new protocols can 
+            be easily integrated). The following protocols
+            are currently supported.
+            <itemizedlist>
+              <listitem>TCP</listitem>
+              <listitem>UDP</listitem>
+              <listitem>SCTP</listitem>
+              <listitem>SSL</listitem>
+            </itemizedlist>
+          </listitem>
+	  <listitem>Support for IPV4 and IPV6</listitem>
+          <listitem>1-Many hosts</listitem>
+          <listitem>Support for CPU counters and lots of other detailed
+          statistics</listitem>
+          <listitem>Ability to choose whether to use processes or threads</listitem>
+        </itemizedlist>
+      </para>
+    </sect2>
+
+    <sect2>
+      <title>Supported Platforms</title>
+      <para>Uperf is supported on Linux, FreeBSD, MacOS, Solaris and
+	      OpenSolaris. 
+      </para> 
+    </sect2>
+    <sect2>
       <title>Authors</title>
       <para>
-        uperf was developed by the Performance Availablity Engineering 
+	      uperf was originally developed by the Performance Availablity
+	      Engineering 
         group at Sun Microsystems. It was originally developed by
         <ulink url="http://blogs.sun.com/realneel">Neelakanth Nadgir</ulink>
         and <ulink url="mailto:nitin.rammanavar@sun.com">Nitin Rammanavar</ulink>.
@@ -61,43 +94,12 @@
         <ulink url="mailto:janlung.sung@sun.com">Jan-Lung Sung</ulink> have 
         contributed significantly to its design and development.
       </para>
-    </sect2>
-    <sect2>
-      <title>Features</title>
-      <para> 
-        The following list is a short overview of some of the features supported
-        by uperf:
-        <itemizedlist>
-          <listitem>Support modeling of workloads using profiles</listitem>
-          <listitem>Support for Multiple protocols (new protocols can 
-            be easily integrated). Currently the following protocols
-            are supported.
-            <itemizedlist>
-              <listitem>TCP</listitem>
-              <listitem>UDP</listitem>
-              <listitem>SCTP</listitem>
-              <listitem>SSL</listitem>
-            </itemizedlist>
-          </listitem>
-          <listitem>1-Many hosts</listitem>
-          <listitem>Support for CPU counters and lots of other detailed
-          statistics</listitem>
-          <listitem>
-            <ulink url="http://fenxi.dev.java.net">Fenxi</ulink>
-            integration (Cool graphs!).
-          </listitem>
-          <listitem>Ability to choose whether to use processes or threads</listitem>
-          <listitem>Runs on Solaris, Linux and windows
-            <footnote><para>Currently unsupported</para></footnote>
-          </listitem>
-        </itemizedlist>
+      <para>
+	      After it was opensourced, Michael Tuexen has contributed
+	      significanlty to the project, espcially in the areas of IPV6
+	      and SCTP support. Michael and Irene Ruengeler added support
+	      for several SCTP options.
       </para>
-    </sect2>
-
-    <sect2>
-      <title>Supported Platforms</title>
-      <para>Uperf is supported on Solaris, OpenSolaris, Linux and FreeBSD. 
-      </para> 
     </sect2>
   </sect1>
   
@@ -645,7 +647,7 @@
       </qandaentry>
       <qandaentry>
         <question><para>What does operations in the Run Statistics 
-		section mean? (</para>
+		section mean?</para>
         </question>
         <answer><para>
 		Operations =  1 + flowops_executed + transactions_executed
@@ -682,20 +684,6 @@
 	  </para>
   </sect1>
   
-  <sect1>
-      <title>Using Fenxi with Uperf</title>
-      <para>Uperf can generate data that can be post processed by
-        <ulink url="http://fenxi.dev.java.net">Fenxi</ulink>. To
-        use that feature, you have to use the <parameter>-x</parameter>
-        option of uperf. The output should be stored in file whose
-        name has the <emphasis>uperf</emphasis> prefix. For ex
-        <programlisting>
-$ uperf -m iperf.xml -x > uperf-iperf.out
-$ fenxi process uperf-iperf.out outdir iperf
-        </programlisting>.
-        The output is now stored in <emphasis>outdir</emphasis>
-       </para>     
-  </sect1>
 </article>
 
 

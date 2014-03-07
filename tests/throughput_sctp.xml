@@ -5,7 +5,7 @@
             <flowop type="connect" options="remotehost=$h
                              protocol=sctp tcp_nodelay"/>
         </transaction>
-        <transaction duration="$duration">
+        <transaction iterations="10">
             <flowop type="read" options="size=16k"/>
         </transaction>
         <transaction iterations="1">

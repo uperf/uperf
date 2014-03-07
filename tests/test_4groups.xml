@@ -5,7 +5,7 @@
         <flowop type="connect" options="remotehost=$h 
 	protocol=tcp wndsz=256k"/>
       </transaction>
-      <transaction duration="$duration">
+      <transaction iterations="10">
             <flowop type="read" options="size=1024"/>
       </transaction>
       <transaction iterations="1">
@@ -17,7 +17,7 @@
         <flowop type="connect" options="remotehost=$h 
 	protocol=tcp wndsz=256k"/>
       </transaction>
-      <transaction duration="$duration">
+      <transaction iterations="10">
             <flowop type="read" options="size=1024"/>
       </transaction>
       <transaction iterations="1">
@@ -29,7 +29,7 @@
         <flowop type="connect" options="remotehost=$h
 	protocol=tcp wndsz=256k"/>
       </transaction>
-      <transaction duration="$duration">
+      <transaction iterations="10">
             <flowop type="write" options="size=1024"/>
       </transaction>
       <transaction iterations="1">
@@ -42,7 +42,7 @@
         <flowop type="connect" options="remotehost=$h
 	protocol=tcp wndsz=256k"/>
       </transaction>
-      <transaction duration="$duration">
+      <transaction iterations="10">
             <flowop type="write" options="size=1024"/>
       </transaction>
       <transaction iterations="1">

@@ -4,7 +4,7 @@
         <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol=rds"/>
         </transaction>
-        <transaction duration="10">
+        <transaction iterations="10">
             <flowop type="write" options="size=256"/>
 	    <flowop type="read" options="size=256"/>
         </transaction>
@@ -14,7 +14,7 @@
         <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol=rds"/>
         </transaction>
-        <transaction duration="10">
+        <transaction iterations="10">
                 <flowop type="write" options="size=65536"/>
         	<flowop type="read" options="size=65536"/>	
         </transaction>

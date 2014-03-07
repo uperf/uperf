@@ -1,4 +1,4 @@
-Usage: /home/neel/projects/raptor/raptor1/framework/uperf [m:shgtTfkpaeE:vVx:d:]
+Usage: /home/neel/projects/raptor/raptor1/framework/uperf [m:shgtTfkpaeE:vV:d:]
 	-m	 <profile>  Run uperf with this profile
 	-s	 Slave
 	-n	 Print no statistics
@@ -14,8 +14,7 @@ Usage: /home/neel/projects/raptor/raptor1/framework/uperf [m:shgtTfkpaeE:vVx:d:]
 	-v	 Verbose
 	-V	 Version
 	-h	 Print usage
-	-x	 Print in xanadu format to file
-	-X	 collect response times (in xanadu format)
+	-X	 collect response times
 	-i	 <interval> collect throughput every <interval>
 
 NOTE: -p/-e/-E work only if -f is also used

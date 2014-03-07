@@ -4,7 +4,7 @@
         <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol=udp"/>
         </transaction>
-        <transaction duration="10" rate="100">
+        <transaction duration="3" rate="100">
             <flowop type="write" options="size=64"/>
         </transaction>
         <transaction iterations="1">

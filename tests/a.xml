@@ -25,7 +25,7 @@
         </transaction>
         <transaction iterations="2">
             <flowop type="write" options="conn=1 count=1 size=8k"/>
-            <flowop type="think" options="duration=2s idle"/>
+            <flowop type="think" options="duration=1s idle"/>
             <flowop type="think" options="duration=50ms busy"/>
             <flowop type="think" options="duration=60ms idle"/>
         </transaction>

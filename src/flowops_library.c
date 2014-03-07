@@ -32,6 +32,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "uperf.h"
 #include "protocol.h"
 #include "logging.h"
@@ -126,8 +127,7 @@ flowop_rw(strand_t *s, flowop_t *f)
 			char msg[1024];
 			if (errno != EINTR) {
 				int serrno = errno;
-				snprintf(msg, 1024, "error(%d) for flowop %d",
-					serrno, f->type);
+				snprintf(msg, 1024, "Error for flowop %s ", f->name);
 				uperf_log_msg(UPERF_LOG_ERROR, serrno, msg);
 				/* snprint could change errno */
 				errno = serrno;

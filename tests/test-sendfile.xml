@@ -5,7 +5,7 @@
             <flowop type="accept" options="remotehost=$h protocol=tcp
 	    wndsz=50k  tcp_nodelay"/>
         </transaction>
-        <transaction duration="30s">
+        <transaction iterations="1">
             <flowop type="sendfile" options="dir=. nfiles=10"/>
         </transaction>
         <transaction iterations="1">

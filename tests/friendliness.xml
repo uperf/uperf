@@ -4,16 +4,16 @@
         <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol=tcp
 	    wndsz=200k tcp_nodelay"/>
-            <flowop type="write" options="duration=10s size=16k"/>
+            <flowop type="write" options="duration=1s size=16k"/>
         </transaction>
       <transaction iterations="1">
-            <flowop type="write" options="duration=10s size=16k"/>
+            <flowop type="write" options="duration=1s size=16k"/>
             <flowop type="disconnect" />
         </transaction>
   </group>
 <group nthreads="1">
         <transaction iterations="1">
-            <flowop type="think" options="duration=10s idle"/>
+            <flowop type="think" options="duration=1s idle"/>
             <flowop type="connect" options="remotehost=$h protocol=tcp
 	    wndsz=200k tcp_nodelay"/>
         </transaction>
