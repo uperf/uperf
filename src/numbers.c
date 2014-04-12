@@ -83,7 +83,7 @@ string_to_int(char *value)
 	}
 	if (*end == '.') {
 		double fval = strtod(tmp, &end);
-		if ((shift == str2shift(end)) == -1)
+		if ((shift = str2shift(end)) == -1)
 			return (-1);
 		fval *= pow(2.0, (double) shift);
 		if (fval > UINT32_MAX) {
