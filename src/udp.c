@@ -361,7 +361,7 @@ protocol_udp_connect(protocol_t *p, void *options)
 		return (UPERF_FAILURE);
 	}
 	switch (pd->addr_info.ss_family) {
-	case  AF_INET:
+	case AF_INET:
 		((struct sockaddr_in *)&pd->addr_info)->sin_port = htons(pd->port);
 		break;
 	case AF_INET6:

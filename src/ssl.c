@@ -481,7 +481,7 @@ protocol_ssl_create(char *host, int port)
 	}
 	if (strlen(host) == 0) {
 		(void) strlcpy(newp->host, "lOcAlHoSt", MAXHOSTNAME);
-	} else{
+	} else {
 		(void) strlcpy(newp->host, host, MAXHOSTNAME);
 	}
 	newp->port = port;

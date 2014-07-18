@@ -121,7 +121,7 @@ generic_connect(protocol_t *p, int protocol)
 		return (UPERF_FAILURE);
 	}
 	switch (serv.ss_family) {
-	case  AF_INET:
+	case AF_INET:
 		((struct sockaddr_in *)&serv)->sin_port = htons(p->port);
 		len = (socklen_t)sizeof(struct sockaddr_in);
 		break;

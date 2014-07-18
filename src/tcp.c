@@ -139,7 +139,7 @@ protocol_tcp_create(char *host, int port)
 	}
 	if (strlen(host) == 0) {
 		(void) strlcpy(newp->host, "localhost", MAXHOSTNAME);
-	} else{
+	} else {
 		(void) strlcpy(newp->host, host, MAXHOSTNAME);
 	}
 	newp->port = port;
