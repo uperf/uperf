@@ -81,7 +81,7 @@ AC_COMPILE_IFELSE([[#include <sys/resource.h>
 		int i=RUSAGE_LWP;]],
 		[AC_MSG_RESULT(yes)
 	  	 AC_DEFINE([USE_GETRUSAGE],[1],[Have getrusage])
-		], 
+		],
 		[
 		 AC_MSG_RESULT(no)
 		 ## AC_DEFINE([USE_PROC], [1], [Use proc])
@@ -93,7 +93,7 @@ AC_LINK_IFELSE([[#include <sys/byteorder.h>
 		int main(int argc, char *argv[]){int i=BSWAP_32(1);}]],
 		[AC_MSG_RESULT(yes)
 	  	 AC_DEFINE([HAVE_BSWAP],[1],[Have BSWAP_ macros])
-		], 
+		],
 		[AC_MSG_RESULT(no)
 		])
 # Linux 2.6 does not have sendfilev
@@ -102,7 +102,7 @@ AC_LINK_IFELSE([[#include <sys/sendfile.h>
 		main() {int i=sendfilev(1,0, 1, 0);}]],
 		[AC_MSG_RESULT(yes)
 	  	 AC_DEFINE([HAVE_SENDFILEV],[1],[Have sendfilev])
-		], 
+		],
 		[AC_MSG_RESULT(no)
 		])
 
@@ -151,13 +151,13 @@ main(int argc, char *argv[])
 }],[AC_MSG_RESULT(yes)],
    [
       AC_MSG_RESULT(no)
-      AC_DEFINE([STRAND_THREAD_ONLY], [1], [Use only threads]) 
+      AC_DEFINE([STRAND_THREAD_ONLY], [1], [Use only threads])
       AM_CONDITIONAL([HAVE_PROCESSES], [false])
    ]
 )
 # Checks for libraries.
 AC_MSG_CHECKING(whether to enable cpu performance counters support?)
-AC_ARG_ENABLE(cpc, 
+AC_ARG_ENABLE(cpc,
 	AC_HELP_STRING([--enable-cpc],[Turn on cpu counter support ]),,
 	enable_cpc=$cpc_default)
 if test "x$enable_cpc" = "xyes"; then
@@ -205,8 +205,8 @@ AC_CHECK_LIB([kstat], [kstat_open],
 )
 
 AC_MSG_CHECKING(whether to enable netstat support)
-AC_ARG_ENABLE(netstat, 
-	AC_HELP_STRING([--enable-netstat], [Collect network stats? default=yes]),, 
+AC_ARG_ENABLE(netstat,
+	AC_HELP_STRING([--enable-netstat], [Collect network stats? default=yes]),,
 	enable_netstat=$netstat_default)
 if test "x$enable_netstat" = "xyes"; then
 	AM_CONDITIONAL([ENABLE_NETSTAT], [true])
@@ -238,12 +238,12 @@ AC_MSG_CHECKING(whether to enable debug mode)
 AC_ARG_ENABLE(debug,
      AC_HELP_STRING([--enable-debug],[Turn on debugging]),
      [case "${enableval}" in
-       yes) debug=true 
+       yes) debug=true
      	    AC_DEFINE([DEBUG],[1],[Debug])
 	    CFLAGS="$CFLAGS -g"
      	    AC_MSG_RESULT(yes)
             ;;
-       no)  debug=false 
+       no)  debug=false
      	    AC_MSG_RESULT(no)
        		;;
        *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
@@ -252,8 +252,8 @@ AC_ARG_ENABLE(debug,
 
 #check for udp
 AC_MSG_CHECKING(whether to enable udp support)
-AC_ARG_ENABLE(udp, 
-	AC_HELP_STRING([--enable-udp], [Turn on udp support]),, 
+AC_ARG_ENABLE(udp,
+	AC_HELP_STRING([--enable-udp], [Turn on udp support]),,
 	enable_udp=$udp_default)
 if test "x$enable_udp" = "xyes"; then
 	AM_CONDITIONAL([UDP_C], [true])
@@ -265,7 +265,7 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-#check for rds 
+#check for rds
 AC_MSG_CHECKING(whether to enable rds support)
 AC_ARG_ENABLE(rds,
         AC_HELP_STRING([--enable-rds], [Turn on rds support]),,
@@ -281,7 +281,7 @@ else
 fi
 
 AC_MSG_CHECKING(whether to enable sctp support)
-AC_ARG_ENABLE(sctp, 
+AC_ARG_ENABLE(sctp,
 	AC_HELP_STRING([--enable-sctp],[Turn on sctp support ]),,
 	enable_sctp=$sctp_default)
 if test "x$enable_sctp" = "xyes"; then
@@ -294,7 +294,7 @@ if test "x$enable_sctp" = "xyes"; then
 	                             UPERF_LIBS="$UPERF_LIBS -lsctp"])])
 	AC_CHECK_FUNC(sctp_sendmsg,
 	              [AC_DEFINE([HAVE_SCTP_SENDMSG],[1], [Have sctp_sendmsg()])],
-	              [AC_CHECK_LIB(sctp, 
+	              [AC_CHECK_LIB(sctp,
 	                            sctp_sendmsg,
 	                            [AC_DEFINE([HAVE_SCTP_SENDMSG],[1], [Have sctp_sendmsg()])
 	                             UPERF_LIBS="$UPERF_LIBS -lsctp"])])
@@ -323,8 +323,8 @@ AC_ARG_WITH(ssl-libs,
 
 
 AC_MSG_CHECKING(whether to enable ssl support)
-AC_ARG_ENABLE(ssl, 
-	AC_HELP_STRING([--enable-ssl],[Turn on ssl support ]),, 
+AC_ARG_ENABLE(ssl,
+	AC_HELP_STRING([--enable-ssl],[Turn on ssl support ]),,
 	enable_ssl=$ssl_default)
 if test "x$enable_ssl" = "xyes"; then
 	AC_MSG_RESULT(yes)
@@ -361,7 +361,7 @@ echo " "
 echo "+------------------------------------------------+"
 if test x$build_master = xfalse; then
 	echo "| Warning: Will build only the slave             |"
-else 
+else
 	echo "| Will build combined binary (master + slave)    |"
 fi
 echo "+------------------------------------------------+"
