@@ -42,7 +42,7 @@ case "$(uname -s)" in
 		good_os="no"
 		sctp_default="yes"
 		ssl_default="yes"
-		UPERF_LIBS="$UPERF_LIBS -lrt -lm"
+		UPERF_LIBS="$UPERF_LIBS -lrt -lm -pthread"
 		CFLAGS="-D_GNU_SOURCE $CFLAGS"
 		;;
 	Linux)
