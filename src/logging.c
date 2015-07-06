@@ -110,7 +110,7 @@ uperf_log_flush_to_string(char *buffer, int size)
 		char *e;
 
 		e = ((err == 0) ?  " " : strerror(err));
-		if (! log->msg[i].str)
+		if (strlen(log->msg[i].str) == 0)
 			continue;
 		if (log->msg[i].count > 2) {
 			char *t;
@@ -153,7 +153,7 @@ uperf_log_flush()
 		int err = log->msg[i].myerrno;
 		char *e;
 		e = ((err == 0) ?  " " : strerror(err));
-		if (! log->msg[i].str)
+		if (strlen(log->msg[i].str) == 0)
 			continue;
 		if (log->msg[i].count > 2) {
 			char *t;
