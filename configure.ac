@@ -77,7 +77,7 @@ AC_CHECK_TYPES([uint64_t, uint32_t], [], [], [[#include <stdint.h>]])
 # Solaris 9 and below do not support RUSAGE_LWP with getrusage
 # fallback to using /proc if not defined
 AC_MSG_CHECKING(if we can use getrusage)
-AC_COMPILE_IFELSE([[#include <sys/resource.h>
+AC_COMPILE_IFELSE([AC_LANG_SOURCE[#include <sys/resource.h>
 		int i=RUSAGE_LWP;]],
 		[AC_MSG_RESULT(yes)
 	  	 AC_DEFINE([USE_GETRUSAGE],[1],[Have getrusage])
@@ -89,7 +89,7 @@ AC_COMPILE_IFELSE([[#include <sys/resource.h>
 
 # Some solaris versions do not define BSWAP_* macros
 AC_MSG_CHECKING(BSWAP_ macros)
-AC_LINK_IFELSE([[#include <sys/byteorder.h>
+AC_LINK_IFELSE([AC_LANG_SOURCE[#include <sys/byteorder.h>
 		int main(int argc, char *argv[]){int i=BSWAP_32(1);}]],
 		[AC_MSG_RESULT(yes)
 	  	 AC_DEFINE([HAVE_BSWAP],[1],[Have BSWAP_ macros])
@@ -98,7 +98,7 @@ AC_LINK_IFELSE([[#include <sys/byteorder.h>
 		])
 # Linux 2.6 does not have sendfilev
 AC_MSG_CHECKING(sendfilev)
-AC_LINK_IFELSE([[#include <sys/sendfile.h>
+AC_LINK_IFELSE([AC_LANG_SOURCE[#include <sys/sendfile.h>
 		main() {int i=sendfilev(1,0, 1, 0);}]],
 		[AC_MSG_RESULT(yes)
 	  	 AC_DEFINE([HAVE_SENDFILEV],[1],[Have sendfilev])
