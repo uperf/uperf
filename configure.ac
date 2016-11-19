@@ -52,7 +52,7 @@ case "$(uname -s)" in
 		sctp_default="yes"
 		ssl_default="no"
 		cpc_default="no"
-		UPERF_LIBS="$UPERF_LIBS -lrt -lm"
+		UPERF_LIBS="$UPERF_LIBS -lrt -lm -lpthread"
 		CFLAGS="-D_GNU_SOURCE $CFLAGS"
 		;;
 	SunOS)
