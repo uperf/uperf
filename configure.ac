@@ -66,7 +66,7 @@ case "$(uname -s)" in
 		AC_DEFINE([UPERF_DARWIN],[1],[Setting machine os to Darwin])
 		good_os="no"
 		sctp_default="no"
-		ssl_default="yes"
+		ssl_default="no"
 		UPERF_LIBS="$UPERF_LIBS -lm"
 		CFLAGS="-D_GNU_SOURCE -Wno-deprecated-declarations $CFLAGS"
 		;;
