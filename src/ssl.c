@@ -346,7 +346,7 @@ protocol_ssl_read(protocol_t * p, void *buffer, int size, void *options)
 	int bufsize = size * 10;
 	int status = 1;
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
-	char *host = p->host ? p->host : "Unknown";
+	char *host = p->host[0] == '\0' ? p->host : "Unknown";
 	flowop_options_t *flowop_options = (flowop_options_t *) options;
 
 	uperf_debug("ssl - Reading %d bytes from %s:%d\n", size, host,
@@ -359,7 +359,7 @@ static int
 protocol_ssl_write(protocol_t * p, void *buffer, int size, void *options)
 {
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
-	char *host = p->host ? p->host : "Unknown";
+	char *host = p->host[0] == '\0' ? p->host : "Unknown";
 	int status = 1;
 	int i;
 	int bufsize = size * 10;
