@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <strings.h>
-#include "config.h"
+#include "../config.h"
 #ifdef HAVE_TERMIO_H
 #include <termio.h>
 #endif /* HAVE_TERMIO_H */
