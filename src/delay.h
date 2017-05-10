@@ -28,4 +28,9 @@
 int uperf_sleep(hrtime_t);
 int uperf_spin(hrtime_t);
 
+/*
+ * Initialize alarm to be able to wake up the device between transactions / flowops
+ */
+int init_android_alarm();
+
 #endif /* _DELAY_H */

@@ -58,7 +58,7 @@
 #define HAVE_NANOSLEEP 1
 
 /* Define to 1 if you have the <poll.h> header file. */
-#undef HAVE_POLL_H
+#define HAVE_POLL_H 1
 
 /* Define to 1 if you have the `pthread_self' function. */
 #define HAVE_PTHREAD_SELF 1
@@ -203,6 +203,13 @@
 
 /* Setting machine os to Linux */
 #define UPERF_LINUX 1
+
+/* Setting machine os to Android. Must be defined together with UPERF_LINUX */
+#define UPERF_ANDROID 1
+
+#if defined (UPERF_ANDROID) && ! defined (UPERF_LINUX)
+#define UPERF_LINUX 1
+#endif
 
 /* Setting machine os to Solaris */
 #undef UPERF_SOLARIS

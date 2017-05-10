@@ -20,43 +20,101 @@
 #include "../config.h"
 #endif /* HAVE_CONFIG_H */
 
-#include <time.h>
-#include <math.h>
-#ifdef HAVE_CONFIG_H
-#include "../config.h"
-#endif /* HAVE_CONFIG_H */
-#include <errno.h>
-#include <math.h>
-#include <stdio.h>
 #include "uperf.h"
 #include "logging.h"
 
-/* Returns 0 on success */
-int
-uperf_sleep(hrtime_t duration_nsecs)
+#include <hardware_legacy/power.h>
+
+#include <errno.h>
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/timerfd.h>
+#include <time.h>
+#ifdef HAVE_POLL_H
+#include <poll.h>
+#endif /* HAVE_POLL_H */
+
+
+#define NSEC_PER_SEC 1000000000L
+#define USEC_PER_SEC 1000000L
+
+#if defined (UPERF_ANDROID) || defined (HAVE_NANOSLEEP)
+static void nsecs_to_timespec(struct timespec *ts, hrtime_t duration_nsecs)
 {
-#ifdef HAVE_NANOSLEEP
+	ts->tv_sec = duration_nsecs / NSEC_PER_SEC;
+	ts->tv_nsec = duration_nsecs % NSEC_PER_SEC;
+}
+#endif /* defined (UPERF_ANDROID) || defined (HAVE_NANOSLEEP) */
+
+#ifdef UPERF_ANDROID
+static int fd;
+
+int init_android_alarm()
+{
+	fd = timerfd_create(CLOCK_BOOTTIME_ALARM, TFD_NONBLOCK);
+	return fd;
+}
+
+static int set_wakeup_alarm(struct timespec *ts)
+{
+	struct itimerspec spec;
+
+	memset(&spec, 0, sizeof(spec));
+
+	spec.it_value.tv_sec = ts->tv_sec;
+	spec.it_value.tv_nsec = ts->tv_nsec;
+
+	return timerfd_settime(fd, 0, &spec, NULL);
+}
+
+static int __uperf_sleep(hrtime_t duration_nsecs)
+{
+	struct timespec ts;
+	struct pollfd fds;
+	int timeout_ms, ret;
+
+	nsecs_to_timespec(&ts, duration_nsecs);
+	if (set_wakeup_alarm(&ts) == -1) {
+		return -1;
+	}
+
+	fds.fd = fd;
+	fds.events = POLLIN;
+	timeout_ms = duration_nsecs / USEC_PER_SEC;
+
+	release_wake_lock(UPERF_WAKE_LOCK);
+	ret = poll(&fds, 1, timeout_ms);
+	acquire_wake_lock(PARTIAL_WAKE_LOCK, UPERF_WAKE_LOCK);
+
+	return ret;
+}
+#elif defined (HAVE_NANOSLEEP)
+static int __uperf_sleep(hrtime_t duration_nsecs)
+{
 	struct timespec rqtp, rmtp;
-	rqtp.tv_sec = (long) duration_nsecs/1.0e+9;
-	rqtp.tv_nsec = (long) fmod(duration_nsecs, 1.0e+9);
-	if (nanosleep(&rqtp, &rmtp) == -1) {
+	nsecs_to_timespec(&rqtp, duration_nsecs);
+	return nanosleep(rqtp, &rmtp);
+}
+#else
+static int __uperf_sleep(hrtime_t duration_nsecs)
+{
+	return poll(NULL, 0, (duration_nsecs / USEC_PER_SEC));
+}
+#endif /* UPERF_ANDROID */
+
+/* Returns 0 on success */
+int uperf_sleep(hrtime_t duration_nsecs)
+{
+	if (__uperf_sleep(duration_nsecs) == -1) {
 		char msg[512];
 		int saved_errno = errno;
-		if (saved_errno != EINTR) {
-			(void) snprintf(msg, 512,
-			    "Error sleeping for %.4fs\n",
-			    duration_nsecs*1.0/1.0e+9);
-			uperf_log_msg(UPERF_LOG_ERROR, saved_errno, msg);
-		}
-		return (saved_errno);
+		snprintf(msg, sizeof(msg), "Error sleeping for %.4fs\n", (duration_nsecs * 1.0 / NSEC_PER_SEC));
+		uperf_log_msg(UPERF_LOG_ERROR, saved_errno, msg);
+		return saved_errno;
 	}
-	return (0);
-#else
-	if (duration_nsecs/1.0e+6 < 1)
-		return (0);
-	return (poll(NULL, NULL, (int)(duration_nsecs/1.0e+6))
-	    == 0 ? 0 : errno);
-#endif
+
+	return 0;
 }
 
 int

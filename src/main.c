@@ -43,6 +43,7 @@
 #include "main.h"
 #include "flowops.h"
 #include "workorder.h"
+#include "delay.h"
 #ifdef USE_CPC
 #include "hwcounter.h"
 #endif /* USE_CPC */
@@ -53,6 +54,8 @@
 #ifdef UPERF_LINUX1
 _syscall0(pid_t, gettid)
 #endif /* UPERF_LINUX */
+
+#include <hardware_legacy/power.h>
 
 options_t options;
 static options_t *init_options(int argc, char **argv);
@@ -337,10 +340,26 @@ main(int argc, char **argv)
 #endif
 	}
 
+#ifdef UPERF_ANDROID
+	if (init_android_alarm() == -1) {
+		uperf_error("Error during Android alarm initialization: %s\n", strerror(errno));
+		return (1);
+	}
+#endif /* UPERF_ANDROID */
+
 	if (IS_SLAVE(options))
 		return (slave());
 #ifndef UPERF_SLAVE_ONLY
-	else
-		return (master(worklist));
+	else {
+		int ret;
+#ifdef UPERF_ANDROID
+		acquire_wake_lock(PARTIAL_WAKE_LOCK, UPERF_WAKE_LOCK);
+		ret = master(worklist);
+		release_wake_lock(UPERF_WAKE_LOCK);
+#else
+		ret = master(worklist);
+#endif /* UPERF_ANDROID */
+		return ret;
+	}
 #endif
 }
