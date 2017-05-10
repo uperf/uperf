@@ -13,4 +13,6 @@ LOCAL_SRC_FILES :=  workorder.c strand.c execute.c flowops_library.c \
 LOCAL_CFLAGS := -DHAVE_CONFIG_H
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/..
 
+LOCAL_SHARED_LIBRARIES := libhardware_legacy
+
 include $(BUILD_EXECUTABLE)

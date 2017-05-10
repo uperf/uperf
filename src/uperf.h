@@ -165,4 +165,6 @@ typedef struct transaction txn_t;
 typedef struct thg group_t;
 typedef struct uperf_strand strand_t;
 
+#define UPERF_WAKE_LOCK "Uperf"
+
 #endif	/* UPERF_H */
