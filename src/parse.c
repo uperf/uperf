@@ -550,6 +550,10 @@ parse_option(char *option, flowop_t *flowop)
 				add_error(err);
 				return (UPERF_FAILURE);
 			}
+		} else if (strcasecmp(key, "cc") == 0) {
+			strlcpy(flowop->options.cc, value, sizeof(flowop->options.cc));
+		} else if (strcasecmp(key, "stack") == 0) {
+			strlcpy(flowop->options.stack, value, sizeof(flowop->options.stack));
 		}
 #ifdef HAVE_SCTP
 		else if (strcasecmp(key, "sctp_rto_min") == 0) {
