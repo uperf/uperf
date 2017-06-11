@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include "logging.h"
 #include "uperf.h"
 #include "flowops.h"
@@ -73,6 +74,7 @@ protocol_tcp_connect(protocol_t *p, void *options)
 {
 	struct sockaddr_storage serv;
 	flowop_options_t *flowop_options = (flowop_options_t *)options;
+	char msg[128];
 
 	uperf_debug("tcp: Connecting to %s:%d\n", p->host, p->port);
 
@@ -84,6 +86,26 @@ protocol_tcp_connect(protocol_t *p, void *options)
 		return (UPERF_FAILURE);
 	}
 	set_tcp_options(p->fd, flowop_options);
+	if ((flowop_options != NULL) && (flowop_options->encaps_port > 0)) {
+		uperf_debug("Using UDP encapsulation with remote port %u\n",
+		            flowop_options->encaps_port);
+#ifdef TCP_REMOTE_UDP_ENCAPS_PORT
+		if (setsockopt(p->fd, IPPROTO_TCP, TCP_REMOTE_UDP_ENCAPS_PORT,
+		               &flowop_options->encaps_port, sizeof(int)) < 0) {
+			(void) snprintf(msg, 128,
+			    "tcp: Enabling UDP encapsulation to port %d failed",
+			    flowop_options->encaps_port);
+			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+			return (UPERF_FAILURE);
+		}
+#else
+		(void) snprintf(msg, 128,
+		    "tcp: Enabling UDP encapsulation to port %d not supported",
+		    flowop_options->encaps_port);
+		uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+		return (UPERF_FAILURE);
+#endif
+	}
 	if (generic_connect(p, &serv) < 0) {
 		return (UPERF_FAILURE);
 	}

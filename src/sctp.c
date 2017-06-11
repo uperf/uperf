@@ -187,10 +187,14 @@ protocol_sctp_listen(protocol_t *p, void *options)
 static int
 protocol_sctp_connect(protocol_t *p, void *options)
 {
+#ifdef SCTP_REMOTE_UDP_ENCAPS_PORT
+	struct sctp_udpencaps encap;
+#endif
 	struct sockaddr_storage serv;
 	flowop_options_t *flowop_options = (flowop_options_t *)options;
 	socklen_t len;
 	const int off = 0;
+	char msg[128];
 
 	uperf_debug("sctp: Connecting to %s:%d\n", p->host, p->port);
 
@@ -202,6 +206,27 @@ protocol_sctp_connect(protocol_t *p, void *options)
 		return (UPERF_FAILURE);
 	}
 	set_sctp_options(p->fd, serv.ss_family, flowop_options);
+	if ((flowop_options != NULL) && (flowop_options->encaps_port > 0)) {
+		uperf_debug("Using UDP encapsulation with remote port %u\n", flowop_options->encaps_port);
+#ifdef SCTP_REMOTE_UDP_ENCAPS_PORT
+		memset(&encap, 0, sizeof(struct sctp_udpencaps));
+		encap.sue_address.ss_family = serv.ss_family;
+		encap.sue_port = htons((uint16_t)flowop_options->encaps_port);
+		if (setsockopt(p->fd, IPPROTO_SCTP, SCTP_REMOTE_UDP_ENCAPS_PORT, &encap, sizeof(struct sctp_udpencaps)) < 0) {
+			(void) snprintf(msg, 128,
+			    "tcp: Enabling UDP encapsulation to port %d failed",
+			    flowop_options->encaps_port);
+			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+			return (UPERF_FAILURE);
+		}
+#else
+		(void) snprintf(msg, 128,
+		    "tcp: Enabling UDP encapsulation to port %d not supported",
+		    flowop_options->encaps_port);
+		uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
+		return (UPERF_FAILURE);
+#endif
+	}
 	if (generic_connect(p, &serv) < 0) {
 		return (UPERF_FAILURE);
 	}
