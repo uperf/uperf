@@ -166,6 +166,7 @@ set_sctp_options(int fd, int family, flowop_options_t *f)
 static int
 protocol_sctp_listen(protocol_t *p, void *options)
 {
+	flowop_options_t *flowop_options = (flowop_options_t *)options;
 	char msg[128];
 
 	if (generic_socket(p, AF_INET6, IPPROTO_SCTP) != UPERF_SUCCESS) {
@@ -174,10 +175,10 @@ protocol_sctp_listen(protocol_t *p, void *options)
 			uperf_log_msg(UPERF_LOG_ERROR, errno, msg);
 			return (UPERF_FAILURE);
 		} else {
-			set_sctp_options(p->fd, AF_INET, options);
+			set_sctp_options(p->fd, AF_INET, flowop_options);
 		}
 	} else {
-		set_sctp_options(p->fd, AF_INET6, options);
+		set_sctp_options(p->fd, AF_INET6, flowop_options);
 	}
 
 	return (generic_listen(p, IPPROTO_SCTP, options));
@@ -187,47 +188,23 @@ static int
 protocol_sctp_connect(protocol_t *p, void *options)
 {
 	struct sockaddr_storage serv;
+	flowop_options_t *flowop_options = (flowop_options_t *)options;
 	socklen_t len;
 	const int off = 0;
 
-	/*
-	 * generic_connect() can't be used since the socket options
-	 * must be set after calling socket() but before calling connect().
-	 */
-	uperf_debug("Connecting to %s:%d\n", p->host, p->port);
+	uperf_debug("sctp: Connecting to %s:%d\n", p->host, p->port);
 
 	if (name_to_addr(p->host, &serv)) {
 		/* Error is already reported by name_to_addr, so just return */
 		return (UPERF_FAILURE);
 	}
-
 	if (generic_socket(p, serv.ss_family, IPPROTO_SCTP) < 0) {
 		return (UPERF_FAILURE);
 	}
-	set_sctp_options(p->fd, serv.ss_family, options);
-	switch (serv.ss_family) {
-	case AF_INET:
-		((struct sockaddr_in *)&serv)->sin_port = htons(p->port);
-		len = (socklen_t)sizeof(struct sockaddr_in);
-		break;
-	case AF_INET6:
-		((struct sockaddr_in6 *)&serv)->sin6_port = htons(p->port);
-		len = (socklen_t)sizeof(struct sockaddr_in6);
-		if (setsockopt(p->fd, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(int)) < 0) {
-			return (UPERF_FAILURE);
-		}
-		break;
-	default:
-		uperf_debug("Unsupported protocol family: %d\n", serv.ss_family);
-		return (UPERF_FAILURE);
-		break;
-	}
-	if (connect(p->fd, (const struct sockaddr *)&serv, len) < 0) {
-		ulog_err("%s: Cannot connect to %s:%d",
-		         protocol_to_str(p->type), p->host, p->port);
+	set_sctp_options(p->fd, serv.ss_family, flowop_options);
+	if (generic_connect(p, &serv) < 0) {
 		return (UPERF_FAILURE);
 	}
-
 	return (UPERF_SUCCESS);
 }
 

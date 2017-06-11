@@ -51,6 +51,7 @@
 static int
 protocol_tcp_listen(protocol_t *p, void *options)
 {
+	flowop_options_t *flowop_options = (flowop_options_t *)options;
 	char msg[128];
 
 	/* SO_RCVBUF must be set before bind */
@@ -62,7 +63,7 @@ protocol_tcp_listen(protocol_t *p, void *options)
 			return (UPERF_FAILURE);
 		}
 	}
-	set_tcp_options(p->fd, (flowop_options_t *)options);
+	set_tcp_options(p->fd, flowop_options);
 
 	return (generic_listen(p, IPPROTO_TCP, options));
 }
@@ -70,14 +71,23 @@ protocol_tcp_listen(protocol_t *p, void *options)
 static int
 protocol_tcp_connect(protocol_t *p, void *options)
 {
+	struct sockaddr_storage serv;
 	flowop_options_t *flowop_options = (flowop_options_t *)options;
-	int status;
 
-	status = generic_connect(p, IPPROTO_TCP);
-	if (status == UPERF_SUCCESS)
-		set_tcp_options(p->fd, flowop_options);
+	uperf_debug("tcp: Connecting to %s:%d\n", p->host, p->port);
 
-	return (status);
+	if (name_to_addr(p->host, &serv)) {
+		/* Error is already reported by name_to_addr, so just return */
+		return (UPERF_FAILURE);
+	}
+	if (generic_socket(p, serv.ss_family, IPPROTO_TCP) < 0) {
+		return (UPERF_FAILURE);
+	}
+	set_tcp_options(p->fd, flowop_options);
+	if (generic_connect(p, &serv) < 0) {
+		return (UPERF_FAILURE);
+	}
+	return (UPERF_SUCCESS);
 }
 
 static protocol_t *protocol_tcp_accept(protocol_t *p, void *options);
