@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<profile name="sctp-over-udp">
+  <group nthreads="1">
+        <transaction iterations="1">
+            <flowop type="connect"
+                    options="remotehost=$h
+                             protocol=sctp
+                             encaps=9899
+                             sctp_in_streams=64
+                             sctp_out_streams=128"/>
+        </transaction>
+        <transaction iterations="1000">
+            <flowop type="write"
+                    options="count=1 size=256
+                             sctp_stream_id=127"/>
+            <flowop type="read"
+                    options="count=1
+                    size=900
+                    sctp_stream_id=63
+                    sctp_pr_value=50
+                    sctp_pr_policy=rtt"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+</profile>
