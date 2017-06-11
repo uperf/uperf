@@ -456,13 +456,13 @@ set_tcp_options(int fd, flowop_options_t *f)
 		int nodelay = 1;
 		if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
 			(char *)&nodelay, sizeof (nodelay))) {
-			ulog_warn("Cannot set TCP_NODELAY");
+			ulog_warn("Cannot set TCP_NODELAY:");
 		}
 	}
 	if (f && strlen(f->cc) > 0) {
 #ifdef TCP_CONGESTION
 		if (setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, f->cc, strlen(f->cc)) < 0) {
-			ulog_warn("Cannot set TCP_CONGESTION");
+			ulog_warn("Cannot set TCP_CONGESTION:");
 		}
 #else
 		uperf_warn("Configuring TCP CC not supported");
@@ -475,7 +475,7 @@ set_tcp_options(int fd, flowop_options_t *f)
 		memset(&stack, 0, sizeof(struct tcp_function_set));
 		strlcpy(stack.function_set_name, f->stack, TCP_FUNCTION_NAME_LEN_MAX);
 		if (setsockopt(fd, IPPROTO_TCP, TCP_FUNCTION_BLK, &stack, sizeof(struct tcp_function_set)) < 0) {
-			ulog_warn("Cannot set TCP_FUNCTION_BLK");
+			ulog_warn("Cannot set TCP_FUNCTION_BLK:");
 		}
 #else
 		uperf_warn("Configuring TCP stack not supported");
