@@ -162,8 +162,13 @@ int
 uperf_get_command(protocol_t *p, uperf_command_t *uc, int bitswap)
 {
 	(void) memset(uc, 0, sizeof (uperf_command_t));
-	if (p->read(p, uc, sizeof (uperf_command_t), NULL) <= 0) {
-		(void) printf("Error IN get Command:%s\n", strerror(errno));
+	int read_ret;
+	read_ret = p->read(p, uc, sizeof (uperf_command_t), NULL);
+	if (read_ret < 0) {
+		(void) printf("Error during reading command: %s\n", strerror(errno));
+		return (-1);
+	} else if (read_ret == 0) {
+		(void) printf("Error during reading command: connection closed\n");
 		return (-1);
 	}
 	if (strncmp(uc->magic, UPERF_COMMAND_MAGIC, 64) != 0) {
