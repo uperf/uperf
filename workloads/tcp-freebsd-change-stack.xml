@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<profile name="tcp-change-cc">
+    <group nthreads="1">
+        <transaction iterations="1">
+            <flowop type="accept"
+                    options="remotehost=$h protocol=tcp stack=fastack"/>
+        </transaction>
+        <transaction duration="10s">
+            <flowop type="write" options="size=10000"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+    </group>
+</profile>
