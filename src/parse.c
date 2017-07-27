@@ -538,6 +538,22 @@ parse_option(char *option, flowop_t *flowop)
 				add_error(err);
 				return (UPERF_FAILURE);
 			}
+		} else if (strcasecmp(key, "encaps") == 0) {
+			int res;
+
+			res = string2int(value);
+			if ((res >= 0) && (res <= 65535)) {
+				flowop->options.encaps_port = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand encaps:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+		} else if (strcasecmp(key, "cc") == 0) {
+			strlcpy(flowop->options.cc, value, sizeof(flowop->options.cc));
+		} else if (strcasecmp(key, "stack") == 0) {
+			strlcpy(flowop->options.stack, value, sizeof(flowop->options.stack));
 		}
 #ifdef HAVE_SCTP
 		else if (strcasecmp(key, "sctp_rto_min") == 0) {

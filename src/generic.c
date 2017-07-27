@@ -103,41 +103,31 @@ generic_socket(protocol_t *p, int domain, int protocol)
 
 /* ARGSUSED */
 int
-generic_connect(protocol_t *p, int protocol)
+generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 {
-	struct sockaddr_storage serv;
 	socklen_t len;
 	const int off = 0;
 
 	uperf_debug("Connecting to %s:%d\n", p->host, p->port);
 
-	(void) memset(&serv, 0, sizeof(struct sockaddr_storage));
-	if (name_to_addr(p->host, &serv)) {
-		/* Error is already reported by name_to_addr, so just return */
-		return (UPERF_FAILURE);
-	}
-
-	if (generic_socket(p, serv.ss_family, protocol) < 0) {
-		return (UPERF_FAILURE);
-	}
-	switch (serv.ss_family) {
+	switch (serv->ss_family) {
 	case AF_INET:
-		((struct sockaddr_in *)&serv)->sin_port = htons(p->port);
+		((struct sockaddr_in *)serv)->sin_port = htons(p->port);
 		len = (socklen_t)sizeof(struct sockaddr_in);
 		break;
 	case AF_INET6:
-		((struct sockaddr_in6 *)&serv)->sin6_port = htons(p->port);
+		((struct sockaddr_in6 *)serv)->sin6_port = htons(p->port);
 		len = (socklen_t)sizeof(struct sockaddr_in6);
 		if (setsockopt(p->fd, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(int)) < 0) {
 			return (UPERF_FAILURE);
 		}
 		break;
 	default:
-		uperf_debug("Unsupported protocol family: %d\n", serv.ss_family);
+		uperf_debug("Unsupported protocol family: %d\n", serv->ss_family);
 		return (UPERF_FAILURE);
 		break;
 	}
-	if (connect(p->fd, (const struct sockaddr *)&serv, len) < 0) {
+	if (connect(p->fd, (const struct sockaddr *)serv, len) < 0) {
 		ulog_err("%s: Cannot connect to %s:%d",
 		         protocol_to_str(p->type), p->host, p->port);
 		return (UPERF_FAILURE);
@@ -466,7 +456,29 @@ set_tcp_options(int fd, flowop_options_t *f)
 		int nodelay = 1;
 		if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
 			(char *)&nodelay, sizeof (nodelay))) {
-			ulog_warn("Cannot set TCP_NODELAY");
+			ulog_warn("Cannot set TCP_NODELAY:");
 		}
+	}
+	if (f && strlen(f->cc) > 0) {
+#ifdef TCP_CONGESTION
+		if (setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, f->cc, strlen(f->cc)) < 0) {
+			ulog_warn("Cannot set TCP_CONGESTION:");
+		}
+#else
+		uperf_warn("Configuring TCP CC not supported");
+#endif
+	}
+	if (f && strlen(f->stack) > 0) {
+#ifdef TCP_FUNCTION_BLK
+		struct tcp_function_set stack;
+
+		memset(&stack, 0, sizeof(struct tcp_function_set));
+		strlcpy(stack.function_set_name, f->stack, TCP_FUNCTION_NAME_LEN_MAX);
+		if (setsockopt(fd, IPPROTO_TCP, TCP_FUNCTION_BLK, &stack, sizeof(struct tcp_function_set)) < 0) {
+			ulog_warn("Cannot set TCP_FUNCTION_BLK:");
+		}
+#else
+		uperf_warn("Configuring TCP stack not supported");
+#endif
 	}
 }

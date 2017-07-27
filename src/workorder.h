@@ -54,6 +54,7 @@ struct flowop_options {
 	uint32_t	port;
 	uint32_t	flag;
 	uint32_t	nfiles;
+	uint32_t	encaps_port;	/* Port used for UDP encapsulation */
 	uint64_t	duration;	/* In nanoseconds */
 	uint64_t	wndsz;		/* SCTP/TCP/UDP Window size */
 	uint64_t	count;		/* Flowop execute Count */
@@ -73,6 +74,8 @@ struct flowop_options {
 	uint16_t	sctp_padding;		/* To be 32-bit aligned */
 	uint32_t	sctp_pr_value;		/* Value for PR-SCTP */
 	char		sctp_pr_policy[8];	/* Method of PR-SCTP */
+	char		cc[32];			/* CC algorithm to be used */
+	char		stack[32];		/* TCP stack to be used */
 	char		dir[PATHMAX];
 	char		remotehost[MAXHOSTNAME];
 	char		localhost[MAXHOSTNAME]; /* Localhost info as may be required in some protocols such as RDS */
