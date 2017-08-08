@@ -19,6 +19,25 @@ Comments/Bugs to realneel@gmail.com or to uperf-devel@lists.sourceforge.net
 
 uperf uses the standard GNU build tools (`./configure;make`)
 
+## Android
+
+It is possible to build uperf as a part of AOSP platform. Because autotools
+are not used in Android platform config.h cannot be generated automatically.
+A version of config.h for Android N is created manually. Modifications may
+be required for compatibility with other Android versions.
+
+**Steps**
+
+1. Download uperf sources and place them under appropriate AOSP directory,
+   e.g. external/uperf
+2. Initialize build environment following standard Android steps
+   (i.e. run `source build/envsetup.sh`, refer to Android official documentation
+   for this part)
+3. Build uperf
+   ```
+   cd external/uperf
+   mm
+   ```
 
 # Running uperf
 
