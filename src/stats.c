@@ -152,6 +152,7 @@ stats_update(int type, strand_t *s, newstats_t *stats, uint64_t size,
 
 	case FLOWOP_BEGIN:
 		if (ENABLED_FLOWOP_STATS(options) ||
+		    ENABLED_GROUP_STATS(options) ||
 		    ENABLED_HISTORY_STATS(options)) {
 			return (newstat_begin(s, stats, 0, 0));
 		}
@@ -162,6 +163,7 @@ stats_update(int type, strand_t *s, newstats_t *stats, uint64_t size,
 		STRAND_STAT(s)->count += count;		/* Thread safe */
 
 		if (ENABLED_FLOWOP_STATS(options) ||
+		    ENABLED_GROUP_STATS(options) ||
 		    ENABLED_HISTORY_STATS(options)) {
 			int err = newstat_end(s, stats, size, count);
 			if (ENABLED_HISTORY_STATS(options)) {
