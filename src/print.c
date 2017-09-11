@@ -91,7 +91,7 @@ print_avg_header(char *label)
 	uperf_line();
 }
 
-/* Txn1 41.73GB/29.40(s) = 12.19Gb/s 19288txn/s 51.84us/txn */
+/* Txn1     41.73GB/29.40(s) = 12.19Gb/s 19288txn/s 51.84us/txn */
 void
 print_summary(newstats_t *ns, int same_line)
 {
@@ -113,7 +113,7 @@ print_summary(newstats_t *ns, int same_line)
 		msg[window_width() - 1] = '\0';
 		printf("\r%s\r", msg);
 	}
-	printf("%-6s ", ns->name);
+	printf("%-8.8s ", ns->name);
 	PRINT_NUM(ns->size, 8);
 	printf("/%7.2f(s) = ", time/1.0e+9);
 	PRINT_NUMb(throughput, 12);
