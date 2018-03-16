@@ -339,7 +339,8 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-timestamp=`date`
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-`date +%s`}"
+timestamp=`date -u -d "@$SOURCE_DATE_EPOCH" 2>/dev/null || date -u -r "$SOURCE_DATE_EPOCH" 2>/dev/null || date -u`
 
 AC_DEFINE_UNQUOTED([CONFIGURED_ON],["$timestamp"],[Configured on])
 AC_DEFINE_UNQUOTED([BUILD_DATE],["$timestamp"],[Built on])
