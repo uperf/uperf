@@ -57,6 +57,7 @@ safe_read(int fd, char *buffer, int size, int timeout)
 	int index;
 	int remain;
 	double stop = GETHRTIME() + timeout * 1.0e+6;
+	int poll_timeout = (int) ((stop - GETHRTIME()) / 1.0e+6);
 
 	index = 0;
 	remain = size;
@@ -65,8 +66,8 @@ safe_read(int fd, char *buffer, int size, int timeout)
 		perror("goodbye:");
 		return (UPERF_FAILURE);
 	}
-	while ((remain > 0) && (GETHRTIME() < stop)) {
-		if ((ret = generic_poll(fd, 3000, POLLIN)) < 0)
+	while ((remain > 0) && (poll_timeout > 0)) {
+		if ((ret = generic_poll(fd, poll_timeout, POLLIN)) < 0)
 			return (UPERF_FAILURE);
 		else if (ret == 0) {
 			errno = ETIMEDOUT;
@@ -84,6 +85,7 @@ safe_read(int fd, char *buffer, int size, int timeout)
 		}
 		index += ret;
 		remain -= ret;
+		poll_timeout = (int) ((stop - GETHRTIME()) / 1.0e+6);
 	}
 	if (remain == 0)
 		return (UPERF_SUCCESS);

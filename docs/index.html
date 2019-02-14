@@ -1,0 +1,137 @@
+<html>
+<head>
+<title>Uperf - A network performance tool</title>
+<link rel="stylesheet" href="uperf.css" type="text/css" />
+</head>
+<body>
+<div class="header">
+<div class="logo">
+  <span class="uperfbig">uperf</span> &nbsp;&nbsp;A network performance tool
+</div>
+  <div id="menu">
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="https://github.com/uperf/uperf">Source</a></li>
+      <li><a href="manual.html">Documentation</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="content">
+<p>
+uperf is a network performance tool that supports modelling and
+replay of various networking patterns. uperf was initially developed by the
+Performance Applications Engineering group at 
+<a href="http://www.sun.com">Sun Microsystems</a>. Since 2008, it is 
+being developed by the community.  uperf is released under the <a
+href="http://www.gnu.org/licenses/gpl.html">
+GNU General Public License Version 3</a>.
+</p>
+
+<P>
+The latest version of uperf is 1.0.6 was released Feb 2018.
+</P>
+
+<h3>Download</h3>
+Uperf is known to work on Linux, Android, Solaris, FreeBSD and MacOS.
+You can download uperf sources from <a href="https://github.com/uperf/uperf">https://github.com/uperf/uperf</a>
+
+<P>
+You can download Ubuntu binaries from Volodymyr Kononenko's PPA at <a href="https://launchpad.net/~vmkononenko/+archive/ubuntu/uperf">https://launchpad.net/~vmkononenko/+archive/ubuntu/uperf</a>
+</p>
+<P>
+On FreeBSD, Uperf is available as a binary package (pkg install uperf) and a port (cd /usr/ports/benchmarks/uperf && make install clean). 
+  <A href="https://www.freshports.org/benchmarks/uperf">Details</a>
+</p>
+
+<p><a href="https://twitter.com/uperf">Follow uperf</a> on twitter
+</p>
+<!--
+<p>
+<b>June 24 2008 - uperf 1.0.2 is available!</b>
+<ul>
+    <li>Added -x option to generate output that can be processed by
+        <a href="http://fenxi.dev.java.net">Fenxi</a></li>
+    <li>Added an option to generate traffic to specific ports. (use 
+        port=xxx in the options part of the connect or accept flowop)
+       </li>
+    <li>UDP traffic can now be rate limited! (use rate=xxx in the options
+        part of read/write flowops)
+</ul>
+</p>
+
+-->
+
+<h3>Introduction</h3>
+<P>
+  uperf represents a new kind of benchmarking tool (like
+  <a href="http://opensolaris.org/os/community/performance/filebench">filebench</a>)
+  where instead of running a fixed benchmark or workload, a
+  description (or model) of the workload is provided and the tool
+  generates the load according to the model. By distilling the
+  benchmark or workload into a <i>model</i>, you can now do various
+  things like change the scale of the workload, change different
+  parameters, change protocols, etc and analyse the effect of these
+  changes on your model. You can also study the effect of
+  interleaving CPU activity, or think times or the use of SSL
+  instead of TCP among many other things.
+</P>
+<P>
+  Some of the questions you could answer using uperf are
+  <ul>
+    <li>Bandwidth and latency (unidirectional and bi-directional)
+    with different protocols like TCP, UDP, SCTP, SSL</li>
+    <LI>Connection setup and teardown scalability for different
+    protocols</LI>
+    <li>Effect of noise on ongoing network connections</li>
+    <li>Does it matter if I use processes instead of threads to do
+    network communication?</li>
+    <li>What is the L2 cache miss rate for connection setup?</li>
+    <li>Is <tt>sendfilev(3EXT)</tt> (with one file) equivalent
+    to <tt>sendfilev(3EXT)</tt>?</li>
+    <li>Understand TCP, UDP, SCTP, SSL performance under a variety of
+    conditions</li>
+    <li>Test various TCP Congestion control algorithms</li>
+  </ul>
+  and much more!
+</P>
+<h3>Blogs</h3>
+<P>More information regarding uperf can be found at the following
+blogs
+<ul>
+  <li><a href="https://blogs.oracle.com/realneel/category/uperf">uperf - A network
+  benchmark tool</a> - Neelakanth Nadgir</li>
+  <li><a href="http://blogs.oracle.com/eh">uperf - Theory and
+  Examples</a> - Eric He</li>
+  <li><a href="https://blogs.oracle.com/cs/entry/comparing_ping_pong_rates_on">Comparing ping-pong rates on
+  Solaris and Linux using uperf</a> - Charles Suresh</li>
+  <li><a href="https://blogs.oracle.com/hotnets/entry/introducing_uperf_an_open_source">Introducing UPERF -
+  an open source network performance measurement tool</a> - Amitabha
+  Banerjee</li>
+</ul>
+</P>
+<P>
+<h3>Support</h3>
+  For comments and discussions,
+  please join us at <a href="mailto:uperf-discuss@lists.sourceforge.net">
+  uperf-discuss@lists.sourceforge.net</a>.  If you find any bugs or have any
+  requests, please check the 
+  <a
+  href="http://sourceforge.net/tracker/?atid=1019776&group_id=211940&func=browse">bug/issue</a>
+  database before filing a new one.
+</P>
+</div>
+<hr>
+<!-- google tracking; I do not like it; but I want to know if people
+are finding this useful. -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-189044-3");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+</body>
+</html>

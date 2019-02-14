@@ -1,0 +1,50 @@
+body {
+  margin:15px;
+  font-family: Arial, Verdana;
+  font-size:12pt;
+  color:#444444;
+  background-color:#FFFFFF;
+  text-align:left;
+}
+.header {
+  margin-bottom: 3px;
+  height:50px;
+  width: 100%;
+  border-bottom: 3px solid red;
+}
+.logo {
+  float: left;
+}
+.uperfbig {
+  font-size: 44px;
+}
+#menu {
+  margin-top:15px;
+  float: right;
+}
+#menu ul {
+  list-style:none;
+  margin: 10px;
+  text-align: center;
+}
+#menu ul li {
+  padding: 0px;
+  margin: 0px;
+  display:inline;
+  border-right: 2px solid #eee;
+}
+#menu ul li a {
+  text-decoration: none;
+  padding: .2em 1em;
+  background-color:#eeeeee;
+}
+
+#menu li a:hover {
+  background-color:#434343;
+  color:#fff;
+}
+
+
+.content {
+  margin: 20px;
+}
