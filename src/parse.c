@@ -774,6 +774,7 @@ build_worklist(struct symbol *list)
 	int txnid = 0;
 	int fid = 0;
 	int in_group = 0;
+	int in_txn = 0;
 
 	w.ngrp = 0;
 	bzero(&w, sizeof (workorder_t));
@@ -799,6 +800,12 @@ build_worklist(struct symbol *list)
 			in_group = 0;
 			break;
 		case TOKEN_TXN_START:
+			if (!in_group) {
+				snprintf(err, sizeof (err),
+				    "No current group");
+				add_error(err);
+				return (NULL);
+			}
 			curr_grp->ntxn++;
 			if (curr_txn == 0) {
 				curr_grp->tlist = calloc(1, sizeof (txn_t));
@@ -813,10 +820,18 @@ build_worklist(struct symbol *list)
 			curr_txn->iter = 1;
 			curr_flowop = 0;
 			fid = 0;
+			in_txn = 1;
 			break;
 		case TOKEN_TXN_END:
+			in_txn = 0;
 			break;
 		case TOKEN_FLOWOP_START:
+			if (!in_txn) {
+				snprintf(err, sizeof (err),
+				    "No current transaction");
+				add_error(err);
+				return (NULL);
+			}
 			curr_txn->nflowop++;
 			if (curr_flowop == NULL) {
 				curr_txn->flist = calloc(1, sizeof (flowop_t));
@@ -839,6 +854,12 @@ build_worklist(struct symbol *list)
 			}
 			break;
 		case TOKEN_ITERATIONS:
+			if (!in_txn) {
+				snprintf(err, sizeof (err),
+				    "No current transaction");
+				add_error(err);
+				return (NULL);
+			}
 			curr_txn->iter = string2int(list->symbol);
 			break;
 		case TOKEN_TYPE:
@@ -858,14 +879,32 @@ build_worklist(struct symbol *list)
 			flowop_parse_options(list->symbol, curr_flowop);
 			break;
 		case TOKEN_RATE:
+			if (!in_txn) {
+				snprintf(err, sizeof (err),
+				    "No current transaction");
+				add_error(err);
+				return (NULL);
+			}
 			strlcpy(curr_txn->rate_str, list->symbol, NAMELEN);
 			curr_txn->rate_count = string2int(list->symbol);
 			break;
 		case TOKEN_DURATION:
+			if (!in_txn) {
+				snprintf(err, sizeof (err),
+				    "No current transaction");
+				add_error(err);
+				return (NULL);
+			}
 			curr_txn->duration = string2nsec(list->symbol);
 			curr_txn->iter = 1;
 			break;
 		case TOKEN_NTHREADS:
+			if (!in_group) {
+				snprintf(err, sizeof (err),
+				    "No current group");
+				add_error(err);
+				return (NULL);
+			}
 			curr_grp->nthreads = string2int(list->symbol);
 			curr_grp->strand_flag |= STRAND_TYPE_THREAD;
 			break;
@@ -876,6 +915,12 @@ build_worklist(struct symbol *list)
 			add_error(err);
 			return (NULL);
 #else
+			if (!in_group) {
+				snprintf(err, sizeof (err),
+				    "No current group");
+				add_error(err);
+				return (NULL);
+			}
 			curr_grp->nthreads = string2int(list->symbol);
 			curr_grp->strand_flag |= STRAND_TYPE_PROCESS;
 			break;
