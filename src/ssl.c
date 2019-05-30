@@ -38,6 +38,7 @@
 #include <openssl/ssl.h>
 #include <openssl/engine.h>
 #include <pthread.h>
+#include <string.h>
 #include "logging.h"
 #include "flowops.h"
 #include "parse.h"
