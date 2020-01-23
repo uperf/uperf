@@ -400,7 +400,7 @@ initialize_ctx(char *keyfile, char *password, const char *method)
 	SSL_library_init();
 
 	if (method != NULL && strcasecmp(method, "tls") == 0) {
-		meth = TLSv1_method();
+		meth = TLS_method();
 	} else
 		meth = SSLv23_method();
 
