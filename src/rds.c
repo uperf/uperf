@@ -61,7 +61,7 @@ typedef struct {
 	int refcount;
 	struct sockaddr_in addr_info_from; /* Source of the RDS communication */
 	struct sockaddr_in addr_info_to; /* destination */
-}rds_private_data;
+} rds_private_data;
 
 
 protocol_t *protocol_rds_create(char *host, int port);
@@ -81,8 +81,8 @@ read_one(int fd, char *buffer, int len, struct sockaddr_in from)
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
 
-	msg.msg_accrights = NULL;
-	msg.msg_accrightslen = 0;
+	msg.msg_control = NULL;
+	msg.msg_controllen = 0;
 
 	/* For the moment this will block for all receive */
 	ret = recvmsg(fd, &msg, MSG_WAITALL);
@@ -108,8 +108,8 @@ write_one(int fd, char *buffer, int len, struct sockaddr_in to)
 	msg.msg_namelen = sizeof (to);
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
-	msg.msg_accrights = NULL;
-	msg.msg_accrightslen = 0;
+	msg.msg_control = NULL;
+	msg.msg_controllen = 0;
 	return (sendmsg(fd, &msg, 0));
 }
 
@@ -330,12 +330,8 @@ protocol_rds_connect(protocol_t *p, void *options)
 		uperf_info("\nerror in RDS Bind Operation");
 		return (UPERF_FAILURE);
 	}
-	memset((char *) &pd->addr_info_to, 0, sizeof (pd->addr_info_to));
-	if (name_to_addr(pd->rhost, &(pd->addr_info_to)) != 0) {
-		perror("name_to_addr:");
-		uperf_fatal("Unknown host: %s\n", pd->rhost);
-	}
 
+	memset((char *) &pd->addr_info_to, 0, sizeof (pd->addr_info_to));
 #ifdef UPERF_LINUX
 	pd->addr_info_to.sin_family = AF_INET;
 #else
@@ -369,7 +365,7 @@ protocol_rds_create(char *host, int port)
 	protocol_t *newp;
 	rds_private_data *new_rds_p;
 
-	if ((newp = calloc(1, sizeof(protocol_t))) == NULL {
+	if ((newp = calloc(1, sizeof(protocol_t))) == NULL) {
 		perror("calloc");
 		return (NULL);
 	}
@@ -385,7 +381,11 @@ protocol_rds_create(char *host, int port)
 	newp->listen = &protocol_rds_listen;
 	newp->accept = &protocol_rds_accept;
 	newp->wait = &generic_undefined;
-	newp->rhost = strdup(host);
+	if (strlen(host) == 0) {
+		(void) strlcpy(newp->host, "localhost", MAXHOSTNAME);
+	} else {
+		(void) strlcpy(newp->host, host, MAXHOSTNAME);
+	}
 	newp->port = port;
 	newp->type = PROTOCOL_RDS;
 	newp->_protocol_p = new_rds_p;

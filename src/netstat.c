@@ -285,7 +285,7 @@ netstat_snap(int snaptype)
 		return (UPERF_FAILURE);
 	}
 
-	while (fgets(buffer, 1024, f) > 0) {
+	while (fgets(buffer, 1024, f) != NULL) {
 		strncpy(hdr, buffer, 1024);
 		interface = strtok(hdr, NETSTAT_SEP);
 
@@ -434,7 +434,7 @@ netstat_snap(int snaptype)
 		return (UPERF_FAILURE);
 	}
 
-	while (fgets(buffer, 1024, f) > 0) {
+	while (fgets(buffer, 1024, f) != NULL) {
 		memset(buffer + o_address, ' ', NETSTAT_ADDRLEN);
 		strncpy(hdr, buffer, 1024);
 		interface = strtok(hdr, NETSTAT_SEP);

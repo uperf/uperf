@@ -38,6 +38,7 @@
 #include <openssl/ssl.h>
 #include <openssl/engine.h>
 #include <pthread.h>
+#include <string.h>
 #include "logging.h"
 #include "flowops.h"
 #include "parse.h"
@@ -399,7 +400,7 @@ initialize_ctx(char *keyfile, char *password, const char *method)
 	SSL_library_init();
 
 	if (method != NULL && strcasecmp(method, "tls") == 0) {
-		meth = TLSv1_method();
+		meth = TLS_method();
 	} else
 		meth = SSLv23_method();
 
