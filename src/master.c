@@ -359,7 +359,7 @@ new_control_connection(group_t *g, char *host)
 		p = p->next;
 	}
 	/* Not found, create a new one */
-	p = create_protocol(PROTOCOL_TCP, host, MASTER_PORT, MASTER);
+	p = create_protocol(PROTOCOL_TCP, host, options.master_port, MASTER);
 	if (p != NULL) {
 		/* Try connecting */
 		if (p->connect(p, NULL) == 0) {

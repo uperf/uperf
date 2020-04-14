@@ -56,6 +56,7 @@
 
 /* options structure - has basic program options */
 typedef struct options {
+	int	master_port;
 	int	run_choice;	/* master or slave */
 	char	app_profile_name[PATH_MAX];
 	int	bitorbyte;

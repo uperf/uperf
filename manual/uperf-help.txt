@@ -1,6 +1,6 @@
 Uperf Version 1.0.6
-Usage:   src/uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:]
-         src/uperf [-s] [-hvV]
+Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:]
+         uperf [-s] [-hvV]
 
         -m <profile>     Run uperf with this profile
         -s               Slave
@@ -14,10 +14,11 @@ Usage:   src/uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:]
         -e               Collect default CPU counters for flowops [-f assumed]
         -E <ev1,ev2>     Collect CPU counters for flowops [-f assumed]
         -a               Collect all statistics
-        -X file          collect response times
+        -X <file>        Collect response times
+        -i <interval>    Collect throughput every <interval>
+        -P <port>        Set the master port (defaults to 20000)
         -v               Verbose
         -V               Version
         -h               Print usage
-        -i <interval>    collect throughput every <interval>
 
 More information at http://www.uperf.org
