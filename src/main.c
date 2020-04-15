@@ -70,7 +70,7 @@ static void
 uperf_usage(char *prog)
 {
 	(void) printf("Uperf Version %s\n", UPERF_VERSION);
-	(void) printf("Usage:   %s [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:]\n",
+	(void) printf("Usage:   %s [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:R]\n",
 	    prog);
 	(void) printf("\t %s [-s] [-hvV]\n\n", prog);
 	(void) printf(
@@ -89,6 +89,7 @@ uperf_usage(char *prog)
 	"\t-X <file>\t Collect response times\n"
 	"\t-i <interval>\t Collect throughput every <interval>\n"
 	"\t-P <port>\t Set the master port (defaults to 20000)\n"
+	"\t-R\t\t Emit raw (not transformed), time-stamped (ms) statistics\n"
 	"\t-v\t\t Verbose\n"
 	"\t-V\t\t Version\n"
 	"\t-h\t\t Print usage\n"
@@ -157,7 +158,7 @@ init_options(int argc, char **argv)
 	options.master_port = MASTER_PORT;
 	oserver = oclient = ofile = 0;
 
-	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:vVh")) != EOF) {
+	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:RvVh")) != EOF) {
 		switch (ch) {
 #ifdef USE_CPC
 		case 'E':
@@ -267,6 +268,9 @@ init_options(int argc, char **argv)
 				options.master_port = (int)
 					string_to_int(optarg);
 			}
+			break;
+		case 'R':
+			options.copt |= RAW_STATS;
 			break;
 		case 'v':
 			uperf_set_log_level(UPERF_VERBOSE);

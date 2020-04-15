@@ -35,6 +35,7 @@
 #define	GROUP_STATS		(1<<9)
 #define	UTILIZATION_STATS	(1<<11)
 #define	NO_STATS		(1<<12)
+#define RAW_STATS		(1<<13)
 
 #define	ENABLED_FLOWOP_STATS(a)		((a).copt & FLOWOP_STATS)
 #define	ENABLED_TXN_STATS(a)		((a).copt & TXN_STATS)
@@ -47,12 +48,13 @@
 #define	ENABLED_UTILIZATION_STATS(a)	((a).copt & UTILIZATION_STATS)
 #define	DISABLED_STATS(a)		((a).copt & NO_STATS)
 #define	ENABLED_STATS(a)		(!DISABLED_STATS(a))
+#define ENABLED_RAW_STATS(a)		((a).copt & RAW_STATS)
 
 #define	UPERF_MASTER		(1<<0)
-#define	UPERF_SLAVE			(1<<1)
+#define	UPERF_SLAVE		(1<<1)
 
 #define	IS_MASTER(a)		((a).run_choice & UPERF_MASTER)
-#define	IS_SLAVE(a)			((a).run_choice & UPERF_SLAVE)
+#define	IS_SLAVE(a)		((a).run_choice & UPERF_SLAVE)
 
 /* options structure - has basic program options */
 typedef struct options {

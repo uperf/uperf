@@ -1,5 +1,5 @@
 Uperf Version 1.0.6
-Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:]
+Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:R]
          uperf [-s] [-hvV]
 
         -m <profile>     Run uperf with this profile
@@ -17,6 +17,7 @@ Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:]
         -X <file>        Collect response times
         -i <interval>    Collect throughput every <interval>
         -P <port>        Set the master port (defaults to 20000)
+        -R               Emit raw (not transformed), time-stamped (ms) statistics
         -v               Verbose
         -V               Version
         -h               Print usage
