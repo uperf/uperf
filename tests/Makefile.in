@@ -308,9 +308,12 @@ am__set_TESTS_bases = \
 RECHECK_LOGS = $(TEST_LOGS)
 AM_RECURSIVE_TARGETS = check recheck
 TEST_SUITE_LOG = test-suite.log
-TEST_EXTENSIONS = @EXEEXT@ .test
-LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
-LOG_COMPILE = $(LOG_COMPILER) $(AM_LOG_FLAGS) $(LOG_FLAGS)
+am__test_logs1 = $(TESTS:=.log)
+am__test_logs2 = $(am__test_logs1:@EXEEXT@.log=.log)
+TEST_LOGS = $(am__test_logs2:.xml.log=.log)
+XML_LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
+XML_LOG_COMPILE = $(XML_LOG_COMPILER) $(AM_XML_LOG_FLAGS) \
+	$(XML_LOG_FLAGS)
 am__set_b = \
   case '$@' in \
     */*) \
@@ -321,12 +324,6 @@ am__set_b = \
     *) \
       b='$*';; \
   esac
-am__test_logs1 = $(TESTS:=.log)
-am__test_logs2 = $(am__test_logs1:@EXEEXT@.log=.log)
-TEST_LOGS = $(am__test_logs2:.test.log=.log)
-TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
-TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
-	$(TEST_LOG_FLAGS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/test-driver
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
@@ -418,7 +415,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-TESTS_ENVIRONMENT = $(top_srcdir)/tests/test.sh $(top_srcdir)/src/uperf
+XML_LOG_COMPILER = $(top_srcdir)/tests/test.sh $(top_srcdir)/src/uperf
+TEST_EXTENSIONS = .xml
 TESTS = unknown_proto.xml parse_err.xml 01simple_tcp.xml \
 	02two_groups.xml accept-tcp.xml accept-connect.xml canfail.xml \
 	disconnect_iter.xml friendliness.xml high_connection_count.xml \
@@ -430,7 +428,7 @@ XFAIL_TESTS = unknown_proto.xml parse_err.xml
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .log .test .test$(EXEEXT) .trs
+.SUFFIXES: .log .trs .xml .xml$(EXEEXT)
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -608,229 +606,19 @@ recheck: all
 	        am__force_recheck=am--force-recheck \
 	        TEST_LOGS="$$log_list"; \
 	exit $$?
-unknown_proto.xml.log: unknown_proto.xml
-	@p='unknown_proto.xml'; \
-	b='unknown_proto.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-parse_err.xml.log: parse_err.xml
-	@p='parse_err.xml'; \
-	b='parse_err.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-01simple_tcp.xml.log: 01simple_tcp.xml
-	@p='01simple_tcp.xml'; \
-	b='01simple_tcp.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-02two_groups.xml.log: 02two_groups.xml
-	@p='02two_groups.xml'; \
-	b='02two_groups.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-accept-tcp.xml.log: accept-tcp.xml
-	@p='accept-tcp.xml'; \
-	b='accept-tcp.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-accept-connect.xml.log: accept-connect.xml
-	@p='accept-connect.xml'; \
-	b='accept-connect.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-canfail.xml.log: canfail.xml
-	@p='canfail.xml'; \
-	b='canfail.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-disconnect_iter.xml.log: disconnect_iter.xml
-	@p='disconnect_iter.xml'; \
-	b='disconnect_iter.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-friendliness.xml.log: friendliness.xml
-	@p='friendliness.xml'; \
-	b='friendliness.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-high_connection_count.xml.log: high_connection_count.xml
-	@p='high_connection_count.xml'; \
-	b='high_connection_count.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test_4groups.xml.log: test_4groups.xml
-	@p='test_4groups.xml'; \
-	b='test_4groups.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test_netperf.xml.log: test_netperf.xml
-	@p='test_netperf.xml'; \
-	b='test_netperf.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test-sendfilev-chunked.xml.log: test-sendfilev-chunked.xml
-	@p='test-sendfilev-chunked.xml'; \
-	b='test-sendfilev-chunked.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test-sendfile.xml.log: test-sendfile.xml
-	@p='test-sendfile.xml'; \
-	b='test-sendfile.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test_send_recv.xml.log: test_send_recv.xml
-	@p='test_send_recv.xml'; \
-	b='test_send_recv.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test-rate.xml.log: test-rate.xml
-	@p='test-rate.xml'; \
-	b='test-rate.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-mix_thr_proc.xml.log: mix_thr_proc.xml
-	@p='mix_thr_proc.xml'; \
-	b='mix_thr_proc.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test-duration-process.xml.log: test-duration-process.xml
-	@p='test-duration-process.xml'; \
-	b='test-duration-process.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test-ssize-flowop-count-dur.xml.log: test-ssize-flowop-count-dur.xml
-	@p='test-ssize-flowop-count-dur.xml'; \
-	b='test-ssize-flowop-count-dur.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test-ssize-iperf.xml.log: test-ssize-iperf.xml
-	@p='test-ssize-iperf.xml'; \
-	b='test-ssize-iperf.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-01simple_sctp.xml.log: 01simple_sctp.xml
-	@p='01simple_sctp.xml'; \
-	b='01simple_sctp.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-3proto.xml.log: 3proto.xml
-	@p='3proto.xml'; \
-	b='3proto.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-accept-sctp.xml.log: accept-sctp.xml
-	@p='accept-sctp.xml'; \
-	b='accept-sctp.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-multi_proto_connect.xml.log: multi_proto_connect.xml
-	@p='multi_proto_connect.xml'; \
-	b='multi_proto_connect.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-throughput_sctp.xml.log: throughput_sctp.xml
-	@p='throughput_sctp.xml'; \
-	b='throughput_sctp.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-02_2proto1group.xml.log: 02_2proto1group.xml
-	@p='02_2proto1group.xml'; \
-	b='02_2proto1group.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-a.xml.log: a.xml
-	@p='a.xml'; \
-	b='a.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-01simple_ssl.xml.log: 01simple_ssl.xml
-	@p='01simple_ssl.xml'; \
-	b='01simple_ssl.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-01simple_udp.xml.log: 01simple_udp.xml
-	@p='01simple_udp.xml'; \
-	b='01simple_udp.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-test_udp.xml.log: test_udp.xml
-	@p='test_udp.xml'; \
-	b='test_udp.xml'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-.test.log:
+.xml.log:
 	@p='$<'; \
 	$(am__set_b); \
-	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
+	$(am__check_pre) $(XML_LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
+	$(am__common_driver_flags) $(AM_XML_LOG_DRIVER_FLAGS) $(XML_LOG_DRIVER_FLAGS) -- $(XML_LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
-@am__EXEEXT_TRUE@.test$(EXEEXT).log:
+@am__EXEEXT_TRUE@.xml$(EXEEXT).log:
 @am__EXEEXT_TRUE@	@p='$<'; \
 @am__EXEEXT_TRUE@	$(am__set_b); \
-@am__EXEEXT_TRUE@	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
+@am__EXEEXT_TRUE@	$(am__check_pre) $(XML_LOG_DRIVER) --test-name "$$f" \
 @am__EXEEXT_TRUE@	--log-file $$b.log --trs-file $$b.trs \
-@am__EXEEXT_TRUE@	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
+@am__EXEEXT_TRUE@	$(am__common_driver_flags) $(AM_XML_LOG_DRIVER_FLAGS) $(XML_LOG_DRIVER_FLAGS) -- $(XML_LOG_COMPILE) \
 @am__EXEEXT_TRUE@	"$$tst" $(AM_TESTS_FD_REDIRECT)
 
 distdir: $(BUILT_SOURCES)
