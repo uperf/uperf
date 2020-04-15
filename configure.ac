@@ -1,6 +1,6 @@
 # uperf configure file
 # neel@sun.com
-AC_INIT(uperf, 1.0-dev, realneel@gmail.com)
+AC_INIT(uperf, 1.0.6, realneel@gmail.com)
 AC_CONFIG_SRCDIR([src/flowops.c])
 AC_CONFIG_HEADER([config.h])
 

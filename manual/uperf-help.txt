@@ -1,20 +1,23 @@
-Usage: /home/neel/projects/raptor/raptor1/framework/uperf [m:shgtTfkpaeE:vV:d:]
-	-m	 <profile>  Run uperf with this profile
-	-s	 Slave
-	-n	 Print no statistics
-	-t	 Print thread statistics
-	-T	 Print transaction statistics
-	-f	 Print flowop statistics
-	-g	 Print ThreadGroup statistics
-	-k	 Collect kstat statistics
-	-p	 Collect /proc stats for flowops (See NOTE)
-	-e	 Collect default CPU counters for flowops (See NOTE)
-	-E	 <event1,event2> Collect CPU counters for flowops (See NOTE)
-	-a	 Print all statistics
-	-v	 Verbose
-	-V	 Version
-	-h	 Print usage
-	-X	 collect response times
-	-i	 <interval> collect throughput every <interval>
+Uperf Version 1.0.6
+Usage:   src/uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:]
+         src/uperf [-s] [-hvV]
 
-NOTE: -p/-e/-E work only if -f is also used
+        -m <profile>     Run uperf with this profile
+        -s               Slave
+        -n               No statistics
+        -T               Print Thread statistics
+        -t               Print Transaction averages
+        -f               Print Flowop averages
+        -g               Print Group statistics
+        -k               Collect kstat statistics
+        -p               Collect CPU utilization for flowops [-f assumed]
+        -e               Collect default CPU counters for flowops [-f assumed]
+        -E <ev1,ev2>     Collect CPU counters for flowops [-f assumed]
+        -a               Collect all statistics
+        -X file          collect response times
+        -v               Verbose
+        -V               Version
+        -h               Print usage
+        -i <interval>    collect throughput every <interval>
+
+More information at http://www.uperf.org
