@@ -57,28 +57,30 @@
         uperf can be run as either a master(active) or a slave(passive).
         When run as active it needs master flag(-m) with a profile
         describing the test application. 
-        </p><pre class="programlisting">Usage: /home/neel/projects/raptor/raptor1/framework/uperf [m:shgtTfkpaeE:vVx:d:]
-	-m	 &lt;profile&gt;  Run uperf with this profile
-	-s	 Slave
-	-n	 Print no statistics
-	-t	 Print thread statistics
-	-T	 Print transaction statistics
-	-f	 Print flowop statistics
-	-g	 Print ThreadGroup statistics
-	-k	 Collect kstat statistics
-	-p	 Collect /proc stats for flowops (See NOTE)
-	-e	 Collect default CPU counters for flowops (See NOTE)
-	-E	 &lt;event1,event2&gt; Collect CPU counters for flowops (See NOTE)
-	-a	 Print all statistics
-	-v	 Verbose
-	-V	 Version
-	-h	 Print usage
-	-x	 Print in xanadu format to file
-	-X	 collect response times (in xanadu format)
-	-i	 &lt;interval&gt; collect throughput every &lt;interval&gt;
+        </p><pre class="programlisting">
+Uperf Version 1.0.6
+Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:]
+         uperf [-s] [-hvV]
 
-NOTE: -p/-e/-E work only if -f is also used
+        -m &lt;profile&gt;     Run uperf with this profile
+        -s               Slave
+        -n               No statistics
+        -T               Print Thread statistics
+        -t               Print Transaction averages
+        -f               Print Flowop averages
+        -g               Print Group statistics
+        -k               Collect kstat statistics
+        -p               Collect CPU utilization for flowops [-f assumed]
+        -e               Collect default CPU counters for flowops [-f assumed]
+        -E &lt;ev1,ev2&gt;     Collect CPU counters for flowops [-f assumed]
+        -a               Collect all statistics
+        -X file          collect response times
+        -v               Verbose
+        -V               Version
+        -h               Print usage
+        -i &lt;interval&gt;    collect throughput every &lt;interval&gt;
 
+More information at http://www.uperf.org
         </pre><p>
       </p><p>
 	uperf comes bundled with quite a few sample profiles in the
