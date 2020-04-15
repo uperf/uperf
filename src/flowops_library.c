@@ -78,7 +78,7 @@ flowop_rw(strand_t *s, flowop_t *f)
 		f->connection = strand_get_connection(s, f->p_id);
 		if (f->connection == NULL) {
 			char msg[1024];
-			snprintf(msg, 1024, "No such connection %d", f->p_id);
+			snprintf(msg, sizeof(msg), "No such connection %d", f->p_id);
 			uperf_log_msg(UPERF_LOG_ERROR, 0, msg);
 			return (-1);
 		}
@@ -104,7 +104,7 @@ flowop_rw(strand_t *s, flowop_t *f)
 
 	if (func == NULL) {
 		char msg[1024];
-		snprintf(msg, 1024, "flowop %s not supported", f->name);
+		snprintf(msg, sizeof(msg), "flowop %s not supported", f->name);
 		uperf_log_msg(UPERF_LOG_ERROR, 0, msg);
 		return (-1);
 	}
@@ -124,12 +124,12 @@ flowop_rw(strand_t *s, flowop_t *f)
 			return (-1);
 		}
 		if (n <= 0) {
-			char msg[1024];
 			if (errno != EINTR) {
 				int serrno = errno;
-				snprintf(msg, 1024, "Error for flowop %s ", f->name);
+				char msg[1024];
+				snprintf(msg, sizeof(msg), "Error for flowop %s ", f->name);
 				uperf_log_msg(UPERF_LOG_ERROR, serrno, msg);
-				/* snprint could change errno */
+				/* snprintf could change errno */
 				errno = serrno;
 			}
 			return (-1);
@@ -231,7 +231,7 @@ flowop_sendfilev(strand_t *s, flowop_t *f)
 		f->connection = strand_get_connection(s, f->p_id);
 		if (f->connection == NULL) {
 			char msg[1024];
-			snprintf(msg, 1024, "No such connection %d", f->p_id);
+			snprintf(msg, sizeof(msg), "No such connection %d", f->p_id);
 			uperf_log_msg(UPERF_LOG_ERROR, 0, msg);
 			return (-1);
 		}
