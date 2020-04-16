@@ -107,7 +107,7 @@ print_summary(newstats_t *ns, int same_line)
 	}
 
 	if (ENABLED_RAW_STATS(options)) {
-		printf("timestamp_ms:%.4f name:%s nr_bytes:%lu nr_ops:%lu\n",
+		printf("timestamp_ms:%.4f name:%s nr_bytes:%"PRIu64" nr_ops:%"PRIu64"\n",
 			ns->end_time/1.0e+6, ns->name, ns->size, ns->count);
 	} else {
 		time_s = time/1.0e+9;
