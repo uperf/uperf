@@ -93,6 +93,7 @@ POST_UNINSTALL = :
 
 @SSL_C_TRUE@am__append_3 = 01simple_ssl.xml
 @UDP_C_TRUE@am__append_4 = 01simple_udp.xml test_udp.xml
+@RDS_C_TRUE@am__append_5 = test_rds.xml
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -422,8 +423,8 @@ TESTS = unknown_proto.xml parse_err.xml 01simple_tcp.xml \
 	disconnect_iter.xml friendliness.xml high_connection_count.xml \
 	test_4groups.xml test_netperf.xml test-sendfilev-chunked.xml \
 	test-sendfile.xml test_send_recv.xml test-rate.xml \
-	$(am__append_1) $(am__append_2) $(am__append_3) \
-	$(am__append_4)
+	test-sendfilev.xml $(am__append_1) $(am__append_2) \
+	$(am__append_3) $(am__append_4) $(am__append_5)
 XFAIL_TESTS = unknown_proto.xml parse_err.xml
 all: all-am
 
