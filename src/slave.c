@@ -423,7 +423,7 @@ slave()
 	if (setup_slave_signal() != 0) {
 		return (1);
 	}
-	slave_conn = create_protocol(PROTOCOL_TCP, "", MASTER_PORT, SLAVE);
+	slave_conn = create_protocol(PROTOCOL_TCP, "", options.master_port, SLAVE);
 	if (slave_conn == NULL) {
 		uperf_error("Cannot create control connection\n");
 		return (1);

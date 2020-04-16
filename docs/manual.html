@@ -59,7 +59,7 @@
         describing the test application. 
         </p><pre class="programlisting">
 Uperf Version 1.0.6
-Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:]
+Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:R]
          uperf [-s] [-hvV]
 
         -m &lt;profile&gt;     Run uperf with this profile
@@ -74,11 +74,13 @@ Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:]
         -e               Collect default CPU counters for flowops [-f assumed]
         -E &lt;ev1,ev2&gt;     Collect CPU counters for flowops [-f assumed]
         -a               Collect all statistics
-        -X file          collect response times
+        -X &lt;file&gt;        Collect response times
+        -i &lt;interval&gt;    Collect throughput every &lt;interval&gt;
+        -P &lt;port&gt;        Set the master port (defaults to 20000)
+        -R               Emit raw (not transformed), time-stamped (ms) statistics
         -v               Verbose
         -V               Version
         -h               Print usage
-        -i &lt;interval&gt;    collect throughput every &lt;interval&gt;
 
 More information at http://www.uperf.org
         </pre><p>

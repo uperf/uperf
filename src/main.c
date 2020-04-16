@@ -70,7 +70,7 @@ static void
 uperf_usage(char *prog)
 {
 	(void) printf("Uperf Version %s\n", UPERF_VERSION);
-	(void) printf("Usage:   %s [-m profile] [-hvV] [-ngtTfkpaeE:X:i:]\n",
+	(void) printf("Usage:   %s [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:R]\n",
 	    prog);
 	(void) printf("\t %s [-s] [-hvV]\n\n", prog);
 	(void) printf(
@@ -86,11 +86,13 @@ uperf_usage(char *prog)
 	"\t-e\t\t Collect default CPU counters for flowops [-f assumed]\n"
 	"\t-E <ev1,ev2>\t Collect CPU counters for flowops [-f assumed]\n"
 	"\t-a\t\t Collect all statistics\n"
-	"\t-X file\t\t collect response times\n"
+	"\t-X <file>\t Collect response times\n"
+	"\t-i <interval>\t Collect throughput every <interval>\n"
+	"\t-P <port>\t Set the master port (defaults to 20000)\n"
+	"\t-R\t\t Emit raw (not transformed), time-stamped (ms) statistics\n"
 	"\t-v\t\t Verbose\n"
 	"\t-V\t\t Version\n"
 	"\t-h\t\t Print usage\n"
-	"\t-i <interval>\t collect throughput every <interval>\n"
 	"\nMore information at http://www.uperf.org\n");
 }
 
@@ -153,9 +155,10 @@ init_options(int argc, char **argv)
 	options.copt |= PACKET_STATS;
 
 	options.interval = 1000;	/* Collect throughput every 1second */
+	options.master_port = MASTER_PORT;
 	oserver = oclient = ofile = 0;
 
-	while ((ch = getopt(argc, argv, "i:hngm:stTfkpaeE:vVX:")) != EOF) {
+	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:RvVh")) != EOF) {
 		switch (ch) {
 #ifdef USE_CPC
 		case 'E':
@@ -237,13 +240,6 @@ init_options(int argc, char **argv)
 			ofile++;
 			break;
 #endif
-		case 'v':
-			uperf_set_log_level(UPERF_VERBOSE);
-			break;
-		case 'V':
-			uperf_version();
-			exit(0);
-			break;
 		case 'X':
 			options.copt |= HISTORY_STATS;
 			if (optarg) {
@@ -267,7 +263,22 @@ init_options(int argc, char **argv)
 				uperf_fatal("Please specify interval\n");
 			}
 			break;
-
+		case 'P':
+			if (optarg) {
+				options.master_port = (int)
+					string_to_int(optarg);
+			}
+			break;
+		case 'R':
+			options.copt |= RAW_STATS;
+			break;
+		case 'v':
+			uperf_set_log_level(UPERF_VERBOSE);
+			break;
+		case 'V':
+			uperf_version();
+			exit(0);
+			break;
 		case 'h':
 			uperf_usage(argv[0]);
 			exit(0);
