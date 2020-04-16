@@ -128,13 +128,11 @@ static int
 file_present(char *file)
 {
 	struct stat rbuf;
-	int err;
+
 	if (stat(file, &rbuf) != 0) {
-		printf("stat:%s:%s\n", file, strerror(errno));
 		return (-1);
 	}
 	if (!S_ISREG(rbuf.st_mode)) {
-		printf("%s is not a regular file\n", file);
 		return (-1);
 	}
 	return (0);
@@ -155,9 +153,17 @@ ssl_init(void *arg)
 	if (IS_MASTER(options)) {
 		if (file_present("server.pem") == 0)
 			ctx = initialize_ctx("server.pem", PASS, NULL);
+		else if (file_present("../server.pem") == 0)
+			ctx = initialize_ctx("../server.pem", PASS, NULL);
+		else
+			printf("Can't load server.pem\n");
 	} else {
 		if (file_present("client.pem") == 0)
 			ctx = initialize_ctx("client.pem", PASS, NULL);
+		else if (file_present("../client.pem") == 0)
+			ctx = initialize_ctx("../client.pem", PASS, NULL);
+		else
+			printf("Can't load client.pem\n");
 	}
 	if (ctx == NULL)
 		return (1);
