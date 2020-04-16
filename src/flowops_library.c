@@ -155,25 +155,30 @@ flowop_connect(strand_t *sp, flowop_t *fp)
 	protocol_t *datap;
 
 	port = strand_get_port(sp, fp->options.remotehost,
-		    fp->options.protocol);
+			fp->options.protocol);
 	if (port == -1) {
 		char msg[1024];
 
 		(void) snprintf(msg, sizeof (msg),
-		    "Cannot lookup host %s", fp->options.remotehost);
+			"Cannot lookup host %s", fp->options.remotehost);
 		uperf_log_msg(UPERF_LOG_ERROR, 0, msg);
 
 		return (-1);
 	}
 	datap = create_protocol(fp->options.protocol,
-		    fp->options.remotehost, port, sp->role);
+			fp->options.remotehost, port, sp->role);
 	if (datap == NULL)
 		return (-1);
 	datap->p_id = fp->p_id;
 
 	error = datap->connect(datap, &fp->options);
-	if (error == UPERF_SUCCESS)
+	if (error == UPERF_SUCCESS) {
 		strand_add_connection(sp, datap);
+		/* mark following flowops in this txn that they need to get a new connection */
+		for (flowop_t *fp1 = fp; fp1 != NULL; fp1 = fp1->next) {
+			fp1->connection = NULL;
+		}
+	}
 	else
 		destroy_protocol(datap->type, datap);
 
@@ -198,6 +203,11 @@ flowop_disconnect(strand_t *sp, flowop_t *fp)
 	}
 	error = datap->disconnect(datap);
 	strand_delete_connection(sp, fp->p_id);
+	/* mark following flowops in this txn that they need to get a new connection */
+	for (flowop_t *fp1 = fp; fp1 != NULL; fp1 = fp1->next) {
+		fp1->connection = NULL;
+	}
+
 	return (error);
 }
 
@@ -219,6 +229,10 @@ flowop_accept(strand_t *sp, flowop_t *fp)
 	newp->p_id = fp->p_id;
 	strand_add_connection(sp, newp);
 
+	/* mark following flowops in this txn that they need to get a new connection */
+	for (flowop_t *fp1 = fp; fp1 != NULL; fp1 = fp1->next) {
+		fp1->connection = NULL;
+	}
 	return (0);
 }
 
@@ -240,13 +254,13 @@ flowop_sendfilev(strand_t *s, flowop_t *f)
 	if (f->type == FLOWOP_SENDFILEV)
 #ifdef HAVE_SENDFILEV
 		n = do_sendfilev(f->connection->fd, f->options.dir,
-		    f->options.nfiles, f->options.size);
+			f->options.nfiles, f->options.size);
 #else
 		assert("sendfilev not supported");
 #endif
 	else
 		n = do_sendfile(f->connection->fd, f->options.dir,
-		    f->options.size);
+			f->options.size);
 
 	return (n);
 }
