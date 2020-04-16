@@ -206,7 +206,7 @@ ensure_read(protocol_t *p, void *buffer, int size)
 
 	sz = 0;
 	while (sz < size) {
-		if ((n = read(p->fd, buffer + sz, size - sz)) <= 0) {
+		if ((n = read(p->fd, (char *)buffer + sz, size - sz)) <= 0) {
 			return (n);
 		}
 		sz += n;
@@ -221,7 +221,7 @@ ensure_write(protocol_t *p, void *buffer, int size)
 
 	sz = 0;
 	while (sz < size) {
-		if ((n = write(p->fd, buffer + sz, size - sz)) <= 0) {
+		if ((n = write(p->fd, (char *)buffer + sz, size - sz)) <= 0) {
 			return (n);
 		}
 		sz += n;
