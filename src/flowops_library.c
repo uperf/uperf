@@ -172,8 +172,13 @@ flowop_connect(strand_t *sp, flowop_t *fp)
 	datap->p_id = fp->p_id;
 
 	error = datap->connect(datap, &fp->options);
-	if (error == UPERF_SUCCESS)
+	if (error == UPERF_SUCCESS) {
 		strand_add_connection(sp, datap);
+        /* mark following flowops in this txn that they need to get a new connection */
+        for (flowop_t *fp1 = fp; fp1 != NULL; fp1 = fp1->next) {
+            fp1->connection = NULL;
+        }
+    }
 	else
 		destroy_protocol(datap->type, datap);
 
@@ -198,6 +203,11 @@ flowop_disconnect(strand_t *sp, flowop_t *fp)
 	}
 	error = datap->disconnect(datap);
 	strand_delete_connection(sp, fp->p_id);
+    /* mark following flowops in this txn that they need to get a new connection */
+    for (flowop_t *fp1 = fp; fp1 != NULL; fp1 = fp1->next) {
+        fp1->connection = NULL;
+    }
+
 	return (error);
 }
 
@@ -219,6 +229,10 @@ flowop_accept(strand_t *sp, flowop_t *fp)
 	newp->p_id = fp->p_id;
 	strand_add_connection(sp, newp);
 
+    /* mark following flowops in this txn that they need to get a new connection */
+    for (flowop_t *fp1 = fp; fp1 != NULL; fp1 = fp1->next) {
+        fp1->connection = NULL;
+    }
 	return (0);
 }
 
