@@ -149,12 +149,13 @@ generic_set_socket_buffer(int fd, int size)
 
 	if (w == 0)
 		return (UPERF_SUCCESS);
-	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&w, sizeof (w))) {
+	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&w, sizeof (w))
+		!= 0) {
 		ulog_warn("Cannot set SO_SNDBUF");
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&w, sizeof (w))
 		!= 0) {
-		ulog_warn(" Cannot set SO_RCVBUF");
+		ulog_warn("Cannot set SO_RCVBUF");
 	}
 
 	return (UPERF_SUCCESS);
@@ -178,7 +179,7 @@ generic_verify_socket_buffer(int fd, int wndsz)
 	}
 	diff = 1.0*nwsz/wndsz;
 	if (diff < 0.9 || diff > 1.1) {
-		ulog_warn("%s: %.2fKB (Requested:%.2fKB)",
+		ulog(UPERF_LOG_WARN, 0, "%s: %.2fKB (Requested:%.2fKB)",
 		          "Send buffer", nwsz/1024.0, wndsz/1024.0);
 	} else {
 		uperf_info("Set Send buffer size to %.2fKB\n", nwsz/1024.0);
@@ -191,7 +192,7 @@ generic_verify_socket_buffer(int fd, int wndsz)
 
 	diff = 1.0*nwsz/wndsz;
 	if (diff < 0.9 || diff > 1.1) {
-		ulog_warn("%s: %.2fKB (Requested:%.2fKB)",
+		ulog(UPERF_LOG_WARN, 0, "%s: %.2fKB (Requested:%.2fKB)",
 		          "Recv buffer", nwsz/1024.0, wndsz/1024.0);
 	} else {
 		uperf_info("Set Recv buffer size to %.2fKB\n", nwsz/1024.0);

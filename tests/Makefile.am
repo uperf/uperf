@@ -1,11 +1,12 @@
-TESTS_ENVIRONMENT = $(top_srcdir)/tests/test.sh $(top_srcdir)/src/uperf
+XML_LOG_COMPILER = $(top_srcdir)/tests/test.sh $(top_srcdir)/src/uperf
+TEST_EXTENSIONS = .xml
 TESTS = unknown_proto.xml parse_err.xml 01simple_tcp.xml 02two_groups.xml \
 	accept-tcp.xml accept-connect.xml \
 	canfail.xml disconnect_iter.xml friendliness.xml \
 	high_connection_count.xml test_4groups.xml \
 	test_netperf.xml test-sendfilev-chunked.xml \
 	test-sendfile.xml test_send_recv.xml test-rate.xml
-	
+
 XFAIL_TESTS = unknown_proto.xml parse_err.xml
 
 if HAVE_PROCESSES
