@@ -276,7 +276,7 @@ parse(char *buffer, struct symbol *list)
 	return (0);
 }
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined(TEST_PARSE)
 
 static void
 print_symbols(struct symbol *list) {

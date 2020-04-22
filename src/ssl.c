@@ -62,7 +62,7 @@ typedef struct ssl_private {
 
 extern options_t options;
 
-static protocol_t * protocol_ssl_new();
+static protocol_t *protocol_ssl_new();
 /* Utility functions */
 static SSL_CTX *initialize_ctx(char *keyfile, char *password,
 	const char *method);
@@ -95,7 +95,7 @@ id_function(void)
 }
 
 static int
-my_ssl_error(SSL * ssl, int sz)
+my_ssl_error(SSL *ssl, int sz)
 {
 	char error[128];
 	int ret;
@@ -183,7 +183,7 @@ ssl_init(void *arg)
 }
 
 static ssize_t
-ssl_read(SSL * ssl, char *ptr, size_t n)
+ssl_read(SSL *ssl, char *ptr, size_t n)
 {
 	ssize_t nread;
 
@@ -192,7 +192,7 @@ ssl_read(SSL * ssl, char *ptr, size_t n)
 }
 
 static ssize_t
-ssl_write(SSL * ssl, char *ptr, size_t n)
+ssl_write(SSL *ssl, char *ptr, size_t n)
 {
 	ssize_t nwritten;
 
@@ -201,7 +201,7 @@ ssl_write(SSL * ssl, char *ptr, size_t n)
 }
 
 static int
-protocol_ssl_listen(protocol_t * p, void *o)
+protocol_ssl_listen(protocol_t *p, void *o)
 {
 	char msg[128];
 
@@ -218,7 +218,7 @@ protocol_ssl_listen(protocol_t * p, void *o)
 }
 
 static protocol_t *
-protocol_ssl_accept(protocol_t * p, void *options)
+protocol_ssl_accept(protocol_t *p, void *options)
 {
 	protocol_t *newp;
 	struct sockaddr_in remote;
@@ -269,7 +269,7 @@ protocol_ssl_accept(protocol_t * p, void *options)
 }
 
 static int
-protocol_ssl_connect(protocol_t * p, void *options)
+protocol_ssl_connect(protocol_t *p, void *options)
 {
 	struct sockaddr_storage serv;
 	BIO *sbio;
@@ -315,7 +315,7 @@ protocol_ssl_connect(protocol_t * p, void *options)
 }
 
 static int
-protocol_ssl_disconnect(protocol_t * p)
+protocol_ssl_disconnect(protocol_t *p)
 {
 	int r;
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
@@ -352,7 +352,7 @@ protocol_ssl_disconnect(protocol_t * p)
 }
 
 static int
-protocol_ssl_read(protocol_t * p, void *buffer, int size, void *options)
+protocol_ssl_read(protocol_t *p, void *buffer, int size, void *options)
 {
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
 
@@ -364,7 +364,7 @@ protocol_ssl_read(protocol_t * p, void *buffer, int size, void *options)
 }
 
 static int
-protocol_ssl_write(protocol_t * p, void *buffer, int size, void *options)
+protocol_ssl_write(protocol_t *p, void *buffer, int size, void *options)
 {
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
 
@@ -375,7 +375,7 @@ protocol_ssl_write(protocol_t * p, void *buffer, int size, void *options)
 }
 
 static int
-protocol_ssl_undefined(protocol_t * p, void *options)
+protocol_ssl_undefined(protocol_t *p, void *options)
 {
 	uperf_error("Undefined function in protocol called\n");
 	return (-1);
@@ -494,7 +494,7 @@ protocol_ssl_create(char *host, int port)
 }
 
 void
-ssl_fini(protocol_t * p)
+ssl_fini(protocol_t *p)
 {
 	if (!p) {
 		return;
