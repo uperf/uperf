@@ -357,7 +357,7 @@ protocol_ssl_read(protocol_t * p, void *buffer, int size, void *options)
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
 
 	uperf_debug("ssl - Reading %d bytes from %s:%d\n", size,
-            p->host[0] == '\0' ? p->host : "Unknown",
+            p->host[0] == '\0' ? "Unknown" : p->host,
             p->port);
 
 	return (ssl_read(ssl_p->ssl, buffer, size));
@@ -367,9 +367,9 @@ static int
 protocol_ssl_write(protocol_t * p, void *buffer, int size, void *options)
 {
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
-	char *host = p->host[0] == '\0' ? p->host : "Unknown";
 
-	uperf_debug("ssl - Writing %d bytes to %s:%d\n", size, host,
+	uperf_debug("ssl - Writing %d bytes to %s:%d\n", size,
+            p->host[0] == '\0' ? "Unknown" : p->host,
 		p->port);
 	return (ssl_write(ssl_p->ssl, buffer, size));
 }

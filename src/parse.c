@@ -984,7 +984,7 @@ parse_app_profile(char *filename)
 
 	parse(buffer, &list);
 #ifdef DEBUG
-	print_symbols(list.next); */
+	print_symbols(list.next);
 #endif /* DEBUG */
 	w = build_worklist(list.next);
 	if (w == NULL || no_errs > 0) {
