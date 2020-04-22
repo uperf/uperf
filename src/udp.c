@@ -107,7 +107,7 @@ static int
 write_one(int fd, char *buffer, int len, struct sockaddr *to)
 {
 	socklen_t length;
-	
+
 	switch (to->sa_family) {
 	case AF_INET:
 		length = (socklen_t)sizeof(struct sockaddr_in);
@@ -231,9 +231,8 @@ protocol_udp_listen(protocol_t *p, void *options)
 {
 	udp_private_data *pd = (udp_private_data *)p->_protocol_p;
 	socklen_t len;
-	char hostname[NI_MAXHOST];
 	char msg[128];
-	
+
 	if ((pd->sock = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
 		if ((pd->sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 			(void) snprintf(msg, 128, "%s: Cannot create socket", "udp");

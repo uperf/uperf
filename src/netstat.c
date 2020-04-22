@@ -337,7 +337,6 @@ netstat_init()
 	char buffer[1024];
 	char *token;
 	int index;
-	struct stat buf;
 
 	if ((f = popen(NETSTAT_HDR, "r")) == NULL) {
 		printf("Cannot open %s\n", NETSTAT_HDR);
@@ -426,8 +425,7 @@ netstat_snap(int snaptype)
 {
 	FILE *f;
 	char buffer[1024], hdr[1024];
-	char *interface, *tmp;
-	struct packet_stats ps;
+	char *interface;
 
 	if ((f = popen(NETSTAT_DEV, "r")) == NULL) {
 		printf("Cannot open %s\n", NETSTAT_DEV);

@@ -276,6 +276,8 @@ parse(char *buffer, struct symbol *list)
 	return (0);
 }
 
+#if defined(DEBUG) || defined(TEST_PARSE)
+
 static void
 print_symbols(struct symbol *list) {
 	while (list) {
@@ -283,6 +285,7 @@ print_symbols(struct symbol *list) {
 		list = list->next;
 	}
 }
+
 void
 print_txn_t(txn_t *t)
 {
@@ -335,6 +338,8 @@ print_workorder_t(workorder_t *w) {
 	for (i = 0; i < w->ngrp; i++)
 		print_group_t_recurse(&w->grp[i]);
 }
+
+#endif /* DEBUG */
 
 static int
 string2int(char *value)
@@ -978,7 +983,9 @@ parse_app_profile(char *filename)
 	buffer[size - 1] = '\0';
 
 	parse(buffer, &list);
-	/* print_symbols(list.next); */
+#ifdef DEBUG
+	print_symbols(list.next);
+#endif /* DEBUG */
 	w = build_worklist(list.next);
 	if (w == NULL || no_errs > 0) {
 		print_errors();

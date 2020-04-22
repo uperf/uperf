@@ -192,8 +192,6 @@ protocol_sctp_connect(protocol_t *p, void *options)
 #endif
 	struct sockaddr_storage serv;
 	flowop_options_t *flowop_options = (flowop_options_t *)options;
-	socklen_t len;
-	const int off = 0;
 	char msg[128];
 
 	uperf_debug("sctp: Connecting to %s:%d\n", p->host, p->port);
