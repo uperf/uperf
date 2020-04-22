@@ -128,7 +128,6 @@ static int
 file_present(char *file)
 {
 	struct stat rbuf;
-
 	if (stat(file, &rbuf) != 0) {
 		return (-1);
 	}
@@ -225,9 +224,7 @@ protocol_ssl_accept(protocol_t * p, void *options)
 	struct sockaddr_in remote;
 	socklen_t addrlen;
 	int ret;
-	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
 	ssl_private_t *new_ssl_p;
-	struct sockaddr name;
 	char hostname[128];
 	flowop_options_t *flowop_options = (flowop_options_t *) options;
 	BIO *sbio;
@@ -357,15 +354,11 @@ protocol_ssl_disconnect(protocol_t * p)
 static int
 protocol_ssl_read(protocol_t * p, void *buffer, int size, void *options)
 {
-	int i;
-	int bufsize = size * 10;
-	int status = 1;
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
-	char *host = p->host[0] == '\0' ? p->host : "Unknown";
-	flowop_options_t *flowop_options = (flowop_options_t *) options;
 
-	uperf_debug("ssl - Reading %d bytes from %s:%d\n", size, host,
-		p->port);
+	uperf_debug("ssl - Reading %d bytes from %s:%d\n", size,
+            p->host[0] == '\0' ? p->host : "Unknown",
+            p->port);
 
 	return (ssl_read(ssl_p->ssl, buffer, size));
 }
@@ -375,10 +368,6 @@ protocol_ssl_write(protocol_t * p, void *buffer, int size, void *options)
 {
 	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
 	char *host = p->host[0] == '\0' ? p->host : "Unknown";
-	int status = 1;
-	int i;
-	int bufsize = size * 10;
-	flowop_options_t *flowop_options = (flowop_options_t *) options;
 
 	uperf_debug("ssl - Writing %d bytes to %s:%d\n", size, host,
 		p->port);
@@ -507,9 +496,6 @@ protocol_ssl_create(char *host, int port)
 void
 ssl_fini(protocol_t * p)
 {
-	ssl_private_t *ssl_p = (ssl_private_t *) p->_protocol_p;
-
-	/* free(ssl_p); */
 	if (!p) {
 		return;
 	}
