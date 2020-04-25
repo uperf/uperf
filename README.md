@@ -10,9 +10,7 @@ To get lots of statistics, use the `-a` option. For ex
 
     ./uperf -m netperf.xml -a
 
-Join uperf-devel@lists.sourceforge.net to discuss uperf issues.
-
-Comments/Bugs to realneel@gmail.com or to uperf-devel@lists.sourceforge.net
+Please open Github issues for comments, bugs.
 
 
 # Compiling uperf
