@@ -209,7 +209,7 @@ adaptive_print_time(double value, int width)
 	int acutal_width;
 	int index = 0;
 	static char prefix[] = "num";
-	char format[16];
+	char format[32];
 
 	if (width > 127) {
 		width = 127;

@@ -19,9 +19,9 @@
 #define		_UPERF_H
 
 /* Keep the data version as 0.2.5 to avoid the version mismatch problem. */
-#define UPERF_DATA_VERSION	"0.3"
+#define UPERF_DATA_VERSION	"0.3.1"
 #define	UPERF_VERSION 		"1.0.7"
-#define	UPERF_VERSION_LEN 	128
+#define	UPERF_VERSION_LEN 	16
 #define	UPERF_EMAIL_ALIAS	"uperf-discuss@lists.sourceforge.net"
 
 #define	MAXHOSTNAME		256
