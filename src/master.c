@@ -275,7 +275,7 @@ master_poll(uperf_shm_t *shm)
 			break;
 		}
 		error = poll_slaves();
-		if (error != 0) {	/* msg arrived */
+		if (error < 0) {	/* msg arrived */
 			/* Read slave msg and process it */
 			(void) printf("\n*** Slave aborted! ***\n");
 			shm->global_error++;
@@ -635,7 +635,7 @@ master(workorder_t *w)
 	}
 	/* Cleanup */
 	if (shm->global_error != 0) {
-		(void) printf("\nWARNING: Errors detected during run\n");
+		(void) printf("\nWARNING: %d Errors detected during run\n",shm->global_error);
 		shm_fini(shm);
 		exit(1);
 	}
