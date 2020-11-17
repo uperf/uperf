@@ -635,7 +635,7 @@ master(workorder_t *w)
 	}
 	/* Cleanup */
 	if (shm->global_error != 0) {
-		(void) printf("\nWARNING: Errors detected during run\n");
+		(void) printf("\nWARNING: %d Errors detected during run\n",shm->global_error);
 		shm_fini(shm);
 		exit(1);
 	}

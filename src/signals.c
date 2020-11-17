@@ -64,7 +64,7 @@ signal_handler(int signal)
 	if (signal == SIGUSR1) {
 		pthread_exit(NULL);
 	} else if (signal == SIGINT) {
-		psignal(signal, "\nAborting ...");
+		psignal(signal, "\nGot SIGINT Aborting ...");
 #if defined(UPERF_SOLARIS)
 		sigsend(P_PGID, getpgid(getpid()), SIGKILL);
 #endif
