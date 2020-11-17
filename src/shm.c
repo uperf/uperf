@@ -298,7 +298,7 @@ flag_error(char *reason)
 {
 	global_shm->global_error++;
 	if (reason)
-		uperf_error("%s:%s\n", __func__, reason);
+		uperf_error("%s:global_error=%d, %s\n", __func__, global_shm->global_error, reason);
 }
 
 newstats_t *
