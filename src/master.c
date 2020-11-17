@@ -275,7 +275,7 @@ master_poll(uperf_shm_t *shm)
 			break;
 		}
 		error = poll_slaves();
-		if (error < 0) {	/* msg arrived */
+		if (error != 0) {	/* msg arrived */
 			/* Read slave msg and process it */
 			(void) printf("\n*** Slave aborted! ***\n");
 			shm->global_error++;
