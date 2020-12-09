@@ -17,6 +17,8 @@ Please open Github issues for comments, bugs.
 
 uperf uses the standard GNU build tools (`./configure;make`)
 
+If during the compilation is the error "make: *** [Makefile:329: aclocal.m4] Error 127" appears, please install the packages texinfo, libtool-bin, automake and then run autoreconf -f -i in the uperf directory (example - For Kali(Debian) - apt install texinfo libtool-bin automake).
+
 # Running uperf
 
 1. The ./uperf can be run as either a master(active) OR slave(passive).
