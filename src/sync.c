@@ -83,7 +83,18 @@ unlock_barrier(barrier_t *bar)
 int
 barrier_notreached(barrier_t *bar)
 {
-	return (bar->limit - bar->count);
+	int remaining;
+	if (pthread_mutex_lock(&bar->count_mutex) != 0) {
+		printf("Error grabbing count mutex.. aborting\n");
+		exit(1);
+	}
+	remaining = bar->limit - bar->count;
+
+	if (pthread_mutex_unlock(&bar->count_mutex) != 0) {
+		printf("Error releasing count mutex.. aborting\n");
+		exit(1);
+	}
+	return remaining;
 }
 int
 wait_barrier(barrier_t *bar)
