@@ -1,5 +1,5 @@
 # Architecture of Uperf
-As stated in the [documentation]|(http://uperf.org/manual.html) uperf is a file based network micro benchmark utility. The goal of this document is to provide a developer with an overview of the file layout, control flow, and data structures.
+As stated in the [documentation](http://uperf.org/manual.html) uperf is a file based network micro benchmark utility. The goal of this document is to provide a developer with an overview of the file layout, control flow, and data structures.
 
 ## Glossary
 - *strand* - uperf abstraction for process or pthread
@@ -26,7 +26,7 @@ Structures and functions covering the last message from the server to the client
 ## `handshake.[c|h]`
 Functions that handle the sending and receiving of the groups, transactions, and flowops.
 ## `hwcounter.c`
-Uses `sys/systeminfo.h`, and `sysinfo` function.By default looks for `BU_cpu_clk_unhalted` and `FR_retired_x86_instr_w_excp_intr`.
+Uses `sys/systeminfo.h`, and `sysinfo` function. By default looks for `BU_cpu_clk_unhalted` and `FR_retired_x86_instr_w_excp_intr`.
 ## `logging.[c|h]`
 Provides 6 message types, `ERROR`,`QUIT`,`ABORT`,`INFO`,`DEBUG`,`WARN`. Logs to stdout by default.
 ## `netstat.[c|h]`
