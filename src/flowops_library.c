@@ -197,7 +197,7 @@ flowop_disconnect(strand_t *sp, flowop_t *fp)
 
 	datap = strand_get_connection(sp, fp->p_id);
 	if (datap == NULL) {
-		uperf_log_msg(UPERF_LOG_ERROR, 0, "Connection alreay closed");
+		uperf_log_msg(UPERF_LOG_ERROR, 0, "Connection already closed");
 		errno = EINTR;
 		return (-1);
 	}
