@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<profile name="max_thread_count.xml">
+  <group nthreads="1024">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=tcp tcp_nodelay"/>
+        </transaction>
+        <transaction iterations="50">
+            <flowop type="write" options="size=256"/>
+            <flowop type="read" options="size=64"/>
+        </transaction>
+        <transaction >
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+
+</profile>

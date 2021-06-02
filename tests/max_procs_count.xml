@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<profile name="max_procs_count.xml">
+  <group nprocs="1024">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=tcp"/>
+        </transaction>
+        <transaction duration="10s">
+            <flowop type="write" options="size=64"/>
+            <flowop type="read" options="size=1024"/>
+        </transaction>
+        <transaction >
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+
+</profile>
