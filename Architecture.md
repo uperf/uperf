@@ -1,5 +1,5 @@
 # Architecture of Uperf
-As stated in the [documentation](http://uperf.org/manual.html) uperf is a file based network micro benchmark utility. The goal of this document is to provide a developer with an overview of the file layout, control flow, and data structures.
+As stated in the [documentation](http://uperf.org/manual.html) uperf is a file based network micro benchmark utility. The goal of this document is to provide a developer with an overview of the file layout, control flow, and data structures. In addition to this document is the [design_notes](manual/design_notes.txt) file which lays out additional information.
 
 ## Glossary
 - *strand* - uperf abstraction for process or pthread
@@ -51,3 +51,14 @@ Functions and structures to ensure that all strands complete a transaction befor
 
 ## Data Structures
 TODO
+
+## Adding a new flowop type
+As seen in the [design_notes](manual/design_notes.txt)
+1. Update `flowop_type_t` in flowops.h
+2. Update flowops[] to add new flowop
+3. Update `opp_flowopspp[]`
+3. Implement the flowop stub in flowops_library.c
+4. Update `flowop_get_execute_func()` in flowops_library.c
+6. Update the protocol structure to add the new flowop
+7. Implement the flowop for each protocol
+
