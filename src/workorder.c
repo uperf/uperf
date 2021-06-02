@@ -292,14 +292,30 @@ group_bitswap(group_t *grp)
 			fo->size = BSWAP_32(fo->size);
 			fo->rand_sz_min = BSWAP_32(fo->rand_sz_min);
 			fo->rand_sz_max = BSWAP_32(fo->rand_sz_max);
-			fo->flag = BSWAP_32(fo->flag);
+			fo->rsize = BSWAP_32(fo->rsize);
 			fo->protocol = BSWAP_32(fo->protocol);
 			fo->port = BSWAP_32(fo->port);
+			fo->flag = BSWAP_32(fo->flag);
 			fo->nfiles = BSWAP_32(fo->nfiles);
-			fo->count = BSWAP_64(fo->count);
-			fo->wndsz = BSWAP_64(fo->wndsz);
-			fo->poll_timeout = BSWAP_64(fo->poll_timeout);
 			fo->duration = BSWAP_64(fo->duration);
+			fo->wndsz = BSWAP_64(fo->wndsz);
+			fo->count = BSWAP_64(fo->count);
+			fo->poll_timeout = BSWAP_64(fo->poll_timeout);
+			fo->encaps_port = BSWAP_32(fo->encaps_port);
+			fo->sctp_rto_min = BSWAP_32(fo->sctp_rto_min);
+			fo->sctp_rto_max = BSWAP_32(fo->sctp_rto_max);
+			fo->sctp_rto_initial = BSWAP_32(fo->sctp_rto_initial);
+			fo->sctp_sack_delay = BSWAP_32(fo->sctp_sack_delay);
+			fo->sctp_sack_frequency = BSWAP_32(fo->sctp_sack_frequency);
+			fo->sctp_max_burst_size = BSWAP_32(fo->sctp_max_burst_size);
+			fo->sctp_max_fragment_size = BSWAP_32(fo->sctp_max_fragment_size);
+			fo->sctp_hb_interval = BSWAP_32(fo->sctp_hb_interval);
+			fo->sctp_path_mtu = BSWAP_32(fo->sctp_path_mtu);
+			fo->sctp_out_streams = BSWAP_16(fo->sctp_out_streams);
+			fo->sctp_in_streams = BSWAP_16(fo->sctp_in_streams);
+			fo->sctp_stream_id = BSWAP_16(fo->sctp_stream_id);
+			fo->sctp_padding = BSWAP_16(fo->sctp_padding);
+			fo->sctp_pr_value = BSWAP_32(fo->sctp_pr_value);
 		}
 	}
 
