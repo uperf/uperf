@@ -5,5 +5,7 @@ config.status
 .deps
 src/uperf
 src/*.o
+src/*.gcda
+src/*.gcno
 tests/*.log
 tests/*.trs
