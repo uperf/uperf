@@ -41,7 +41,7 @@
         </p><div class="itemizedlist"><ul type="disc"><li>Support modeling of workloads using profiles</li><li>Support for Multiple protocols (new protocols can 
             be easily integrated). Currently the following protocols
             are supported.
-            <div class="itemizedlist"><ul type="circle"><li>TCP</li><li>UDP</li><li>SCTP</li><li>SSL</li></ul></div></li><li>1-Many hosts</li><li>Support for CPU counters and lots of other detailed
+            <div class="itemizedlist"><ul type="circle"><li>TCP</li><li>UDP</li><li>SCTP</li><li>SSL</li><li>VSOCK</li></ul></div></li><li>1-Many hosts</li><li>Support for CPU counters and lots of other detailed
           statistics</li><li><a class="ulink" href="http://fenxi.dev.java.net/" target="_top">Fenxi</a>
             integration (Cool graphs!).
           </li><li>Ability to choose whether to use processes or threads</li><li>Runs on Solaris, Linux and windows
@@ -59,11 +59,12 @@
         describing the test application. 
         </p><pre class="programlisting">
 Uperf Version 1.0.7
-Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:R]
+Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:RS:]
          uperf [-s] [-hvV]
 
         -m &lt;profile&gt;     Run uperf with this profile
         -s               Slave
+        -S &lt;protocol&gt;    Protocol type for the control Socket [def: tcp]
         -n               No statistics
         -T               Print Thread statistics
         -t               Print Transaction averages
@@ -231,7 +232,7 @@ More information at http://www.uperf.org
                     connection from</td>
                   </tr><tr><td class="fixed" rowspan="1" colspan="1">protocol</td>
                     <td rowspan="1" colspan="1">The protocol used to connect to the remote host.
-                    Valid values are tcp, udp, ssl, and sctp</td>
+                    Valid values are tcp, udp, ssl, sctp, and vsock</td>
                   </tr><tr><td class="fixed" rowspan="1" colspan="1">tcp_nodelay</td>
                     <td rowspan="1" colspan="1">Controls whether
                       <em class="parameter"><code>TCP_NODELAY</code></em> is set or not
