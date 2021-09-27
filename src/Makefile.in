@@ -92,6 +92,7 @@ bin_PROGRAMS = uperf$(EXEEXT)
 @SSL_C_TRUE@am__append_3 = ssl.c
 @UDP_C_TRUE@am__append_4 = udp.c
 @RDS_C_TRUE@am__append_5 = rds.c
+@VSOCK_C_TRUE@am__append_6 = vsock.c
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -113,12 +114,13 @@ am__uperf_SOURCES_DIST = workorder.c strand.c execute.c \
 	hwcounter.h logging.h main.h netstat.h numbers.h parse.h \
 	print.h protocol.h rate.h sendfilev.h shm.h signals.h ssl.h \
 	stats.h strand.h sync.h uperf.h workorder.h hwcounter.c sctp.c \
-	ssl.c udp.c rds.c
+	ssl.c udp.c rds.c vsock.c
 @HAVE_CPC_TRUE@am__objects_1 = hwcounter.$(OBJEXT)
 @SCTP_C_TRUE@am__objects_2 = sctp.$(OBJEXT)
 @SSL_C_TRUE@am__objects_3 = ssl.$(OBJEXT)
 @UDP_C_TRUE@am__objects_4 = udp.$(OBJEXT)
 @RDS_C_TRUE@am__objects_5 = rds.$(OBJEXT)
+@VSOCK_C_TRUE@am__objects_6 = vsock.$(OBJEXT)
 am_uperf_OBJECTS = workorder.$(OBJEXT) strand.$(OBJEXT) \
 	execute.$(OBJEXT) flowops_library.$(OBJEXT) flowops.$(OBJEXT) \
 	common.$(OBJEXT) main.$(OBJEXT) slave.$(OBJEXT) \
@@ -129,7 +131,7 @@ am_uperf_OBJECTS = workorder.$(OBJEXT) strand.$(OBJEXT) \
 	netstat.$(OBJEXT) numbers.$(OBJEXT) sync.$(OBJEXT) \
 	protocol.$(OBJEXT) tcp.$(OBJEXT) generic.$(OBJEXT) \
 	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
-	$(am__objects_4) $(am__objects_5)
+	$(am__objects_4) $(am__objects_5) $(am__objects_6)
 uperf_OBJECTS = $(am_uperf_OBJECTS)
 am__DEPENDENCIES_1 =
 uperf_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -161,7 +163,7 @@ am__depfiles_remade = ./$(DEPDIR)/common.Po ./$(DEPDIR)/delay.Po \
 	./$(DEPDIR)/shm.Po ./$(DEPDIR)/signals.Po ./$(DEPDIR)/slave.Po \
 	./$(DEPDIR)/ssl.Po ./$(DEPDIR)/stats.Po ./$(DEPDIR)/strand.Po \
 	./$(DEPDIR)/sync.Po ./$(DEPDIR)/tcp.Po ./$(DEPDIR)/udp.Po \
-	./$(DEPDIR)/workorder.Po
+	./$(DEPDIR)/vsock.Po ./$(DEPDIR)/workorder.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -303,7 +305,7 @@ uperf_SOURCES = workorder.c strand.c execute.c flowops_library.c \
 	protocol.h rate.h sendfilev.h shm.h signals.h ssl.h stats.h \
 	strand.h sync.h uperf.h workorder.h $(am__append_1) \
 	$(am__append_2) $(am__append_3) $(am__append_4) \
-	$(am__append_5)
+	$(am__append_5) $(am__append_6)
 uperf_LDADD = $(UPERF_LIBS)
 all: all-am
 
@@ -421,6 +423,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sync.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tcp.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/udp.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vsock.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/workorder.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -600,6 +603,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/sync.Po
 	-rm -f ./$(DEPDIR)/tcp.Po
 	-rm -f ./$(DEPDIR)/udp.Po
+	-rm -f ./$(DEPDIR)/vsock.Po
 	-rm -f ./$(DEPDIR)/workorder.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -676,6 +680,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/sync.Po
 	-rm -f ./$(DEPDIR)/tcp.Po
 	-rm -f ./$(DEPDIR)/udp.Po
+	-rm -f ./$(DEPDIR)/vsock.Po
 	-rm -f ./$(DEPDIR)/workorder.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

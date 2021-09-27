@@ -29,5 +29,9 @@ endif
 if RDS_C
 uperf_SOURCES +=rds.c
 endif
+if VSOCK_C
+uperf_SOURCES +=vsock.c
+endif
+
 
 #uperf_CPPFLAGS = -DBUILD_DATE="\"$(BUILD_DATE)\""

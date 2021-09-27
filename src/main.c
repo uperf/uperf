@@ -108,6 +108,9 @@ static char *proto[] = {
 #ifdef HAVE_SCTP
 	", SCTP",
 #endif
+#ifdef HAVE_VSOCK
+	", VSOCK",
+#endif
 	NULL
 };
 
