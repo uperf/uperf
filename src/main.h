@@ -24,6 +24,7 @@
 #define	 __MAIN_H
 #include <limits.h>			/* PATH_MAX */
 #include <stdio.h>			/* PATH_MAX */
+#include "protocol.h"
 
 #define	FLOWOP_STATS		(1<<0)
 #define	TXN_STATS		(1<<1)
@@ -69,6 +70,7 @@ typedef struct options {
 	char	*ev2;
 	uint32_t copt;	/* Collect options */
 	uint64_t interval;	/* collect stats every interval msecs */
+	proto_type_t control_proto;
 }options_t;
 
 #endif /* __MAIN_H */
