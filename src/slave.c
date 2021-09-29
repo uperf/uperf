@@ -429,7 +429,7 @@ slave()
 		uperf_error("Cannot create control connection\n");
 		return (1);
 	}
-	if (slave_conn->listen(slave_conn, NULL) < 0) {
+	if (slave_conn->listen(slave_conn, NULL) == UPERF_FAILURE) {
 		uperf_log_flush();
 		printf("Error starting slave\n");
 		return (1);
