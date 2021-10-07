@@ -60,6 +60,7 @@
               <listitem>UDP</listitem>
               <listitem>SCTP</listitem>
               <listitem>SSL</listitem>
+              <listitem>VSOCK</listitem>
             </itemizedlist>
           </listitem>
 	  <listitem>Support for IPV4 and IPV6</listitem>
@@ -345,7 +346,7 @@
                   </tr>
                   <tr><td class="fixed">protocol</td>
                     <td>The protocol used to connect to the remote host.
-                    Valid values are tcp, udp, ssl, and sctp</td>
+                    Valid values are tcp, udp, ssl, sctp, and vsock</td>
                   </tr>
                   <tr><td class="fixed">tcp_nodelay</td>
                     <td>Controls whether

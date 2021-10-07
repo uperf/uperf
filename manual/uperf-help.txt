@@ -1,9 +1,10 @@
 Uperf Version 1.0.7
-Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:R]
+Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:RS:]
          uperf [-s] [-hvV]
 
         -m <profile>     Run uperf with this profile
         -s               Slave
+        -S <protocol>    Protocol type for the control Socket [def: tcp]
         -n               No statistics
         -T               Print Thread statistics
         -t               Print Transaction averages

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<profile name="test_vsock.vsock.xml">
+  <group nthreads="1">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=vsock"/>
+        </transaction>
+        <transaction iterations="10">
+            <flowop type="write" options="size=512"/>
+        </transaction>
+        <transaction>
+            <flowop type="disconnect"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=vsock"/>
+        </transaction>
+        <transaction iterations="10">
+            <flowop type="read" options="size=256"/>
+        </transaction>
+        <transaction>
+            <flowop type="disconnect"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=vsock"/>
+        </transaction>
+        <transaction iterations="10">
+            <flowop type="read" options="size=256"/>
+            <flowop type="write" options="size=512"/>
+        </transaction>
+        <transaction>
+            <flowop type="disconnect"/>
+        </transaction>
+  </group>
+</profile>

@@ -31,6 +31,7 @@ netstat_default="yes"
 udp_default="yes"
 rds_default="no"
 sctp_default="yes"
+vsock_default="yes"
 ssl_default="yes"
 cpc_default="yes"
 
@@ -306,6 +307,25 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+AC_MSG_CHECKING(whether to enable vsock support)
+AC_ARG_ENABLE(vsock,
+        AC_HELP_STRING([--enable-vsock], [Turn on vsock support]),,
+        enable_vsock=$vsock_default)
+if test "x$enable_vsock" = "xyes"; then
+        AC_MSG_RESULT(yes)
+        AC_CHECK_HEADERS([linux/vm_sockets.h],
+                         [AC_DEFINE([HAVE_VSOCK], [1], [Have vsock])
+                          AM_CONDITIONAL([VSOCK_C], [true])],
+                         [enable_vsock="no"
+                          AM_CONDITIONAL([VSOCK_C], [false])],
+                         [#include <sys/socket.h>]
+                        )
+else
+        AC_MSG_RESULT(no)
+        VSOCK_C=
+        AM_CONDITIONAL([VSOCK_C], [false])
+fi
+
 AC_ARG_WITH(ssl-includes,
 	    AC_HELP_STRING([--with-ssl-includes=DIR],
                            [Specify location of ssl headers]),
@@ -372,6 +392,7 @@ printf "|%20s:%5s%22s|\n" "UDP" "${enable_udp}" " "
 printf "|%20s:%5s%22s|\n" "RDS" "${enable_rds}" " "
 printf "|%20s:%5s%22s|\n" "SSL" "${enable_ssl}" " "
 printf "|%20s:%5s%22s|\n" "SCTP" "${enable_sctp}" " "
+printf "|%20s:%5s%22s|\n" "VSOCK" "${enable_vsock}" " "
 echo "+------------------------------------------------+"
 printf "|%33s:%14s|\n" "Network stats collection enabled?" "$enable_netstat"
 printf "|%33s:%14s|\n" "CPU Performance counters?"  "$cpc"

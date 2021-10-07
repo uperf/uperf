@@ -31,3 +31,7 @@ endif
 if RDS_C
 TESTS += test_rds.xml
 endif
+
+if VSOCK_C
+TESTS += 01simple_vsock.vsock.xml test_vsock.vsock.xml
+endif

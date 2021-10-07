@@ -100,7 +100,7 @@ create_protocols(uperf_shm_t *shm, int nthr, flowop_t *f,
 		strand_t *s = shm_get_strand(shm, i + ssid);
 		p = create_protocol(protocol, " ", ANY_PORT, SLAVE);
 		sl[i].port[protocol] = p->listen(p, (void *)&f->options);
-		if (sl[i].port[protocol] <= 0) {
+		if (sl[i].port[protocol] == UPERF_FAILURE) {
 			return (UPERF_FAILURE);
 		}
 		s->listen_conn[protocol] = p;

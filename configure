@@ -629,6 +629,8 @@ LIBOBJS
 UPERF_LIBS
 SSL_C_FALSE
 SSL_C_TRUE
+VSOCK_C_FALSE
+VSOCK_C_TRUE
 SCTP_C_FALSE
 SCTP_C_TRUE
 RDS_C_FALSE
@@ -711,6 +713,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -742,6 +745,7 @@ enable_debug
 enable_udp
 enable_rds
 enable_sctp
+enable_vsock
 with_ssl_includes
 with_ssl_libs
 enable_ssl
@@ -793,6 +797,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
@@ -1045,6 +1050,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1182,7 +1196,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1335,6 +1349,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1381,6 +1396,7 @@ Optional Features:
   --enable-udp            Turn on udp support
   --enable-rds            Turn on rds support
   --enable-sctp           Turn on sctp support
+  --enable-vsock          Turn on vsock support
   --enable-ssl            Turn on ssl support
 
 Optional Packages:
@@ -4233,6 +4249,7 @@ netstat_default="yes"
 udp_default="yes"
 rds_default="no"
 sctp_default="yes"
+vsock_default="yes"
 ssl_default="yes"
 cpc_default="yes"
 
@@ -5521,6 +5538,66 @@ fi
 $as_echo "no" >&6; }
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable vsock support" >&5
+$as_echo_n "checking whether to enable vsock support... " >&6; }
+# Check whether --enable-vsock was given.
+if test "${enable_vsock+set}" = set; then :
+  enableval=$enable_vsock;
+else
+  enable_vsock=$vsock_default
+fi
+
+if test "x$enable_vsock" = "xyes"; then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+        for ac_header in linux/vm_sockets.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "linux/vm_sockets.h" "ac_cv_header_linux_vm_sockets_h" "#include <sys/socket.h>
+
+"
+if test "x$ac_cv_header_linux_vm_sockets_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LINUX_VM_SOCKETS_H 1
+_ACEOF
+
+$as_echo "#define HAVE_VSOCK 1" >>confdefs.h
+
+                           if true; then
+  VSOCK_C_TRUE=
+  VSOCK_C_FALSE='#'
+else
+  VSOCK_C_TRUE='#'
+  VSOCK_C_FALSE=
+fi
+
+else
+  enable_vsock="no"
+                           if false; then
+  VSOCK_C_TRUE=
+  VSOCK_C_FALSE='#'
+else
+  VSOCK_C_TRUE='#'
+  VSOCK_C_FALSE=
+fi
+
+fi
+
+done
+
+else
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+        VSOCK_C=
+         if false; then
+  VSOCK_C_TRUE=
+  VSOCK_C_FALSE='#'
+else
+  VSOCK_C_TRUE='#'
+  VSOCK_C_FALSE=
+fi
+
+fi
+
 
 # Check whether --with-ssl-includes was given.
 if test "${with_ssl_includes+set}" = set; then :
@@ -5853,6 +5930,18 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${SCTP_C_TRUE}" && test -z "${SCTP_C_FALSE}"; then
   as_fn_error $? "conditional \"SCTP_C\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${VSOCK_C_TRUE}" && test -z "${VSOCK_C_FALSE}"; then
+  as_fn_error $? "conditional \"VSOCK_C\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${VSOCK_C_TRUE}" && test -z "${VSOCK_C_FALSE}"; then
+  as_fn_error $? "conditional \"VSOCK_C\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${VSOCK_C_TRUE}" && test -z "${VSOCK_C_FALSE}"; then
+  as_fn_error $? "conditional \"VSOCK_C\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${SSL_C_TRUE}" && test -z "${SSL_C_FALSE}"; then
@@ -7138,7 +7227,9 @@ $as_echo X/"$am_mf" |
     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "Something went wrong bootstrapping makefile fragments
-    for automatic dependency tracking.  Try re-running configure with the
+    for automatic dependency tracking.  If GNU make was not used, consider
+    re-running the configure script with MAKE=\"gmake\" (or whatever is
+    necessary).  You can also try re-running configure with the
     '--disable-dependency-tracking' option to at least be able to build
     the package (albeit without support for automatic dependency tracking).
 See \`config.log' for more details" "$LINENO" 5; }
@@ -7205,6 +7296,7 @@ printf "|%20s:%5s%22s|\n" "UDP" "${enable_udp}" " "
 printf "|%20s:%5s%22s|\n" "RDS" "${enable_rds}" " "
 printf "|%20s:%5s%22s|\n" "SSL" "${enable_ssl}" " "
 printf "|%20s:%5s%22s|\n" "SCTP" "${enable_sctp}" " "
+printf "|%20s:%5s%22s|\n" "VSOCK" "${enable_vsock}" " "
 echo "+------------------------------------------------+"
 printf "|%33s:%14s|\n" "Network stats collection enabled?" "$enable_netstat"
 printf "|%33s:%14s|\n" "CPU Performance counters?"  "$cpc"

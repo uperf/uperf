@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<profile name="vsock">
+  <group nthreads="1">
+        <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol=vsock"/>
+        </transaction>
+        <transaction duration="30s">
+            <flowop type="write" options="count=10 size=8k"/>
+        </transaction>
+        <transaction iterations="1">
+            <flowop type="disconnect" />
+        </transaction>
+  </group>
+
+</profile>
