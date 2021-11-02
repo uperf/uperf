@@ -2,12 +2,12 @@
 As stated in the [documentation](http://uperf.org/manual.html) uperf is a file based network micro benchmark utility. The goal of this document is to provide a developer with an overview of the file layout, control flow, and data structures. In addition to this document is the [design_notes](manual/design_notes.txt) file which lays out additional information.
 
 ## Glossary
-- *strand* - uperf abstraction for process or pthread
-- *flowop* - the smallest unit of work specified in a XML configuration file, including `connect`,`read`,`write`,and `disconnect`.
-- *transaction* - wrapper around one or more flowops
-- *group* - a set of transaction that can be executed by one or more threads
-- *client* - acts a client in the client server model, also responsible for stats collection and transmitting the work to be done to the server.
-- *server* - a simple daemon that receives packets from the client, keeps track of the stats of the run, and transmits stats back to the client.
+- **strand** - uperf abstraction for process or pthread
+- **flowop** - the smallest unit of work specified in a XML configuration file, including `connect`,`read`,`write`, and `disconnect`.
+- **transaction** - wrapper around one or more flowops
+- **group** - a set of transaction that can be executed by one or more threads
+- **client** - acts a client in the client server model, also responsible for stats collection and transmitting the work to be done to the server.
+- **server** - a simple daemon that receives packets from the client, keeps track of the stats of the run, and transmits stats back to the client.
 
 # CodeMap
 A brief description of the purpose of the files
@@ -50,7 +50,8 @@ Functions and structures to ensure that all strands complete a transaction befor
 
 
 ## Data Structures
-As seen in the [design_notes](manual/design_notes.txt)
+As seen in the [design notes](manual/design_notes.txt)
+
 * barriers
 * global error
 * slave list
@@ -70,7 +71,8 @@ As seen in the [design_notes](manual/design_notes.txt)
 
 
 ## Adding a new flowop type
-As seen in the [design_notes](manual/design_notes.txt)
+As seen in the [design notes](manual/design_notes.txt)
+
 1. Update `flowop_type_t` in flowops.h
 2. Update flowops[] to add new flowop
 3. Update `opp_flowopspp[]`
@@ -78,4 +80,39 @@ As seen in the [design_notes](manual/design_notes.txt)
 4. Update `flowop_get_execute_func()` in `flowops_library.c`
 6. Update the protocol structure to add the new flowop
 7. Implement the flowop for each protocol
+
+# Basic Flow of Master and Slave
+## Master
+
+1. Parse workload profile
+2. For each unique remote host
+ * handshake start
+ * workorder transfer
+ * send port numbers (for ex if master has to do accept())
+ * get port numbers (used when master needs to connect())
+ * get confirmation that all remote strands started
+ * handshake end
+3. Create per strand data structures
+  * Init barriers
+4. Create strands
+  * send handshake_end message to slave
+  * open begin_run barrier
+5. Wait for strands to finish
+6. Statistics gathering/reporting
+
+## Slave
+
+1. Wait for connection, fork to handle it.
+2. Communicate with master
+  * handshake_begin
+  * get workorder
+  * get ports
+  * byteswap if necessary
+  * create per thread data structures
+  * create strands with handle to workorder
+3. Wait for handshake_end msg from master
+4. Reply with confirmation that strands have started
+5. Open begin_run barrier
+6. Wait for strands to finish
+
 
