@@ -50,15 +50,32 @@ Functions and structures to ensure that all strands complete a transaction befor
 
 
 ## Data Structures
-TODO
+As seen in the [design_notes](manual/design_notes.txt)
+* barriers
+* global error
+* slave list
+  * name
+  * port
+  * control connection
+* Workorder
+* strand_state_summary
+* per-strand structures
+  * array of stat_t
+  * per_strand state
+  * slave list
+    * connection array
+  * strand_id
+  * buffer
+  * hardware counter structure
+
 
 ## Adding a new flowop type
 As seen in the [design_notes](manual/design_notes.txt)
 1. Update `flowop_type_t` in flowops.h
 2. Update flowops[] to add new flowop
 3. Update `opp_flowopspp[]`
-3. Implement the flowop stub in flowops_library.c
-4. Update `flowop_get_execute_func()` in flowops_library.c
+3. Implement the flowop stub in `flowops_library.c`
+4. Update `flowop_get_execute_func()` in `flowops_library.c`
 6. Update the protocol structure to add the new flowop
 7. Implement the flowop for each protocol
 
