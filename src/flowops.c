@@ -53,6 +53,7 @@ static struct flowop_id flowops[] = {
 	{ "recv", 	FLOWOP_RECV },
 	{ "sendfile", 	FLOWOP_SENDFILE },
 	{ "sendfilev", 	FLOWOP_SENDFILEV },
+	{ "Lookup", 	FLOWOP_LOOKUP },
 };
 
 struct flowop_opp {

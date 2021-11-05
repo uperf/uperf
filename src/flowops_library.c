@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <netdb.h>
 #include "uperf.h"
 #include "protocol.h"
 #include "logging.h"
@@ -287,6 +288,32 @@ flowop_think(strand_t *sp, flowop_t *fp)
 
 	return (error);
 }
+int
+flowop_lookup(strand_t *sp, flowop_t *fp)
+{
+	char *err;
+	struct addrinfo *remote_host;
+	int error = UPERF_SUCCESS;
+
+	/* reuse remotehost with this flowop, it should start out as a human readable name */
+	error = getaddrinfo(fp->options.remotehost, NULL, NULL, &remote_host);
+	if (error != 0) {
+		char msg[128];
+		snprintf(msg,sizeof (msg),"%s", gai_strerror(error));
+		uperf_log_msg(UPERF_LOG_ERROR, 0, msg);
+		freeaddrinfo(remote_host);
+		return (UPERF_FAILURE);
+
+	}
+	/* copy the ip address into the fp->options.remotehost struct */
+	err = (char*) memccpy(fp->options.remotehost,remote_host->ai_addr,'\0',remote_host->ai_addrlen);
+	if (err == NULL){
+		uperf_log_msg(UPERF_LOG_ERROR,0,"flowop_lookup: non null terminated string returned from getaddrinfo\n");
+		return (UPERF_FAILURE);
+	}
+
+	return (error);
+}
 
 /* ARGSUSED */
 int
@@ -329,6 +356,9 @@ flowop_get_execute_func(int type)
 	case FLOWOP_SENDFILEV:
 	case FLOWOP_SENDFILE:
 		func = &flowop_sendfilev;
+		break;
+	case FLOWOP_LOOKUP:
+		func = &flowop_lookup;
 		break;
 	}
 

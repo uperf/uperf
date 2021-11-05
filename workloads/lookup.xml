@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<profile name="lookup-test">
+  <group nthreads="$nthr">
+    <transaction iterations="$iter">
+       <flowop type="lookup" options="remotehost=$h"/>
+    </transaction>
+  </group>
+</profile>
