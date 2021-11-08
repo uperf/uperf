@@ -19,6 +19,8 @@ jobs:
       run: sudo modprobe sctp
     - name: insmod vsock_loopback
       run: sudo modprobe vsock_loopback
+    - name: autoreconf
+      run: autoreconf -fi
     - name: configure
       run: ./configure
     - name: make
