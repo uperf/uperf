@@ -207,6 +207,15 @@
       </para>
     </sect2>
   </sect1>
+  <sect1><title>Architecture</title>
+      <para>
+          There are two documents that describe the Architecture of uperf.
+          <ulink url="https://github.com/uperf/uperf/blob/master/Architecture.md">Architecture.md</ulink>
+          and
+          <ulink url="https://github.com/uperf/uperf/blob/master/manual/design_notes.txt">design_notes.txt</ulink>
+          further updates to the documentation of the uperf architecture are planned.
+      </para>
+  </sect1>
   
   <sect1><title>Uperf profiles</title>
     <para>
