@@ -19,9 +19,6 @@
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif /* HAVE_CONFIG_H */
-#ifdef HAVE_ATOMIC_H
-#include <atomic.h>
-#endif /* HAVE_ATOMIC_H */
 #include <assert.h>
 #ifdef HAVE_SIGNAL_H
 #include <signal.h> /* For SIGUSR2 */
