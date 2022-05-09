@@ -32,10 +32,10 @@
 typedef	struct sync_barrier {
 	pthread_rwlockattr_t rwattr;
 	pthread_rwlock_t barrier;
-#ifndef HAVE_ATOMIC_H
+#if !defined(HAVE_ATOMIC_H) && !defined(HAVE_STDATOMIC_H)
 	pthread_mutexattr_t count_mtx_attr;
 	pthread_mutex_t count_mutex;
-#endif /* HAVE_ATOMIC_H */
+#endif /* HAVE_ATOMIC_H  && HAVE_STDATOMIC_H */
 	volatile unsigned int count;
 	volatile unsigned int limit;
 	int group;

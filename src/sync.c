@@ -27,6 +27,9 @@
 #ifdef HAVE_ATOMIC_H
 #include <atomic.h>
 #endif /* HAVE_ATOMIC_H */
+#ifdef HAVE_STDATOMIC_H
+#include <stdatomic.h>
+#endif /* HAVE_STDATOMIC_H */
 #include <assert.h>
 #include <pthread.h>
 #include <stdlib.h>
@@ -57,7 +60,7 @@ init_barrier(barrier_t *bar, int threshold)
 		printf("Initial write lock grab failed\n");
 		exit(1);
 	}
-#ifndef HAVE_ATOMIC_H
+#if !defined(HAVE_ATOMIC_H) && !defined(HAVE_STDATOMIC_H)
 	pthread_mutexattr_init(&bar->count_mtx_attr);
 #ifndef STRAND_THREAD_ONLY
 	if (pthread_mutexattr_setpshared(&bar->count_mtx_attr,
@@ -70,7 +73,7 @@ init_barrier(barrier_t *bar, int threshold)
 		printf("Error in pthread_mutex_init\n");
 		exit(1);
 	}
-#endif /* HAVE_ATOMIC_H */
+#endif /* HAVE_ATOMIC_H && HAVE_STDATOMIC_H*/
 	return (0);
 }
 
@@ -91,8 +94,10 @@ wait_barrier(barrier_t *bar)
 	assert(bar);
 	assert(bar->limit > 0);
 
-#ifdef HAVE_ATOMIC_H
-	(void) atomic_add_32_nv(&bar->count, 1);
+#ifdef HAVE_STDATOMIC_H
+	(void) atomic_fetch_add(&bar->count, 1);
+#elif defined(HAVE_ATOMIC_H)
+	atomic_add_32(&bar->count, 1);
 #else
 	if (pthread_mutex_lock(&bar->count_mutex) != 0) {
 		printf("Error grabbing count mutex.. aborting\n");

@@ -219,7 +219,7 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-AC_CHECK_HEADERS([atomic.h siginfo.h sys/int_limits.h sys/lwp.h signal.h sys/byteorder.h poll.h sys/poll.h sys/varargs.h stdint.h termio.h stropts.h sys/ttycom.h wait.h alloca.h sys/sendfile.h sys/types.h linux/unistd.h sys/ioctl.h sys/uio.h])
+AC_CHECK_HEADERS([stdatomic.h atomic.h siginfo.h sys/int_limits.h sys/lwp.h signal.h sys/byteorder.h poll.h sys/poll.h sys/varargs.h stdint.h termio.h stropts.h sys/ttycom.h wait.h alloca.h sys/sendfile.h sys/types.h linux/unistd.h sys/ioctl.h sys/uio.h])
 
 LIBS="$UPERF_LIBS"
 AC_CHECK_FUNCS([nanosleep])
