@@ -4389,7 +4389,7 @@ $as_echo_n "checking sendfilev... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <sys/sendfile.h>
-		main() {int i=sendfilev(1,0, 1, 0);}
+		int main() {int i=sendfilev(1,0, 1, 0);}
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
