@@ -100,7 +100,7 @@ AC_LINK_IFELSE([AC_LANG_SOURCE[#include <sys/byteorder.h>
 # Linux 2.6 does not have sendfilev
 AC_MSG_CHECKING(sendfilev)
 AC_LINK_IFELSE([AC_LANG_SOURCE[#include <sys/sendfile.h>
-		main() {int i=sendfilev(1,0, 1, 0);}]],
+		int main() {int i=sendfilev(1,0, 1, 0);}]],
 		[AC_MSG_RESULT(yes)
 	  	 AC_DEFINE([HAVE_SENDFILEV],[1],[Have sendfilev])
 		],
