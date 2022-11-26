@@ -1,8 +1,8 @@
 # uperf configure file
 # neel@sun.com
-AC_INIT(uperf, 1.0.7, realneel@gmail.com)
+AC_INIT([uperf],[1.0.7],[realneel@gmail.com])
 AC_CONFIG_SRCDIR([src/flowops.c])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 CFLAGS="${CFLAGS=}"
 UPERF_LIBS="${UPERF_LIBS=}"
@@ -10,7 +10,7 @@ UPERF_LIBS="${UPERF_LIBS=}"
 
 # Checks for programs.
 AM_INIT_AUTOMAKE
-AC_PROG_CC_C99
+AC_PROG_CC
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 
@@ -112,7 +112,7 @@ AC_LINK_IFELSE([AC_LANG_SOURCE[#include <sys/sendfile.h>
 LIBS="$UPERF_LIBS"
 AC_MSG_CHECKING(if we can have working PTHREAD_PROCESS_SHARED)
 process_shared_works=yes
-AC_TRY_RUN([
+AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <pthread.h>
 #include <sys/types.h>
 int
@@ -149,17 +149,16 @@ main(int argc, char *argv[])
 	if (pthread_rwlock_unlock(&barrier))
 		return (1);
 	return (0);
-}],[AC_MSG_RESULT(yes)],
-   [
+}]])],[AC_MSG_RESULT(yes)],[
       AC_MSG_RESULT(no)
       AC_DEFINE([STRAND_THREAD_ONLY], [1], [Use only threads])
       AM_CONDITIONAL([HAVE_PROCESSES], [false])
-   ]
-)
+   
+],[])
 # Checks for libraries.
 AC_MSG_CHECKING(whether to enable cpu performance counters support?)
 AC_ARG_ENABLE(cpc,
-	AC_HELP_STRING([--enable-cpc],[Turn on cpu counter support ]),,
+	AS_HELP_STRING([--enable-cpc],[Turn on cpu counter support ]),,
 	enable_cpc=$cpc_default)
 if test "x$enable_cpc" = "xyes"; then
 	AC_MSG_RESULT(yes)
@@ -207,7 +206,7 @@ AC_CHECK_LIB([kstat], [kstat_open],
 
 AC_MSG_CHECKING(whether to enable netstat support)
 AC_ARG_ENABLE(netstat,
-	AC_HELP_STRING([--enable-netstat], [Collect network stats? default=yes]),,
+	AS_HELP_STRING([--enable-netstat],[Collect network stats? default=yes]),,
 	enable_netstat=$netstat_default)
 if test "x$enable_netstat" = "xyes"; then
 	AM_CONDITIONAL([ENABLE_NETSTAT], [true])
@@ -237,7 +236,7 @@ AC_CHECK_FUNCS([gethrtime],[],
 
 AC_MSG_CHECKING(whether to enable debug mode)
 AC_ARG_ENABLE(debug,
-     AC_HELP_STRING([--enable-debug],[Turn on debugging]),
+     AS_HELP_STRING([--enable-debug],[Turn on debugging]),
      [case "${enableval}" in
        yes) debug=true
      	    AC_DEFINE([DEBUG],[1],[Debug])
@@ -254,7 +253,7 @@ AC_ARG_ENABLE(debug,
 #check for udp
 AC_MSG_CHECKING(whether to enable udp support)
 AC_ARG_ENABLE(udp,
-	AC_HELP_STRING([--enable-udp], [Turn on udp support]),,
+	AS_HELP_STRING([--enable-udp],[Turn on udp support]),,
 	enable_udp=$udp_default)
 if test "x$enable_udp" = "xyes"; then
 	AM_CONDITIONAL([UDP_C], [true])
@@ -269,7 +268,7 @@ fi
 #check for rds
 AC_MSG_CHECKING(whether to enable rds support)
 AC_ARG_ENABLE(rds,
-        AC_HELP_STRING([--enable-rds], [Turn on rds support]),,
+        AS_HELP_STRING([--enable-rds],[Turn on rds support]),,
         enable_rds=$rds_default)
 if test "x$enable_rds" = "xyes"; then
         AM_CONDITIONAL([RDS_C], [true])
@@ -283,7 +282,7 @@ fi
 
 AC_MSG_CHECKING(whether to enable sctp support)
 AC_ARG_ENABLE(sctp,
-	AC_HELP_STRING([--enable-sctp],[Turn on sctp support ]),,
+	AS_HELP_STRING([--enable-sctp],[Turn on sctp support ]),,
 	enable_sctp=$sctp_default)
 if test "x$enable_sctp" = "xyes"; then
 	AC_MSG_RESULT(yes)
@@ -309,7 +308,7 @@ fi
 
 AC_MSG_CHECKING(whether to enable vsock support)
 AC_ARG_ENABLE(vsock,
-        AC_HELP_STRING([--enable-vsock], [Turn on vsock support]),,
+        AS_HELP_STRING([--enable-vsock],[Turn on vsock support]),,
         enable_vsock=$vsock_default)
 if test "x$enable_vsock" = "xyes"; then
         AC_MSG_RESULT(yes)
@@ -327,14 +326,12 @@ else
 fi
 
 AC_ARG_WITH(ssl-includes,
-	    AC_HELP_STRING([--with-ssl-includes=DIR],
-                           [Specify location of ssl headers]),
+	    AS_HELP_STRING([--with-ssl-includes=DIR],[Specify location of ssl headers]),
             [CFLAGS="$CFLAGS -I$withval"],
             [])
 
 AC_ARG_WITH(ssl-libs,
-	    AC_HELP_STRING([--with-ssl-libs=DIR],
-                           [Specify location of ssl libraries]),
+	    AS_HELP_STRING([--with-ssl-libs=DIR],[Specify location of ssl libraries]),
 	    [LDFLAGS="$LDFLAGS -L$withval"],
 	    [])
 	##[LDFLAGS="$LDFLAGS -L$withval -R$withval"],
@@ -344,7 +341,7 @@ AC_ARG_WITH(ssl-libs,
 
 AC_MSG_CHECKING(whether to enable ssl support)
 AC_ARG_ENABLE(ssl,
-	AC_HELP_STRING([--enable-ssl],[Turn on ssl support ]),,
+	AS_HELP_STRING([--enable-ssl],[Turn on ssl support ]),,
 	enable_ssl=$ssl_default)
 if test "x$enable_ssl" = "xyes"; then
 	AC_MSG_RESULT(yes)
@@ -371,10 +368,11 @@ AC_SUBST(UPERF_LIBS)
 
 
 #AC_CONFIG_FILES([Makefile
-AC_OUTPUT([Makefile
+AC_CONFIG_FILES([Makefile
                  src/Makefile
 		 tests/Makefile
                  workloads/Makefile])
+AC_OUTPUT
 
 echo "CC=$CC"
 echo " "
