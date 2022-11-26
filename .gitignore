@@ -11,3 +11,4 @@ tests/*.log
 tests/*.trs
 stamp-h1
 cscope.files
+autom4te.cache
