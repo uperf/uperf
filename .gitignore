@@ -9,3 +9,5 @@ src/*.gcda
 src/*.gcno
 tests/*.log
 tests/*.trs
+stamp-h1
+cscope.files
