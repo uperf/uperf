@@ -359,6 +359,7 @@ slave_master(protocol_t *p)
 	uperf_log_flush();
 	/* fprintf(stderr, "%ld: master-slave exiting\n", getpid()); */
 	p->disconnect(p);
+    group_free(shm->worklist);
 	free(shm);
 
 	return (0);
