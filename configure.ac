@@ -1,6 +1,6 @@
 # uperf configure file
 # neel@sun.com
-AC_INIT([uperf],[1.0.7],[realneel@gmail.com])
+AC_INIT([uperf],[1.0.8],[realneel@gmail.com])
 AC_CONFIG_SRCDIR([src/flowops.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -153,7 +153,7 @@ main(int argc, char *argv[])
       AC_MSG_RESULT(no)
       AC_DEFINE([STRAND_THREAD_ONLY], [1], [Use only threads])
       AM_CONDITIONAL([HAVE_PROCESSES], [false])
-   
+
 ],[])
 # Checks for libraries.
 AC_MSG_CHECKING(whether to enable cpu performance counters support?)
@@ -395,4 +395,3 @@ echo "+------------------------------------------------+"
 printf "|%33s:%14s|\n" "Network stats collection enabled?" "$enable_netstat"
 printf "|%33s:%14s|\n" "CPU Performance counters?"  "$cpc"
 echo "+------------------------------------------------+"
-

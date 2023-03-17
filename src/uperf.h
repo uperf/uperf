@@ -20,7 +20,7 @@
 
 /* Keep the data version as 0.2.5 to avoid the version mismatch problem. */
 #define UPERF_DATA_VERSION	"0.3.1"
-#define	UPERF_VERSION 		"1.0.7"
+#define	UPERF_VERSION 		"1.0.8"
 #define	UPERF_VERSION_LEN 	16
 #define	UPERF_EMAIL_ALIAS	"uperf-discuss@lists.sourceforge.net"
 
@@ -69,8 +69,8 @@ typedef enum {
 #define	STRAND_IS_MASTER(s)	((s)->strand_flag & STRAND_ROLE_MASTER)
 #define	STRAND_IS_SLAVE(s)	((s)->strand_flag & STRAND_ROLE_SLAVE)
 
-#define	UPERF_OK		"OK"	
-#define	UPERF_NOT_OK		"Not OK"	
+#define	UPERF_OK		"OK"
+#define	UPERF_NOT_OK		"Not OK"
 #define	UPERF_MAGIC		"0xbadcafedeadbeef"
 
 #define	STAT_FLOWOP		1
@@ -85,8 +85,8 @@ typedef enum {
 #define	MAX_REMOTE_HOSTS	MAXTHREADGROUPS
 #define	DEFAULT_BUFFER_SIZE	8192
 
-#define	IS_PROCESS(a) (a->worklist->thread_type == TYPE_PROCESS) 
-#define	IS_THREAD(a) (a->worklist->thread_type != TYPE_PROCESS) 
+#define	IS_PROCESS(a) (a->worklist->thread_type == TYPE_PROCESS)
+#define	IS_THREAD(a) (a->worklist->thread_type != TYPE_PROCESS)
 
 #ifndef HAVE_BSWAP
 /* solaris 9 does not have this */

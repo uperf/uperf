@@ -1,4 +1,4 @@
-Uperf Version 1.0.7
+Uperf Version 1.0.8
 Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:RS:]
          uperf [-s] [-hvV]
 
