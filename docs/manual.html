@@ -21,24 +21,24 @@
       profile) and running this over the network. It allows the
       user to use multiple protocols, varying message sizes for
       communication, a 1xN communication model, support for
-      collection of CPU counter statistics, and much more. 
+      collection of CPU counter statistics, and much more.
     </p><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="id2542206"></a>Authors</h3></div></div></div><p>
-        uperf was developed by the Performance Availablity Engineering 
+        uperf was developed by the Performance Availablity Engineering
         group at Sun Microsystems. It was originally developed by
         <a class="ulink" href="http://blogs.sun.com/realneel" target="_top">Neelakanth Nadgir</a>
         and <a class="ulink" href="mailto:nitin.rammanavar@sun.com" target="_top">Nitin Rammanavar</a>.
-        <a class="ulink" href="mailto:J.Zhang@sun.com" target="_top">Jing Zhang</a> added support 
+        <a class="ulink" href="mailto:J.Zhang@sun.com" target="_top">Jing Zhang</a> added support
         for the uperf harness. <a class="ulink" href="mailto:Chaoyue.Xiong" target="_top">Joy</a>
         added SSL support, and <a class="ulink" href="mailto:ding.he@sun.com" target="_top">Eric He</a>
-        ported it to windows and is currently a core contributer. 
+        ported it to windows and is currently a core contributer.
         <a class="ulink" href="mailto:charles.suresh@sun.com" target="_top">Charles Suresh</a>,
-        <a class="ulink" href="mailto:alan.chiu@sun.com" target="_top">Alan Chiu</a>, 
-        <a class="ulink" href="mailto:janlung.sung@sun.com" target="_top">Jan-Lung Sung</a> have 
+        <a class="ulink" href="mailto:alan.chiu@sun.com" target="_top">Alan Chiu</a>,
+        <a class="ulink" href="mailto:janlung.sung@sun.com" target="_top">Jan-Lung Sung</a> have
         contributed significantly to its design and development.
-      </p></div><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="id2546888"></a>Features</h3></div></div></div><p> 
+      </p></div><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="id2546888"></a>Features</h3></div></div></div><p>
         The following list is a short overview of some of the features supported
         by uperf:
-        </p><div class="itemizedlist"><ul type="disc"><li>Support modeling of workloads using profiles</li><li>Support for Multiple protocols (new protocols can 
+        </p><div class="itemizedlist"><ul type="disc"><li>Support modeling of workloads using profiles</li><li>Support for Multiple protocols (new protocols can
             be easily integrated). Currently the following protocols
             are supported.
             <div class="itemizedlist"><ul type="circle"><li>TCP</li><li>UDP</li><li>SCTP</li><li>SSL</li><li>VSOCK</li></ul></div></li><li>1-Many hosts</li><li>Support for CPU counters and lots of other detailed
@@ -47,18 +47,18 @@
           </li><li>Ability to choose whether to use processes or threads</li><li>Runs on Solaris, Linux and windows
             <sup>[<a id="id2546974" href="http://www.uperf.org/manual.html#ftn.id2546974" class="footnote">1</a>]</sup></li></ul></div><p>
       </p></div></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2546985"></a>Using uperf</h2></div></div></div><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="id2546990"></a>Getting uperf</h3></div></div></div><p>
-        uperf is opensource software using the 
+        uperf is opensource software using the
         <a class="ulink" href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt" target="_top">
           GNU General Public License v2
         </a>.
-        You can download it from <a class="ulink" href="http://uperf.org/" target="_top">http://uperf.org</a>. Binaries are 
+        You can download it from <a class="ulink" href="http://uperf.org/" target="_top">http://uperf.org</a>. Binaries are
         available for Solaris and Linux.
       </p></div><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="id2547014"></a>Running uperf</h3></div></div></div><p>
         uperf can be run as either a master(active) or a slave(passive).
         When run as active it needs master flag(-m) with a profile
-        describing the test application. 
+        describing the test application.
         </p><pre class="programlisting">
-Uperf Version 1.0.7
+Uperf Version 1.0.8
 Usage:   uperf [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:RS:]
          uperf [-s] [-hvV]
 
@@ -97,7 +97,7 @@ More information at http://www.uperf.org
 	them in the profile.
       </p><p>
         The list of profiles included by uperf is as follows
-        
+
         </p><div class="variablelist"><dl><dt><span class="term">netperf.xml</span></dt><dd><p>
 		This profile represents the request-response kind of
 		traffic.  One thread on the master is reading and
@@ -110,7 +110,7 @@ More information at http://www.uperf.org
 		In this profile, multiple threads simulates one way
 		traffic (8K size) between two hosts (similar to the
 		iperf networking tool) for 30 seconds.
-                <em class="parameter"><code>$h</code></em> specifies the remote host, 
+                <em class="parameter"><code>$h</code></em> specifies the remote host,
                 <em class="parameter"><code>$proto</code></em> specifies the protocol, and
                 <em class="parameter"><code>$nthr</code></em> specifies the numnber of threads.
               </p></dd><dt><span class="term">connect.xml</span></dt><dd><p>
@@ -132,7 +132,7 @@ More information at http://www.uperf.org
       framework will run that application or workload for you. For
       example, if you are familiar with netperf or
       request-response microbenchmarks, this general description
-      would be 
+      would be
       <span class="emphasis"><em>"each thread sends 100bytes and receives 100 bytes using
       UDP"</em></span>. For a more complex application, we may have to
       specify the number of connections, and/or the number of threads,
@@ -146,7 +146,7 @@ More information at http://www.uperf.org
       master only. uperf automatically transforms the profile for the
       slaves and uses it.
     </p><p>
-      The profile needs to be a valid XML file. Variables that begin with a 
+      The profile needs to be a valid XML file. Variables that begin with a
       '<span class="emphasis"><em>$</em></span>' are picked up from the ENVIRONMENT.
     </p><div class="sect2" lang="en" xml:lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="id2547247"></a>Sample Profile</h3></div></div></div><p>
         A sample profile for the request-response microbenchmark
@@ -173,12 +173,12 @@ More information at http://www.uperf.org
         Every profile begins with a xml header that specifies that
         it is a XML file. A profile has <span class="emphasis"><em>name</em></span>.
         This is used to identify the name of the profile, and is not
-        used by uperf. 
+        used by uperf.
         The major parts of a profile are
         </p><div class="itemizedlist"><ul type="disc"><li>group</li><li>transaction</li><li>flowop</li></ul></div><p>
       </p>
       Lets look at each of these in detail.
-      
+
       <div class="sect3" lang="en" xml:lang="en"><div class="titlepage"><div><div><h4 class="title"><a id="id2547328"></a>Group</h4></div></div></div>
         A profile can have multiple
         <span class="emphasis"><em>group</em></span>s. A <span class="emphasis"><em>group</em></span> is
@@ -199,7 +199,7 @@ More information at http://www.uperf.org
         The contents of the transaction are called
         <span class="emphasis"><em>flowop</em></span>s. These basic operations
         (building blocks) are used to define a workload. Current
-        supported flowps are 
+        supported flowps are
         <div class="itemizedlist"><ul type="disc"><li>Connect</li><li>Accept</li><li>disconnect</li><li>read</li><li>write</li><li>redv</li><li>sendto</li><li>sendfilev</li><li>NOP</li><li>think</li></ul></div><p>
 	  Every Flowop has a set of options. In the XML file, these are space
 	  seperated. The supported options are listed below.
@@ -210,7 +210,7 @@ More information at http://www.uperf.org
                     </td>
                   </tr><tr><td class="fixed" rowspan="1" colspan="1">duration</td>
                     <td rowspan="1" colspan="1">The amount of time this flowop will be executed.
-                      Example: <code class="code">duration=100ms</code>. 
+                      Example: <code class="code">duration=100ms</code>.
 		      <span class="strong"><strong>This option will no longer be
 		      supported in future versions of uperf. Specify the
 		      duration in the transaction</strong></span>
@@ -239,20 +239,20 @@ More information at http://www.uperf.org
                     </td>
                   </tr><tr><td class="fixed" rowspan="1" colspan="1">wndsz</td>
                     <td rowspan="1" colspan="1">Size of the socket send and receive buffer. This
-                      parameter is used to set <code class="code">SO_SNDBUF, SO_RCVBUF</code> 
-                      flags using  <code class="code">setsocktopt()</code>                    
+                      parameter is used to set <code class="code">SO_SNDBUF, SO_RCVBUF</code>
+                      flags using  <code class="code">setsocktopt()</code>
                     </td>
                   </tr><tr><td class="fixed" rowspan="1" colspan="1">engine</td>
                     <td rowspan="1" colspan="1">
                       SSL Engine.
                     </td>
-                  </tr></tbody></table><p>                
+                  </tr></tbody></table><p>
               </p></dd><dt><span class="term">Read, Write, Sendto and Recv flowops</span></dt><dd><p>
                 </p><table class="options" id="id2533867"><tbody><tr><td class="fixed" rowspan="1" colspan="1">size</td>
                     <td rowspan="1" colspan="1">Amount of data that is either read or written.
-		      Uperf supports exchange of 
-		     	<div class="itemizedlist"><ul type="disc"><li>Fixed size messages</li><li>Asymmetrical size messages</li><li>Random size messages</li></ul></div> 
-		      
+		      Uperf supports exchange of
+		     	<div class="itemizedlist"><ul type="disc"><li>Fixed size messages</li><li>Asymmetrical size messages</li><li>Random size messages</li></ul></div>
+
 		      For fixed size messages, the master and all slaves
 		      used a fixed size for receives and transmits. For
 		      asymmetrical sized messages, the slaves use the
@@ -311,7 +311,7 @@ More information at http://www.uperf.org
                     <td rowspan="1" colspan="1">This parameter identifies the number of files
 		    that will be transferred with each call to
 		    <code class="code">sendfilev(3EXT)</code>. This is used as the
-		    3rd argument to the <code class="code">sendfilev(3EXT)</code>. 
+		    3rd argument to the <code class="code">sendfilev(3EXT)</code>.
 		    nfiles is assumed to be 1 for the sendfile flowop.
 		    function. Example: <code class="code">nfiles=10</code>
 		    </td>
@@ -319,7 +319,7 @@ More information at http://www.uperf.org
                     <td rowspan="1" colspan="1">This parameter identifies the chunk size for the
 		    transfer. Instead of sending the whole file, uperf
 		    will send <span class="emphasis"><em>size</em></span> sized chunks
-		    one at a time. <span class="emphasis"><em>This is used only if 
+		    one at a time. <span class="emphasis"><em>This is used only if
 		    nfiles=1</em></span>
 		    </td>
                    </tr></tbody></table><p>
@@ -330,7 +330,7 @@ More information at http://www.uperf.org
       prints the network statistics, calculated independently using
       system statistics, to verify the throughput reported via uperf.
       uperf also prints statistics from all the hosts involved in this
-      test to validate the output.   
+      test to validate the output.
     </p><p>
       Some of the statistics collected by uperf are listed below
       </p><div class="itemizedlist"><ul type="disc"><li>Throughput</li><li>Latency</li><li>Group Statistics</li><li>Per-Thread statistics</li><li>Transaction Statistics</li><li>Flowops Statistics</li><li>Netstat Statistics</li><li>Per-second Throughput</li></ul></div><p>
@@ -343,7 +343,7 @@ Txn2           0B/0.00   (s) =        0b/s
 netperf       195.31MB/32.31(s) =   50.70Mb/s (CPU 21.42s)
 
 Section: Group details
---------------------------------------------------------------------------------      
+--------------------------------------------------------------------------------
          Elapsed(s)   CPU(s)       DataTx             Throughput
 Group0   32.31        21.40        195.31M            50.70M
 
@@ -364,11 +364,11 @@ Txn  Avg(ms)    CPU(ms)    Min(ms)    Max(ms)
 
 Group 0 Flowop details (ms/Flowop)
 --------------------------------------------------------------------------------
-Flowop       Avg(ms)  CPU(ms)  Min(ms)  Max(ms) 
-Connect      5.41     0.49     5.31     5.66   
-Write        0.02     0.00     0.01     0.53  
+Flowop       Avg(ms)  CPU(ms)  Min(ms)  Max(ms)
+Connect      5.41     0.49     5.31     5.66
+Write        0.02     0.00     0.01     0.53
 Read         0.25     0.00     0.05     408.59
-Disconnect   0.30     0.14     0.06     0.79 
+Disconnect   0.30     0.14     0.06     0.79
 
 Netstat statistics for this run
 --------------------------------------------------------------------------------
@@ -391,7 +391,7 @@ Difference(%)      0.20%      0.00%       -0.20%        0.00%        0.00%
             Does the use of -a affect performance?
         </a></dt><dt>Q: <a href="http://www.uperf.org/manual.html#id2527948">
             Does uperf support socket autotuning on Linux?
-        </a></dt><dt>Q: <a href="http://www.uperf.org/manual.html#id2527976">Where can I get the uperf harness?</a></dt><dt>Q: <a href="http://www.uperf.org/manual.html#id2527993">Why do you even have a 
+        </a></dt><dt>Q: <a href="http://www.uperf.org/manual.html#id2527976">Where can I get the uperf harness?</a></dt><dt>Q: <a href="http://www.uperf.org/manual.html#id2527993">Why do you even have a
 		-n option?</a></dt><dt>Q: <a href="http://www.uperf.org/manual.html#id2528044">Why do we have an option to do sendfilev with
 	chunks?</a></dt></dl><table border="0" summary="Q and A Set"><colgroup><col align="left" width="1%"></colgroup><tbody><tr class="question"><td align="left" valign="top"><a id="id2527862"></a><a id="id2527864"></a><p><b>Q:</b></p></td><td align="left" valign="top"><p>What is the history behind uperf?</p></td></tr><tr class="answer"><td align="left" valign="top"><p><b>A:</b></p></td><td align="left" valign="top"><p>uperf was developed by the Performance Availablity
 	Engineering group at Sun Microsystems circa 2004. It was
@@ -407,8 +407,8 @@ Difference(%)      0.20%      0.00%       -0.20%        0.00%        0.00%
             Does the use of <em class="parameter"><code>-a</code></em> affect performance?
         </p></td></tr><tr class="answer"><td align="left" valign="top"><p><b>A:</b></p></td><td align="left" valign="top"><p>
             Since <em class="parameter"><code>-a</code></em> collects all kinds of statistical
-            information, there is a measurable impact when the flowop is 
-            lightweight (UDP TX for small packets). 
+            information, there is a measurable impact when the flowop is
+            lightweight (UDP TX for small packets).
         </p></td></tr><tr class="question"><td align="left" valign="top"><a id="id2527948"></a><a id="id2527950"></a><p><b>Q:</b></p></td><td align="left" valign="top"><p>
             Does uperf support socket autotuning on Linux?
         </p></td></tr><tr class="answer"><td align="left" valign="top"><p><b>A:</b></p></td><td align="left" valign="top"><p>
@@ -422,7 +422,7 @@ Difference(%)      0.20%      0.00%       -0.20%        0.00%        0.00%
 	    sufficient interest, we would definetely consider
 	    opensourcing it. For more details, please contact Jing
 	    Zhang.
-        </p></td></tr><tr class="question"><td align="left" valign="top"><a id="id2527993"></a><a id="id2527995"></a><p><b>Q:</b></p></td><td align="left" valign="top"><p>Why do you even have a 
+        </p></td></tr><tr class="question"><td align="left" valign="top"><a id="id2527993"></a><a id="id2527995"></a><p><b>Q:</b></p></td><td align="left" valign="top"><p>Why do you even have a
 		<em class="parameter"><code>-n</code></em> option?</p></td></tr><tr class="answer"><td align="left" valign="top"><p><b>A:</b></p></td><td align="left" valign="top"><p>uperf uses a global variable to count the
 	  number of bytes transferred. This is updated using atomic
 	  instructions <code class="code">atomic_add_64</code> function. However, if
@@ -437,16 +437,16 @@ Difference(%)      0.20%      0.00%       -0.20%        0.00%        0.00%
 	</p></td></tr></tbody></table></div></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2528069"></a>Named connections</h2></div></div></div><p>
 	    uperf supports named connections. To specify a name,
 	    you should specify <em class="parameter"><code>conn=X</code></em> variable
-	    in the <em class="parameter"><code>options</code></em> to a 
+	    in the <em class="parameter"><code>options</code></em> to a
 	    <em class="parameter"><code>connect</code></em> or <em class="parameter"><code>accept</code></em>
 	    flowop. For example,
 	    <code class="code">
-	    &lt;flowop type="connect" options="conn=2 remotehost=$h 
+	    &lt;flowop type="connect" options="conn=2 remotehost=$h
 	    protocol=tcp&gt;</code>
 	  </p><p>
 	    If a name is not specified, the connection is an
 	    <span class="emphasis"><em>anonymous</em></span> connection. For any flowop,
-	    if a connection is not specified, it uses the first 
+	    if a connection is not specified, it uses the first
 	    anonymous connection.
 	  </p></div><div class="sect1" lang="en" xml:lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2528121"></a>Using Fenxi with Uperf</h2></div></div></div><p>Uperf can generate data that can be post processed by
         <a class="ulink" href="http://fenxi.dev.java.net/" target="_top">Fenxi</a>. To
