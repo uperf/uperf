@@ -12,7 +12,24 @@ if [[ "$profile" == *".vsock.xml" ]]; then
     fi
 fi
 
+# Start server
+serverpid=""
+if pgrep uperf ; then
+    echo "uperf server already running; please stop it and try again"
+    exit
+else
+    echo "Starting server - $uperf -s $csocket"
+    $uperf -s $csocket &
+    serverpid=$!
+fi
+
 echo h=$host duration=10s $uperf $csocket -m $profile >>log
 h=$host duration=10s $uperf $csocket -m $profile >> log 2>&1
+exitstatus=$?
 
-
+# kill server
+if [[ serverpid != "" ]] ; then
+   echo "Killing $serverpid"
+   kill -9 $serverpid
+fi
+exit $exitstatus

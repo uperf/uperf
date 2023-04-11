@@ -25,9 +25,5 @@ jobs:
       run: ./configure
     - name: make
       run: make
-    - name: start localhost server
-      run: ./src/uperf -s &
-    - name: start localhost server for vsock
-      run: ./src/uperf -s -S vsock &
     - name: make check
       run: make check
