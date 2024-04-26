@@ -23,6 +23,9 @@
 #ifndef	_SYNC_H
 #define	_SYNC_H
 
+#ifdef HAVE_STDATOMIC_H
+#include <stdatomic.h>
+#endif /* HAVE_STDATOMIC_H */
 #include <pthread.h>
 
 #define	BARRIER_REACHED(a)		!barrier_notreached((a))
@@ -36,7 +39,11 @@ typedef	struct sync_barrier {
 	pthread_mutexattr_t count_mtx_attr;
 	pthread_mutex_t count_mutex;
 #endif /* HAVE_ATOMIC_H  && HAVE_STDATOMIC_H */
+#ifdef HAVE_STDATOMIC_H
+	atomic_uint count;
+#else
 	volatile unsigned int count;
+#endif /* HAVE_STDATOMIC_H */
 	volatile unsigned int limit;
 	int group;
 	int txn;

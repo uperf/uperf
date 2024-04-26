@@ -18,6 +18,9 @@
 #ifndef _SHM_H
 #define	_SHM_H
 
+#ifdef HAVE_STDATOMIC_H
+#include <stdatomic.h>
+#endif /* HAVE_STDATOMIC_H */
 #include "logging.h"
 #include "sync.h"
 #include "workorder.h"
@@ -75,7 +78,11 @@ struct uperf_shm {
 	uperf_log_t log;
 	int global_error;
 	uint32_t sstate1[NUM_STATES];
+#ifdef HAVE_STDATOMIC_H
+	atomic_uint finished;
+#else
 	uint32_t finished;
+#endif /* HAVE_STDATOMIC_H */
 	int cleaned_up;
 
 	/* callouts */
