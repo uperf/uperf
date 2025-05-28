@@ -59,6 +59,7 @@ struct flowop_options {
 	uint64_t	count;		/* Flowop execute Count */
 	uint64_t	poll_timeout;	/* In nanoseconds */
 	uint32_t	encaps_port;	/* Port used for UDP encapsulation */
+	uint32_t	bblog;	/* TCP black box logging */
 	uint32_t	sctp_rto_min;		/* Minimum SCTP RTO */
 	uint32_t	sctp_rto_max;		/* Maximum SCTP RTO */
 	uint32_t	sctp_rto_initial;	/* Initial SCTP RTO */

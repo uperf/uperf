@@ -559,6 +559,18 @@ parse_option(char *option, flowop_t *flowop)
 			strlcpy(flowop->options.cc, value, sizeof(flowop->options.cc));
 		} else if (strcasecmp(key, "stack") == 0) {
 			strlcpy(flowop->options.stack, value, sizeof(flowop->options.stack));
+		} else if (strcasecmp(key, "bblog") == 0) {
+			int res;
+
+			res = string2int(value);
+			if (res >= 0) {
+				flowop->options.bblog = res;
+			} else {
+				snprintf(err, sizeof(err),
+				         "Cannot understand bblog:%s", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
 		}
 #ifdef HAVE_SCTP
 		else if (strcasecmp(key, "sctp_rto_min") == 0) {

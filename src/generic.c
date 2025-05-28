@@ -482,4 +482,13 @@ set_tcp_options(int fd, flowop_options_t *f)
 		uperf_warn("Configuring TCP stack not supported");
 #endif
 	}
+	if (f && f->bblog > 0) {
+#ifdef TCP_LOG
+		if (setsockopt(fd, IPPROTO_TCP, TCP_LOG, &(f->bblog), sizeof (f->bblog)) < 0) {
+			ulog_warn("Cannot set TCP_LOG:");
+		}
+#else
+		uperf_warn("Configuring TCP black box logging not supported");
+#endif
+	}
 }
