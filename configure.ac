@@ -32,6 +32,7 @@ udp_default="yes"
 rds_default="no"
 sctp_default="yes"
 vsock_default="yes"
+tcp_zc_default="yes"
 ssl_default="yes"
 cpc_default="yes"
 
@@ -315,6 +316,35 @@ else
         AM_CONDITIONAL([VSOCK_C], [false])
 fi
 
+AC_ARG_WITH(uring-includes,
+	    AS_HELP_STRING([--with-uring-includes=DIR],[Specify location of liburing headers]),
+            [CFLAGS="$CFLAGS -I$withval"],
+            [])
+
+AC_ARG_WITH(uring-libs,
+	    AS_HELP_STRING([--with-uring-libs=DIR],[Specify location of liburing libraries]),
+	    [LDFLAGS="$LDFLAGS -L$withval"],
+	    [])
+
+AC_MSG_CHECKING(whether to enable tcp zerocopy support)
+AC_ARG_ENABLE(tcp-zc,
+        AS_HELP_STRING([--enable-tcp-zc],[Turn on TCP zerocopy support]),,
+        enable_tcp_zc=$tcp_zc_default)
+if test "x$enable_tcp_zc" = "xyes"; then
+        AC_MSG_RESULT(yes)
+        AC_CHECK_HEADERS([liburing/io_uring.h],
+                         [AC_DEFINE([HAVE_TCP_ZC], [1], [Have TCP zerocopy])
+                          AM_CONDITIONAL([TCP_ZC_C], [true])
+                          UPERF_LIBS="$UPERF_LIBS -luring"],
+                         [enable_tcp_zc="no"
+                          AM_CONDITIONAL([TCP_ZC_C], [false])]
+                        )
+else
+        AC_MSG_RESULT(no)
+        TCP_ZC_C=
+        AM_CONDITIONAL([TCP_ZC_C], [false])
+fi
+
 AC_ARG_WITH(ssl-includes,
 	    AS_HELP_STRING([--with-ssl-includes=DIR],[Specify location of ssl headers]),
             [CFLAGS="$CFLAGS -I$withval"],
@@ -381,6 +411,7 @@ printf "|%20s:%5s%22s|\n" "RDS" "${enable_rds}" " "
 printf "|%20s:%5s%22s|\n" "SSL" "${enable_ssl}" " "
 printf "|%20s:%5s%22s|\n" "SCTP" "${enable_sctp}" " "
 printf "|%20s:%5s%22s|\n" "VSOCK" "${enable_vsock}" " "
+printf "|%20s:%5s%22s|\n" "TCP_ZC" "${enable_tcp_zc}" " "
 echo "+------------------------------------------------+"
 printf "|%33s:%14s|\n" "Network stats collection enabled?" "$enable_netstat"
 printf "|%33s:%14s|\n" "CPU Performance counters?"  "$cpc"

@@ -41,11 +41,13 @@
 #include "logging.h"
 
 protocol_t *protocol_tcp_init(char *host, int port);
+protocol_t *protocol_tcp_zc_init(char *host, int port);
 protocol_t *protocol_udp_init(char *rhost, int port);
 void protocol_udp_fini(protocol_t *p);
 void protocol_rds_fini(protocol_t *p);
 
 int tcp_init(void *);
+int tcp_zc_init(void *);
 int udp_init(void *);
 int ssl_init(void *);
 int sctp_init(void *);
@@ -55,6 +57,7 @@ protocol_t *protocol_ssl_create(char *, int);
 protocol_t *protocol_sctp_create(char *, int);
 protocol_t *protocol_rds_create(char *, int);
 protocol_t *protocol_vsock_create(char *, int);
+protocol_t *protocol_tcp_zc_create(char *, int);
 
 void generic_fini(protocol_t *);
 void udp_fini(protocol_t *);
@@ -87,6 +90,9 @@ static proto_list_t plist[] = {
 #endif /* HAVE_SSL */
 #ifdef HAVE_VSOCK
 	{ "vsock", PROTOCOL_VSOCK, NULL, protocol_vsock_create, generic_fini},
+#endif /* HAVE_VSOCK */
+#ifdef HAVE_TCP_ZC
+	{ "tcp_zc", PROTOCOL_TCP_ZC, NULL, protocol_tcp_zc_create, generic_fini},
 #endif /* HAVE_VSOCK */
 };
 
@@ -168,6 +174,7 @@ protocol_to_str(proto_type_t t)
 {
 	switch (t) {
 		case PROTOCOL_TCP: return "TCP";
+		case PROTOCOL_TCP_ZC: return "TCP_ZC";
 		case PROTOCOL_UDAPL: return "uDAPL";
 		case PROTOCOL_UDP: return "UDP";
 		case PROTOCOL_SSL: return "SSL";

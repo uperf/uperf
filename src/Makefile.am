@@ -32,6 +32,9 @@ endif
 if VSOCK_C
 uperf_SOURCES +=vsock.c
 endif
+if TCP_ZC_C
+uperf_SOURCES +=tcp_zc.c
+endif
 
 
 #uperf_CPPFLAGS = -DBUILD_DATE="\"$(BUILD_DATE)\""

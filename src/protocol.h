@@ -25,7 +25,7 @@
 
 #include "uperf.h"
 
-#define	NUM_PROTOCOLS	8
+#define	NUM_PROTOCOLS	9
 #define	ANY_PORT		0
 
 /*
@@ -79,6 +79,7 @@ typedef enum {
 	PROTOCOL_SSL,
 	PROTOCOL_SCTP,
 	PROTOCOL_VSOCK,
+	PROTOCOL_TCP_ZC,
 	PROTOCOL_UNSUPPORTED,
 } proto_type_t;
 
