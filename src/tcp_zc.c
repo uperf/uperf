@@ -36,6 +36,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <liburing.h>
 #include "logging.h"
 #include "uperf.h"
 #include "flowops.h"
@@ -47,6 +48,52 @@
 #define	LISTENQ		10240	/* 2nd argument to listen() */
 #define	TCP_TIMEOUT	1200000	/* Argument to poll */
 #define	SOCK_PORT(sin)	((sin).sin_port)
+
+typedef struct {
+	struct io_uring ring;
+	int compl_cqes;
+	unsigned int zc_tx_errors;
+	bool zc_tx;
+} tcp_zc_private_data;
+
+static inline struct io_uring_cqe *wait_cqe_fast(struct io_uring *ring)
+{
+	struct io_uring_cqe *cqe;
+	unsigned head;
+	int ret;
+
+	io_uring_for_each_cqe(ring, head, cqe)
+		return cqe;
+
+	ret = io_uring_wait_cqe(ring, &cqe);
+	if (ret) {
+		uperf_log_msg(UPERF_LOG_DEBUG, -ret, "wait cqe");
+		errno = -ret;
+		return NULL;
+	}
+	return cqe;
+}
+
+static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
+{
+	int ring_flags = IORING_SETUP_COOP_TASKRUN | IORING_SETUP_SINGLE_ISSUER;
+	tcp_zc_private_data *pd = p->_protocol_p;
+	int ret;
+
+	ret = io_uring_queue_init(512, &pd->ring, ring_flags);
+	if (ret) {
+		uperf_log_msg(UPERF_LOG_ERROR, -ret, "io_uring init");
+		return ret;
+	}
+
+	ret = io_uring_register_ring_fd(&pd->ring);
+	if (ret < 0)
+		uperf_log_msg(UPERF_LOG_ERROR, -ret, "register ring");
+
+	pd->zc_tx = !FO_ZC_SKIP_TX(flowop_options);
+
+	return UPERF_SUCCESS;
+}
 
 /* returns the port number */
 static int
@@ -109,7 +156,69 @@ protocol_tcp_zc_connect(protocol_t *p, void *options)
 	if (generic_connect(p, &serv) < 0) {
 		return (UPERF_FAILURE);
 	}
+	if (init_ring(p, flowop_options))
+		return UPERF_FAILURE;
 	return (UPERF_SUCCESS);
+}
+
+static int protocol_tcp_zc_send(protocol_t *p, void *buffer, int size,
+                                void *options)
+{
+	tcp_zc_private_data *pd = p->_protocol_p;
+	unsigned int msg_flags = MSG_WAITALL;
+	const int notif_slack = 128;
+	struct io_uring_sqe *sqe;
+	struct io_uring_cqe *cqe;
+	int ret;
+
+	sqe = io_uring_get_sqe(&pd->ring);
+	if (pd->zc_tx) {
+		io_uring_prep_send_zc(sqe, p->fd, buffer, size, msg_flags, 0);
+		sqe->ioprio = IORING_SEND_ZC_REPORT_USAGE;
+	} else {
+		io_uring_prep_send(sqe, p->fd, buffer, size, 0);
+	}
+
+	if (pd->compl_cqes >= notif_slack)
+		ret = io_uring_submit_and_get_events(&pd->ring);
+	else
+		ret = io_uring_submit(&pd->ring);
+	if (ret != 1) {
+		uperf_log_msg(UPERF_LOG_ERROR, -ret, "io_uring submit");
+		return ret;
+	}
+
+ complete:
+	cqe = wait_cqe_fast(&pd->ring);
+	if (!cqe)
+		return -1;
+
+	if (cqe->flags & IORING_CQE_F_NOTIF) {
+		if (cqe->flags & IORING_CQE_F_MORE)
+			uperf_log_msg(UPERF_LOG_ERROR, EINVAL, "F_MORE notif");
+		if (cqe->res)
+			pd->zc_tx_errors++;
+		pd->compl_cqes--;
+		io_uring_cqe_seen(&pd->ring, cqe);
+		goto complete;
+	}
+
+	if (cqe->flags & IORING_CQE_F_MORE)
+		pd->compl_cqes++;
+
+	ret = cqe->res;
+	if (ret < 0) {
+		errno = -ret;
+		ulog_warn("completion error");
+	}
+	io_uring_cqe_seen(&pd->ring, cqe);
+
+	return ret;
+}
+
+static int protocol_tcp_zc_recv(protocol_t *p, void *buffer, int size,
+                                void *options)
+{
 }
 
 static protocol_t *protocol_tcp_zc_accept(protocol_t *p, void *options);
@@ -118,8 +227,14 @@ static protocol_t *
 protocol_tcp_zc_new()
 {
 	protocol_t *newp;
+	tcp_zc_private_data *new_tcp_zc_p;
 
 	if ((newp = calloc(1, sizeof(protocol_t))) == NULL) {
+		perror("calloc");
+		return (NULL);
+	}
+	/* Allocating a local data structure */
+	if ((new_tcp_zc_p = calloc(1, sizeof(*new_tcp_zc_p))) == NULL) {
 		perror("calloc");
 		return (NULL);
 	}
@@ -127,17 +242,45 @@ protocol_tcp_zc_new()
 	newp->disconnect = generic_disconnect;
 	newp->listen = protocol_tcp_zc_listen;
 	newp->accept = protocol_tcp_zc_accept;
+	newp->write = protocol_tcp_zc_send;
+	newp->send = protocol_tcp_zc_send;
 	newp->read = generic_read;
-	newp->write = generic_write;
-	newp->send = generic_send;
 	newp->recv = generic_recv;
 	newp->wait = generic_undefined;
-	newp->type = PROTOCOL_TCP_ZC;
+        newp->type = PROTOCOL_TCP_ZC;
+	newp->_protocol_p = new_tcp_zc_p;
 	(void) strlcpy(newp->host, "Init", MAXHOSTNAME);
 	newp->fd = -1;
 	newp->port = -1;
 	newp->next = NULL;
 	return (newp);
+}
+
+void
+tcp_zc_fini(protocol_t *p)
+{
+	tcp_zc_private_data *pd;
+
+	if (!p)
+		return;
+	pd = p->_protocol_p;
+	if (!pd)
+		return;
+
+	while (pd->compl_cqes) {
+		struct io_uring_cqe *cqe = wait_cqe_fast(&pd->ring);
+
+		io_uring_cqe_seen(&pd->ring, cqe);
+		pd->compl_cqes--;
+	}
+	io_uring_queue_exit(&pd->ring);
+
+	if (pd->zc_tx_errors)
+		ulog(UPERF_LOG_WARN, 0, "tcp_zc: zero-copy TX fell back to copying %u times",
+		     pd->zc_tx_errors);
+
+	free(pd);
+	free(p);
 }
 
 static protocol_t *
@@ -151,12 +294,9 @@ protocol_tcp_zc_accept(protocol_t *p, void *options)
 	if (generic_accept(p, newp, options) != 0) {
 		return (NULL);
 	}
-	/*
-	 * XXX I don't think setting the options is necessary, since
-	 * it is done already on the listener and the options are inherited.
-	 */
-	if (options) {
-		set_tcp_options(newp->fd, options);
+	if (init_ring(newp, options)) {
+		tcp_zc_fini(newp);
+		return NULL;
 	}
 	return (newp);
 }
@@ -174,7 +314,8 @@ protocol_tcp_zc_create(char *host, int port)
 	} else {
 		(void) strlcpy(newp->host, host, MAXHOSTNAME);
 	}
-	newp->port = port;
+        newp->port = port;
+
 	uperf_debug("tcp_zc - Creating TCP ZC Protocol to %s:%d\n", host, port);
 	return (newp);
 }

@@ -63,6 +63,7 @@ void generic_fini(protocol_t *);
 void udp_fini(protocol_t *);
 void rds_fini(protocol_t *);
 void ssl_fini(protocol_t *);
+void tcp_zc_fini(protocol_t *);
 
 typedef int (*init_func)(void *);
 typedef protocol_t * (*create_func)(char *, int);
@@ -92,7 +93,7 @@ static proto_list_t plist[] = {
 	{ "vsock", PROTOCOL_VSOCK, NULL, protocol_vsock_create, generic_fini},
 #endif /* HAVE_VSOCK */
 #ifdef HAVE_TCP_ZC
-	{ "tcp_zc", PROTOCOL_TCP_ZC, NULL, protocol_tcp_zc_create, generic_fini},
+	{ "tcp_zc", PROTOCOL_TCP_ZC, NULL, protocol_tcp_zc_create, tcp_zc_fini},
 #endif /* HAVE_VSOCK */
 };
 

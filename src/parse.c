@@ -453,6 +453,12 @@ parse_option(char *option, flowop_t *flowop)
 		return (UPERF_SUCCESS);
 	}
 #endif
+#ifdef HAVE_TCP_ZC
+	else if (strcasecmp(option, "zc_skip_tx") == 0) {
+		flowop->options.flag |= O_ZC_SKIP_TX;
+		return (UPERF_SUCCESS);
+	}
+#endif
 	else {
 		key = strtok(option, "=");
 		value = strtok(NULL, " ");
