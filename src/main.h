@@ -71,6 +71,8 @@ typedef struct options {
 	uint32_t copt;	/* Collect options */
 	uint64_t interval;	/* collect stats every interval msecs */
 	proto_type_t control_proto;
+	int zc_ifindex;
+	int zc_queue_index;
 }options_t;
 
 #endif /* __MAIN_H */

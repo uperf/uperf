@@ -457,6 +457,9 @@ parse_option(char *option, flowop_t *flowop)
 	else if (strcasecmp(option, "zc_skip_tx") == 0) {
 		flowop->options.flag |= O_ZC_SKIP_TX;
 		return (UPERF_SUCCESS);
+	} else if (strcasecmp(option, "zc_skip_rx") == 0) {
+		flowop->options.flag |= O_ZC_SKIP_RX;
+		return (UPERF_SUCCESS);
 	}
 #endif
 	else {

@@ -28,32 +28,49 @@
 #include <string.h>
 #endif /* HAVE_STRING_H */
 
+#include <unistd.h>
 #include <strings.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/mman.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <liburing.h>
 #include "logging.h"
 #include "uperf.h"
-#include "flowops.h"
+#include "main.h"
 #include "workorder.h"
 #include "protocol.h"
 #include "generic.h"
+
+#define ALIGN_UP(v, align) (((v) + (align) - 1) & ~((align) - 1))
+#define AREA_SIZE(page_size) (8192 * page_size)
+#define SEND_SIZE (512 * 4096)
 
 #define	USE_POLL_ACCEPT	1
 #define	LISTENQ		10240	/* 2nd argument to listen() */
 #define	TCP_TIMEOUT	1200000	/* Argument to poll */
 #define	SOCK_PORT(sin)	((sin).sin_port)
 
+extern options_t options;
+
 typedef struct {
 	struct io_uring ring;
 	int compl_cqes;
 	unsigned int zc_tx_errors;
 	bool zc_tx;
+	bool zc_rx;
+
+	void *area_ptr;
+	void *ring_ptr;
+	size_t ring_size;
+
+	struct io_uring_zcrx_rq rq_ring;
+	unsigned long area_token;
+	__u32 zcrx_id;
 } tcp_zc_private_data;
 
 static inline struct io_uring_cqe *wait_cqe_fast(struct io_uring *ring)
@@ -74,10 +91,22 @@ static inline struct io_uring_cqe *wait_cqe_fast(struct io_uring *ring)
 	return cqe;
 }
 
+static inline size_t get_refill_ring_size(unsigned int rq_entries, long page_size)
+{
+	size_t size;
+
+	size = rq_entries * sizeof(struct io_uring_zcrx_rqe);
+	/* add space for the header (head/tail/etc.) */
+	size += page_size;
+	return ALIGN_UP(size, page_size);
+}
+
 static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 {
-	int ring_flags = IORING_SETUP_COOP_TASKRUN | IORING_SETUP_SINGLE_ISSUER;
+	int ring_flags = IORING_SETUP_DEFER_TASKRUN | IORING_SETUP_COOP_TASKRUN | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_CQE32;
 	tcp_zc_private_data *pd = p->_protocol_p;
+	unsigned int rq_entries = 4096;
+	long page_size;
 	int ret;
 
 	ret = io_uring_queue_init(512, &pd->ring, ring_flags);
@@ -91,6 +120,88 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 		uperf_log_msg(UPERF_LOG_ERROR, -ret, "register ring");
 
 	pd->zc_tx = !FO_ZC_SKIP_TX(flowop_options);
+	pd->zc_rx = !FO_ZC_SKIP_RX(flowop_options);
+
+	uperf_info("Setting up tcp_zc RX:%s TX:%s\n",
+		   pd->zc_rx ? "enabled" : "disabled",
+		   pd->zc_tx ? "enabled" : "disabled");
+
+	if (pd->zc_rx) {
+		if (!options.zc_ifindex || options.zc_queue_index < 0) {
+			pd->zc_rx = false;
+			ulog(UPERF_LOG_WARN, 0, "ZC ifindex and queue index not specified, skipping ZC RX");
+			return (UPERF_SUCCESS);
+		}
+
+		page_size = sysconf(_SC_PAGESIZE);
+		if (page_size < 0)
+			return -1;
+
+		pd->area_ptr = mmap(NULL,
+				    AREA_SIZE(page_size),
+				    PROT_READ | PROT_WRITE,
+				    MAP_ANONYMOUS | MAP_PRIVATE,
+				0,
+				0);
+		if (pd->area_ptr == MAP_FAILED) {
+			ulog(UPERF_LOG_ERROR, errno, "mmap(): zero copy area");
+			return -1;
+		}
+		pd->ring_size = get_refill_ring_size(rq_entries, page_size);
+
+		pd->ring_ptr = mmap(NULL,
+				pd->ring_size,
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE,
+				0,
+				0);
+		if (pd->ring_ptr == MAP_FAILED) {
+			ulog(UPERF_LOG_ERROR, errno, "mmap(): ring area");
+			return -1;
+		}
+
+		struct io_uring_region_desc region_reg = {
+			.size = pd->ring_size,
+			.user_addr = (__u64)(unsigned long)pd->ring_ptr,
+			.flags = IORING_MEM_REGION_TYPE_USER,
+		};
+
+		struct io_uring_zcrx_area_reg area_reg = {
+			.addr = (__u64)(unsigned long)pd->area_ptr,
+			.len = AREA_SIZE(page_size),
+			.flags = 0,
+		};
+
+		struct io_uring_zcrx_ifq_reg reg = {
+			.if_idx = options.zc_ifindex,
+			.if_rxq = options.zc_queue_index,
+			.rq_entries = rq_entries,
+			.area_ptr = (__u64)(unsigned long)&area_reg,
+			.region_ptr = (__u64)(unsigned long)&region_reg,
+		};
+
+		ret = io_uring_register_ifq(&pd->ring, &reg);
+		if (ret) {
+			ulog(UPERF_LOG_ERROR, -ret, "io_uring_register_ifq()");
+			errno = -ret;
+			return -1;
+		}
+
+		uperf_info("Registered zerocopy receive on ifindex %d queue %d "
+			   "with area size %d ring size %d and %d entries\n",
+			   options.zc_ifindex, options.zc_queue_index,
+			   AREA_SIZE(page_size),
+			   pd->ring_size, rq_entries);
+
+		pd->rq_ring.khead = (unsigned int *)((char *)pd->ring_ptr + reg.offsets.head);
+		pd->rq_ring.ktail = (unsigned int *)((char *)pd->ring_ptr + reg.offsets.tail);
+		pd->rq_ring.rqes = (struct io_uring_zcrx_rqe *)((char *)pd->ring_ptr + reg.offsets.rqes);
+		pd->rq_ring.rq_tail = 0;
+		pd->rq_ring.ring_entries = reg.rq_entries;
+
+		pd->area_token = area_reg.rq_area_token;
+		pd->zcrx_id = reg.zcrx_id;
+	}
 
 	return UPERF_SUCCESS;
 }

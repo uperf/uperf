@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <strings.h>
 #include <string.h>
+#include <net/if.h>
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -91,6 +92,8 @@ uperf_usage(char *prog)
 	"\t-i <interval>\t Collect throughput every <interval>\n"
 	"\t-P <port>\t Set the master port (defaults to 20000)\n"
 	"\t-R\t\t Emit raw (not transformed), time-stamped (ms) statistics\n"
+	"\t-I\t\t Interface to bind ZC receive to\n"
+	"\t-Q\t\t Queue index used for ZC receive\n"
 	"\t-v\t\t Verbose\n"
 	"\t-V\t\t Version\n"
 	"\t-h\t\t Print usage\n"
@@ -163,7 +166,9 @@ init_options(int argc, char **argv)
 	options.control_proto = PROTOCOL_TCP;
 	oserver = oclient = ofile = 0;
 
-	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:S:RvVh")) != EOF) {
+	options.zc_queue_index = -1;
+
+	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:S:RvVh:I:Q:")) != EOF) {
 		switch (ch) {
 #ifdef USE_CPC
 		case 'E':
@@ -287,6 +292,19 @@ init_options(int argc, char **argv)
 			break;
 		case 'R':
 			options.copt |= RAW_STATS;
+			break;
+		case 'I':
+			if (optarg) {
+				options.zc_ifindex = if_nametoindex(optarg);
+				if (!options.zc_ifindex)
+					uperf_fatal("Interface %s not found\n", optarg);
+			}
+			break;
+		case 'Q':
+			if (optarg) {
+				options.zc_queue_index = (int)
+					string_to_int(optarg);
+			}
 			break;
 		case 'v':
 			uperf_set_log_level(UPERF_VERBOSE);
