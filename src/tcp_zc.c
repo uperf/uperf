@@ -33,6 +33,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <poll.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/mman.h>
@@ -127,6 +128,8 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 		   pd->zc_tx ? "enabled" : "disabled");
 
 	if (pd->zc_rx) {
+		struct io_uring_sqe *sqe;
+
 		if (!options.zc_ifindex || options.zc_queue_index < 0) {
 			pd->zc_rx = false;
 			ulog(UPERF_LOG_WARN, 0, "ZC ifindex and queue index not specified, skipping ZC RX");
@@ -201,6 +204,11 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 
 		pd->area_token = area_reg.rq_area_token;
 		pd->zcrx_id = reg.zcrx_id;
+
+		sqe = io_uring_get_sqe(&pd->ring);
+		io_uring_prep_rw(IORING_OP_RECV_ZC, sqe, p->fd, NULL, 0, 0);
+		sqe->ioprio |= IORING_RECV_MULTISHOT;
+		sqe->zcrx_ifq_idx = pd->zcrx_id;
 	}
 
 	return UPERF_SUCCESS;
@@ -330,6 +338,50 @@ static int protocol_tcp_zc_send(protocol_t *p, void *buffer, int size,
 static int protocol_tcp_zc_recv(protocol_t *p, void *buffer, int size,
                                 void *options)
 {
+	tcp_zc_private_data *pd = p->_protocol_p;
+	unsigned int rq_mask, head, count = 0;
+	struct io_uring_zcrx_cqe *rcqe;
+	struct io_uring_zcrx_rqe *rqe;
+	struct io_uring_cqe *cqe;
+	size_t received = 0;
+	uint64_t mask;
+	char *data;
+
+	if (!pd->zc_rx)
+		return generic_recv(p, buffer, size, options);
+
+	rq_mask = pd->rq_ring.ring_entries - 1;
+
+	io_uring_submit_and_wait(&pd->ring, 1);
+
+	io_uring_for_each_cqe(&pd->ring, head, cqe) {
+		if (!(cqe->flags & IORING_CQE_F_MORE)) {
+			if (cqe->res != 0)
+				ulog(UPERF_LOG_WARN, 0, "invalid final recvzc ret %i", cqe->res);
+			if (received != size)
+				ulog(UPERF_LOG_WARN, 0, "receive size mismatch %lu / %lu",
+					received, size);
+			return 0;
+		}
+
+		if (cqe->res < 0)
+			ulog(UPERF_LOG_WARN, cqe->res, "recvzc(): %d", cqe->res);
+
+		rcqe = (struct io_uring_zcrx_cqe *)(cqe + 1);
+
+		received += cqe->res;
+
+		/* processed, return back to the kernel */
+		rqe = &pd->rq_ring.rqes[pd->rq_ring.rq_tail & rq_mask];
+		rqe->off = (rcqe->off & ~IORING_ZCRX_AREA_MASK) | pd->area_token;
+		rqe->len = cqe->res;
+		io_uring_smp_store_release(pd->rq_ring.ktail, ++pd->rq_ring.rq_tail);
+
+		count++;
+	}
+	io_uring_cq_advance(&pd->ring, count);
+
+	return received;
 }
 
 static protocol_t *protocol_tcp_zc_accept(protocol_t *p, void *options);
@@ -354,9 +406,7 @@ protocol_tcp_zc_new()
 	newp->listen = protocol_tcp_zc_listen;
 	newp->accept = protocol_tcp_zc_accept;
 	newp->write = protocol_tcp_zc_send;
-	newp->send = protocol_tcp_zc_send;
-	newp->read = generic_read;
-	newp->recv = generic_recv;
+	newp->read = protocol_tcp_zc_recv;
 	newp->wait = generic_undefined;
         newp->type = PROTOCOL_TCP_ZC;
 	newp->_protocol_p = new_tcp_zc_p;
