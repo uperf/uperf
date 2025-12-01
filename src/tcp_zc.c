@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <poll.h>
+#include <sched.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/mman.h>
@@ -73,6 +74,34 @@ typedef struct {
 	unsigned long area_token;
 	__u32 zcrx_id;
 } tcp_zc_private_data;
+
+static void set_cpu_affinity(int cpu)
+{
+	cpu_set_t mask;
+
+	if (cpu == -1)
+		return;
+
+	CPU_ZERO(&mask);
+	CPU_SET(cpu, &mask);
+	if (sched_setaffinity(0, sizeof(mask), &mask))
+		uperf_log_msg(UPERF_LOG_ERROR, errno, "unable to pin cpu\n");
+}
+
+static void set_iowq_affinity(struct io_uring *ring, int cpu)
+{
+	cpu_set_t mask;
+	int ret;
+
+	if (cpu == -1)
+		return;
+
+	CPU_ZERO(&mask);
+	CPU_SET(cpu, &mask);
+	ret = io_uring_register_iowq_aff(ring, 1, &mask);
+	if (ret)
+		uperf_log_msg(UPERF_LOG_ERROR, ret, "unabled to set io-wq affinity\n");
+}
 
 static inline struct io_uring_cqe *wait_cqe_fast(struct io_uring *ring)
 {
@@ -119,6 +148,9 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 	ret = io_uring_register_ring_fd(&pd->ring);
 	if (ret < 0)
 		uperf_log_msg(UPERF_LOG_ERROR, -ret, "register ring");
+
+	set_cpu_affinity(options.zc_cpu);
+	set_iowq_affinity(&pd->ring, options.zc_cpu);
 
 	pd->zc_tx = !FO_ZC_SKIP_TX(flowop_options);
 	pd->zc_rx = !FO_ZC_SKIP_RX(flowop_options);

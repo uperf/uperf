@@ -94,6 +94,7 @@ uperf_usage(char *prog)
 	"\t-R\t\t Emit raw (not transformed), time-stamped (ms) statistics\n"
 	"\t-I\t\t Interface to bind ZC receive to\n"
 	"\t-Q\t\t Queue index used for ZC receive\n"
+	"\t-C\t\t CPU to pin ZC send/receive to\n"
 	"\t-v\t\t Verbose\n"
 	"\t-V\t\t Version\n"
 	"\t-h\t\t Print usage\n"
@@ -167,8 +168,9 @@ init_options(int argc, char **argv)
 	oserver = oclient = ofile = 0;
 
 	options.zc_queue_index = -1;
+	options.zc_cpu = -1;
 
-	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:S:RvVh:I:Q:")) != EOF) {
+	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:S:RvVh:I:Q:C:")) != EOF) {
 		switch (ch) {
 #ifdef USE_CPC
 		case 'E':
@@ -303,6 +305,12 @@ init_options(int argc, char **argv)
 		case 'Q':
 			if (optarg) {
 				options.zc_queue_index = (int)
+					string_to_int(optarg);
+			}
+			break;
+		case 'C':
+			if (optarg) {
+				options.zc_cpu = (int)
 					string_to_int(optarg);
 			}
 			break;

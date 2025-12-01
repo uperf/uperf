@@ -73,6 +73,7 @@ typedef struct options {
 	proto_type_t control_proto;
 	int zc_ifindex;
 	int zc_queue_index;
+	int zc_cpu;
 }options_t;
 
 #endif /* __MAIN_H */
