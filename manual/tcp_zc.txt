@@ -1,0 +1,71 @@
+TCP ZEROCOPY RECEIVE SUPPORT
+
+The tcp_zc protocol supports zero-copy TCP send and receive using io_uring. It
+is enabled if liburing is present in the system (but note that it currently
+requires a relatively new version of liburing, so it may be necessary to compile
+that from source).
+
+By default, the tcp_zc protocol will attempt zero-copy operation for both send
+and receive. Send and receive can be  be disabled individually by setting the
+'zc_skip_tx' and 'zc_skip_rx' flags (respectively) on the connect flow
+operation. Note that the zerocopy support has only been tested with a single
+thread (nthreads=1), and will probably fail in a multithreaded setup.
+
+In addition, the receive side needs additional parameters specified at the
+command line to work (on either the master or slave side, depending on which end
+is receiving the traffic):
+
+- The interface to receive packets on (specified with -I)
+- The receive queue on that interface to bind the buffers to (specified with -Q)
+- Optionally the CPU to pin receive to (specified with -C; see note below)
+
+The queue specified must be configured in the hardware to receive the TCP
+packets, and TCP header split must be enabled on the device (which generally
+also requires hardware GRO to be enabled).
+
+Note that because uperf also uses TCP for its control connection, that flow
+needs to be steered to *not* be received at the zero-copy queue.
+
+An example setup could be something like:
+
+Ensure there are at least two queues::
+
+  ethtool -L eth0 combined 2
+
+Enable header/data split::
+
+  ethtool -G eth0 tcp-data-split on
+
+Carve out half of the HW Rx queues for zero copy using RSS::
+
+  ethtool -X eth0 equal 1
+
+Set up flow steering, bearing in mind that queues are 0-indexed::
+
+  ethtool -N eth0 flow-type tcp4 action 1
+
+Add an additional rule to steer the uperf control traffic to queue 0:
+
+  ethtool -N eth0 flow-type tcp4 dst-port 20000 action 0
+
+
+A NOTE ON CPU PINNING AND PERFORMANCE
+
+For zero-copy receive to perform well, it is important that the application is
+running on the same NUMA node as the packets are received on. This can be
+achieved by steering the NIC interrupts the CPU that the traffic should arrive
+on, and then pinning the uperf operation (using -C) to run on a CPU on the same
+NUMA node. Running uperf on the same CPU (not just the same NUMA node) as the
+NIC interrupts seems to be beneficial for maximum performance. CPU pinning on
+the sender side has less impact (barely any).
+
+EXAMPLE:
+
+On the slave (receiver side):
+uperf -s -I ens2f0np0 -Q 1 -C 44 -v
+
+On the master (sender):
+proto=tcp_zc h=192.168.0.2 nthr=1 ./src/uperf -m workloads/iperf.xml -C 0
+
+For more information, see the kernel documentation on zerocopy receive:
+https://docs.kernel.org/networking/iou-zcrx.html
