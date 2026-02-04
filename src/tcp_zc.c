@@ -311,6 +311,43 @@ protocol_tcp_zc_connect(protocol_t *p, void *options)
 	return (UPERF_SUCCESS);
 }
 
+int
+protocol_tcp_zc_disconnect(protocol_t *p)
+{
+	struct io_uring_cqe *cqe;
+	tcp_zc_private_data *pd;
+
+	if (!p)
+		return 0;
+	pd = p->_protocol_p;
+	if (!pd)
+		return 0;
+
+	if (p->fd > -1) {
+		shutdown(p->fd, SHUT_RDWR);
+		close(p->fd);
+		p->fd = -1;
+	}
+
+	while (pd->compl_cqes) {
+		cqe = wait_cqe_fast(&pd->ring);
+
+		io_uring_cqe_seen(&pd->ring, cqe);
+		pd->compl_cqes--;
+	}
+
+	io_uring_queue_exit(&pd->ring);
+
+	if (pd->zc_tx_errors)
+		ulog(UPERF_LOG_WARN, 0, "tcp_zc: zero-copy TX fell back to copying %u times",
+		     pd->zc_tx_errors);
+
+	memset(pd, 0, sizeof(*pd));
+
+	return UPERF_SUCCESS;
+}
+
+
 static int protocol_tcp_zc_send(protocol_t *p, void *buffer, int size,
                                 void *options)
 {
@@ -435,7 +472,7 @@ protocol_tcp_zc_new()
 		return (NULL);
 	}
 	newp->connect = protocol_tcp_zc_connect;
-	newp->disconnect = generic_disconnect;
+	newp->disconnect = protocol_tcp_zc_disconnect;
 	newp->listen = protocol_tcp_zc_listen;
 	newp->accept = protocol_tcp_zc_accept;
 	newp->write = protocol_tcp_zc_send;
@@ -460,18 +497,6 @@ tcp_zc_fini(protocol_t *p)
 	pd = p->_protocol_p;
 	if (!pd)
 		return;
-
-	while (pd->compl_cqes) {
-		struct io_uring_cqe *cqe = wait_cqe_fast(&pd->ring);
-
-		io_uring_cqe_seen(&pd->ring, cqe);
-		pd->compl_cqes--;
-	}
-	io_uring_queue_exit(&pd->ring);
-
-	if (pd->zc_tx_errors)
-		ulog(UPERF_LOG_WARN, 0, "tcp_zc: zero-copy TX fell back to copying %u times",
-		     pd->zc_tx_errors);
 
 	free(pd);
 	free(p);
