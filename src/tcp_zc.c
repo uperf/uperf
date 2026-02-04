@@ -386,13 +386,16 @@ static int protocol_tcp_zc_recv(protocol_t *p, void *buffer, int size,
 	io_uring_submit_and_wait(&pd->ring, 1);
 
 	io_uring_for_each_cqe(&pd->ring, head, cqe) {
+		count++;
+
 		if (!(cqe->flags & IORING_CQE_F_MORE)) {
 			if (cqe->res != 0)
 				ulog(UPERF_LOG_WARN, 0, "invalid final recvzc ret %i", cqe->res);
 			if (received != size)
 				ulog(UPERF_LOG_WARN, 0, "receive size mismatch %lu / %lu",
 					received, size);
-			return 0;
+			received = 0;
+			break;
 		}
 
 		if (cqe->res < 0)
@@ -408,7 +411,6 @@ static int protocol_tcp_zc_recv(protocol_t *p, void *buffer, int size,
 		rqe->len = cqe->res;
 		io_uring_smp_store_release(pd->rq_ring.ktail, ++pd->rq_ring.rq_tail);
 
-		count++;
 	}
 	io_uring_cq_advance(&pd->ring, count);
 
