@@ -66,10 +66,6 @@ typedef struct {
 	bool zc_tx;
 	bool zc_rx;
 
-	void *area_ptr;
-	void *ring_ptr;
-	size_t ring_size;
-
 	struct io_uring_zcrx_rq rq_ring;
 	unsigned long area_token;
 	__u32 zcrx_id;
@@ -136,7 +132,10 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 	int ring_flags = IORING_SETUP_DEFER_TASKRUN | IORING_SETUP_COOP_TASKRUN | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_CQE32;
 	tcp_zc_private_data *pd = p->_protocol_p;
 	unsigned int rq_entries = 4096;
+	size_t ring_size;
 	long page_size;
+	void *area_ptr;
+	void *ring_ptr;
 	int ret;
 
 	ret = io_uring_queue_init(512, &pd->ring, ring_flags);
@@ -172,37 +171,37 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 		if (page_size < 0)
 			return -1;
 
-		pd->area_ptr = mmap(NULL,
-				    AREA_SIZE(page_size),
-				    PROT_READ | PROT_WRITE,
-				    MAP_ANONYMOUS | MAP_PRIVATE,
-				0,
-				0);
-		if (pd->area_ptr == MAP_FAILED) {
-			ulog(UPERF_LOG_ERROR, errno, "mmap(): zero copy area");
-			return -1;
-		}
-		pd->ring_size = get_refill_ring_size(rq_entries, page_size);
-
-		pd->ring_ptr = mmap(NULL,
-				pd->ring_size,
+		area_ptr = mmap(NULL,
+				AREA_SIZE(page_size),
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE,
 				0,
 				0);
-		if (pd->ring_ptr == MAP_FAILED) {
+		if (area_ptr == MAP_FAILED) {
+			ulog(UPERF_LOG_ERROR, errno, "mmap(): zero copy area");
+			return -1;
+		}
+		ring_size = get_refill_ring_size(rq_entries, page_size);
+
+		ring_ptr = mmap(NULL,
+				ring_size,
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE,
+				0,
+				0);
+		if (ring_ptr == MAP_FAILED) {
 			ulog(UPERF_LOG_ERROR, errno, "mmap(): ring area");
 			return -1;
 		}
 
 		struct io_uring_region_desc region_reg = {
-			.size = pd->ring_size,
-			.user_addr = (__u64)(unsigned long)pd->ring_ptr,
+			.size = ring_size,
+			.user_addr = (__u64)(unsigned long)ring_ptr,
 			.flags = IORING_MEM_REGION_TYPE_USER,
 		};
 
 		struct io_uring_zcrx_area_reg area_reg = {
-			.addr = (__u64)(unsigned long)pd->area_ptr,
+			.addr = (__u64)(unsigned long)area_ptr,
 			.len = AREA_SIZE(page_size),
 			.flags = 0,
 		};
@@ -226,11 +225,11 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 			   "with area size %d ring size %d and %d entries\n",
 			   options.zc_ifindex, options.zc_queue_index,
 			   AREA_SIZE(page_size),
-			   pd->ring_size, rq_entries);
+			   ring_size, rq_entries);
 
-		pd->rq_ring.khead = (unsigned int *)((char *)pd->ring_ptr + reg.offsets.head);
-		pd->rq_ring.ktail = (unsigned int *)((char *)pd->ring_ptr + reg.offsets.tail);
-		pd->rq_ring.rqes = (struct io_uring_zcrx_rqe *)((char *)pd->ring_ptr + reg.offsets.rqes);
+		pd->rq_ring.khead = (unsigned int *)((char *)ring_ptr + reg.offsets.head);
+		pd->rq_ring.ktail = (unsigned int *)((char *)ring_ptr + reg.offsets.tail);
+		pd->rq_ring.rqes = (struct io_uring_zcrx_rqe *)((char *)ring_ptr + reg.offsets.rqes);
 		pd->rq_ring.rq_tail = 0;
 		pd->rq_ring.ring_entries = reg.rq_entries;
 
