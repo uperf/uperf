@@ -316,6 +316,7 @@ protocol_tcp_zc_disconnect(protocol_t *p)
 {
 	struct io_uring_cqe *cqe;
 	tcp_zc_private_data *pd;
+	int head;
 
 	if (!p)
 		return 0;
@@ -329,12 +330,8 @@ protocol_tcp_zc_disconnect(protocol_t *p)
 		p->fd = -1;
 	}
 
-	while (pd->compl_cqes) {
-		cqe = wait_cqe_fast(&pd->ring);
-
+	io_uring_for_each_cqe(&pd->ring, head, cqe)
 		io_uring_cqe_seen(&pd->ring, cqe);
-		pd->compl_cqes--;
-	}
 
 	io_uring_queue_exit(&pd->ring);
 
