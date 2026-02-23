@@ -24,6 +24,7 @@
 #define	 __MAIN_H
 #include <limits.h>			/* PATH_MAX */
 #include <stdio.h>			/* PATH_MAX */
+#include <sched.h>
 #include "protocol.h"
 
 #define	FLOWOP_STATS		(1<<0)
@@ -74,6 +75,18 @@ typedef struct options {
 	int zc_ifindex;
 	int zc_queue_index;
 	int zc_cpu;
+	unsigned int has_main_thread, main_thread;	/* cpu main thread */
+	unsigned int has_worker_thread, worker_thread;	/* cpu worker thread */	
 }options_t;
+
+static int
+move_to_core(int core_i)
+{
+        cpu_set_t cpus;
+
+        CPU_ZERO(&cpus);
+        CPU_SET(core_i, &cpus);
+        return sched_setaffinity(0, sizeof(cpus), &cpus);
+}
 
 #endif /* __MAIN_H */

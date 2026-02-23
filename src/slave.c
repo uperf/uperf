@@ -417,6 +417,11 @@ slave()
 
 	uperf_log_init(&log);
 
+	if (options.has_main_thread) {
+		uperf_info("Moving Main thread to cpu %d...\n", options.main_thread);
+		move_to_core(options.main_thread);
+	}
+
 	if (protocol_init(NULL) == UPERF_FAILURE) {
 		return (-1);
 	}

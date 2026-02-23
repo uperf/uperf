@@ -438,6 +438,11 @@ master_init(workorder_t *w)
 		return (NULL);
 	}
 
+	if (options.has_main_thread) {
+		uperf_info("Moving Main thread to cpu %d...\n", options.main_thread);
+		move_to_core(options.main_thread);
+	}
+
 	return (shm);
 }
 
