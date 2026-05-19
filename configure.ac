@@ -286,18 +286,6 @@ AC_ARG_ENABLE(sctp,
 	enable_sctp=$sctp_default)
 if test "x$enable_sctp" = "xyes"; then
 	AC_MSG_RESULT(yes)
-	AC_CHECK_FUNC(sctp_sendv,
-	              [AC_DEFINE([HAVE_SCTP_SENDV],[1], [Have sctp_sendv()])],
-	              [AC_CHECK_LIB(sctp,
-	                            sctp_sendv,
-	                            [AC_DEFINE([HAVE_SCTP_SENDV],[1], [Have sctp_sendv()])
-	                             UPERF_LIBS="$UPERF_LIBS -lsctp"])])
-	AC_CHECK_FUNC(sctp_sendmsg,
-	              [AC_DEFINE([HAVE_SCTP_SENDMSG],[1], [Have sctp_sendmsg()])],
-	              [AC_CHECK_LIB(sctp,
-	                            sctp_sendmsg,
-	                            [AC_DEFINE([HAVE_SCTP_SENDMSG],[1], [Have sctp_sendmsg()])
-	                             UPERF_LIBS="$UPERF_LIBS -lsctp"])])
 	AM_CONDITIONAL([SCTP_C], [true])
 	AC_DEFINE([HAVE_SCTP],[1], [Have sctp])
 else
