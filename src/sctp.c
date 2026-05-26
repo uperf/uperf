@@ -28,6 +28,11 @@
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif /* HAVE_STRING_H */
+
+#ifdef  HAVE_SYS_POLL_H
+#include <sys/poll.h>
+#endif /*  HAVE_SYS_POLL_H */
+
 #include <strings.h>
 #include <errno.h>
 #include <stdio.h>
@@ -333,6 +338,44 @@ protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 	return (len);
 }
 
+int
+protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
+{
+	ssize_t len;
+	struct msghdr msg;
+	struct iovec iov;
+	char cbuf[CMSG_SPACE(sizeof(struct sctp_rcvinfo))];
+	int timeout = 0;
+
+	if (options) {
+		flowop_options_t *flowops = (flowop_options_t *)options;
+		timeout = flowops->poll_timeout / 1.0e+6;
+	}
+
+	if (timeout > 0) {
+		if (generic_poll(p->fd, timeout, POLLIN) <= 0) {
+			return (-1);
+		}
+	}
+
+	memset(&msg, 0, sizeof(msg));
+	memset(cbuf, 0, sizeof(cbuf));
+
+	iov.iov_base = buffer;
+	iov.iov_len = size;
+
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = cbuf;
+	msg.msg_controllen = sizeof(cbuf);
+
+	if ((len = recvmsg(p->fd, &msg, 0)) < 0) {
+		uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot recvmsg ");
+	}
+
+	return (len);
+}
+
 static protocol_t *protocol_sctp_accept(protocol_t *p, void *options);
 
 static protocol_t *
@@ -348,7 +391,7 @@ protocol_sctp_new()
 	newp->disconnect = generic_disconnect;
 	newp->listen = protocol_sctp_listen;
 	newp->accept = protocol_sctp_accept;
-	newp->read = generic_read;
+	newp->read = protocol_sctp_read;
 	newp->write = protocol_sctp_write;
 	newp->wait = generic_undefined;
 	newp->type = PROTOCOL_SCTP;
