@@ -40,7 +40,6 @@
 #include <assert.h>
 #include "logging.h"
 #include "uperf.h"
-#include "flowops.h"
 #include "workorder.h"
 #include "protocol.h"
 #include "generic.h"
@@ -233,108 +232,106 @@ protocol_sctp_connect(protocol_t *p, void *options)
 
 int
 protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
-#if defined(HAVE_SCTP_SENDV)
 {
 	ssize_t len;
+	struct msghdr msg;
 	struct iovec iov;
-	struct sctp_sendv_spa info;
+	struct cmsghdr *cmsg;
+	struct sctp_sndinfo *sndinfo;
+	struct sctp_prinfo *prinfo;
+	char cmsgbuf[
+	    CMSG_SPACE(sizeof(struct sctp_sndinfo)) +
+	    CMSG_SPACE(sizeof(struct sctp_prinfo))
+	];
+
+	int use_prinfo = 0;
+	uint16_t pr_policy = SCTP_PR_SCTP_NONE;
+	uint32_t pr_value = 0;
+	size_t controllen;
+
+	memset(&msg, 0, sizeof(msg));
+	memset(cmsgbuf, 0, sizeof(cmsgbuf));
 
 	iov.iov_base = buffer;
 	iov.iov_len = size;
 
-	memset(&info, 0, sizeof(struct sctp_sendv_spa));
-	if (options) {
-		flowop_options_t *flowops;
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = cmsgbuf;
+	msg.msg_controllen = sizeof(cmsgbuf);
 
-		flowops = (flowop_options_t *) options;
-		info.sendv_sndinfo.snd_sid = flowops->sctp_stream_id;
+	cmsg = CMSG_FIRSTHDR(&msg);
+	cmsg->cmsg_level = IPPROTO_SCTP;
+	cmsg->cmsg_type = SCTP_SNDINFO;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(struct sctp_sndinfo));
+
+	sndinfo = (struct sctp_sndinfo *) CMSG_DATA(cmsg);
+	memset(sndinfo, 0, sizeof(*sndinfo));
+
+	sndinfo->snd_ppid = htonl(0);
+	sndinfo->snd_context = 0;
+	sndinfo->snd_assoc_id = 0;
+
+	if (options) {
+		flowop_options_t *flowops = (flowop_options_t *) options;
+
 		if (FO_SCTP_UNORDERED(flowops)) {
-			info.sendv_sndinfo.snd_flags |= SCTP_UNORDERED;
+			sndinfo->snd_flags |= SCTP_UNORDERED;
 		}
-		info.sendv_flags |= SCTP_SEND_SNDINFO_VALID;
-#ifdef SCTP_PR_SCTP_TTL
+
+		sndinfo->snd_sid = flowops->sctp_stream_id;
+
 		if (strcasecmp(flowops->sctp_pr_policy, "ttl") == 0) {
-			info.sendv_prinfo.pr_policy = SCTP_PR_SCTP_TTL;
-			info.sendv_prinfo.pr_value = flowops->sctp_pr_value;
-			info.sendv_flags |= SCTP_SEND_PRINFO_VALID;
-		}
+#ifdef SCTP_PR_SCTP_TTL
+			use_prinfo = 1;
+			pr_policy = SCTP_PR_SCTP_TTL;
+			pr_value = flowops->sctp_pr_value;
 #endif
+		}
+
 #ifdef SCTP_PR_SCTP_RTX
 		if (strcasecmp(flowops->sctp_pr_policy, "rtx") == 0) {
-			info.sendv_prinfo.pr_policy = SCTP_PR_SCTP_RTX;
-			info.sendv_prinfo.pr_value = flowops->sctp_pr_value;
-			info.sendv_flags |= SCTP_SEND_PRINFO_VALID;
+			use_prinfo = 1;
+			pr_policy = SCTP_PR_SCTP_RTX;
+			pr_value = flowops->sctp_pr_value;
 		}
 #endif
+
 #ifdef SCTP_PR_SCTP_BUF
 		if (strcasecmp(flowops->sctp_pr_policy, "buf") == 0) {
-			info.sendv_prinfo.pr_policy = SCTP_PR_SCTP_BUF;
-			info.sendv_prinfo.pr_value = flowops->sctp_pr_value;
-			info.sendv_flags |= SCTP_SEND_PRINFO_VALID;
+			use_prinfo = 1;
+			pr_policy = SCTP_PR_SCTP_BUF;
+			pr_value = flowops->sctp_pr_value;
 		}
 #endif
 	}
 
-	if ((len = sctp_sendv(p->fd, &iov, 1, NULL, 0,
-	                      &info, sizeof(struct sctp_sendv_spa), SCTP_SENDV_SPA, 0)) < 0) {
-		uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot sctp_sendv ");
+	controllen = CMSG_SPACE(sizeof(struct sctp_sndinfo));
+
+	if (use_prinfo) {
+		cmsg = CMSG_NXTHDR(&msg, cmsg);
+
+		cmsg->cmsg_level = IPPROTO_SCTP;
+		cmsg->cmsg_type = SCTP_PRINFO;
+		cmsg->cmsg_len = CMSG_LEN(sizeof(struct sctp_prinfo));
+
+		prinfo = (struct sctp_prinfo *) CMSG_DATA(cmsg);
+		memset(prinfo, 0, sizeof(*prinfo));
+
+		prinfo->pr_policy = pr_policy;
+		prinfo->pr_value = pr_value;
+
+		controllen += CMSG_SPACE(sizeof(struct sctp_prinfo));
 	}
+
+	msg.msg_controllen = controllen;
+
+	if ((len = sendmsg(p->fd, &msg, 0)) < 0) {
+		uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot sendmsg ");
+	}
+
 	return (len);
 }
-#elif defined(HAVE_SCTP_SENDMSG)
-{
-	ssize_t len;
-	uint32_t flags;
-	uint16_t stream_no;
-	uint32_t timetolive;
-
-	flags = 0;
-	timetolive = 0;
-	if (options) {
-		flowop_options_t *flowops;
-
-		flowops = (flowop_options_t *) options;
-		if (FO_SCTP_UNORDERED(flowops)) {
-			flags |= SCTP_UNORDERED;
-		}
-		stream_no = flowops->sctp_stream_id;
-		if (strcasecmp(flowops->sctp_pr_policy, "ttl") == 0) {
-			timetolive = flowops->sctp_pr_value;
-#if defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
-#ifdef SCTP_PR_SCTP_TTL
-			flags |= SCTP_PR_SCTP_TTL;
-#endif
-#endif
-		}
-#if defined(UPERF_FREEBSD) || defined(UPERF_DARWIN)
-#ifdef SCTP_PR_SCTP_RTX
-		if (strcasecmp(flowops->sctp_pr_policy, "rtx") == 0) {
-			timetolive = flowops->sctp_pr_value;
-			flags |= SCTP_PR_SCTP_RTX;
-		}
-#endif
-#ifdef SCTP_PR_SCTP_BUF
-		if (strcasecmp(flowops->sctp_pr_policy, "buf") == 0) {
-			timetolive = flowops->sctp_pr_value;
-			flags |= SCTP_PR_SCTP_BUF;
-		}
-#endif
-#endif
-	} else {
-		stream_no = 0;
-	}
-
-	if ((len = sctp_sendmsg(p->fd, buffer, size, NULL, 0, htonl(0), flags,
-	                        stream_no, timetolive, 0)) < 0) {
-		uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot sctp_sendmsg ");
-	}
-	return (len);
-}
-#else
-{
-	return (generic_write(p, buffer, size, options));
-}
-#endif
 
 static protocol_t *protocol_sctp_accept(protocol_t *p, void *options);
 
