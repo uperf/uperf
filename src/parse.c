@@ -500,6 +500,15 @@ parse_option(char *option, flowop_t *flowop)
 			}
 		} else if (strcasecmp(key, "count") == 0) {
 			flowop->options.count = atoi(value);
+		} else if (strcasecmp(key, "repeat") == 0) {
+			int repeat = atoi(value);
+			if (repeat < 1) {
+				snprintf(err, sizeof (err),
+					"repeat (%s) should be > 0", value);
+				add_error(err);
+				return (UPERF_FAILURE);
+			}
+			flowop->options.repeat = repeat;
 		} else if (strcasecmp(key, "port") == 0) {
 			flowop->options.port = atoi(value);
 		} else if (strcasecmp(key, "protocol") == 0) {
@@ -763,6 +772,7 @@ flowop_parse_options(char *str_options, flowop_t *flowop)
 	char	*delimiters = " \t";
 
 	flowop->options.count = 1;	/* Default count */
+	flowop->options.repeat = 1;	/* Default repeat */
 	flowop->options.size = 0;	/* Default size */
 	flowop->options.duration = 0;	/* Default duration */
 	flowop->p_id = UPERF_ANY_CONNECTION;
@@ -859,6 +869,7 @@ build_worklist(struct symbol *list)
 				curr_flowop = curr_flowop->next;
 			}
 			curr_flowop->options.count = 1;
+			curr_flowop->options.repeat = 1;
 			curr_flowop->id = fid++;
 			break;
 		case TOKEN_XML_END:
