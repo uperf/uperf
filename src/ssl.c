@@ -167,7 +167,7 @@ ssl_init(void *arg)
 	if (ctx == NULL)
 		return (1);
 
-	ssl_locks = malloc(CRYPTO_num_locks() * sizeof (pthread_mutex_t));
+	ssl_locks = calloc(CRYPTO_num_locks(), sizeof (pthread_mutex_t));
 	for (i = 0; i < CRYPTO_num_locks(); i++) {
 		pthread_mutex_init(&ssl_locks[i], 0);
 	}
@@ -429,7 +429,7 @@ pwd_cb(char *buf, int num, int rwflag, void *userdata)
 	if (num < strlen(pass) + 1) {
 		return (0);
 	}
-	strcpy(buf, pass);
+	snprintf(buf, num, "%s", pass);
 	return (strlen(pass));
 }
 
