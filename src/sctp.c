@@ -239,6 +239,9 @@ int
 protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 {
 	ssize_t len;
+	ssize_t total = 0;
+	int i;
+	int repeat = 1;
 	struct msghdr msg;
 	struct iovec iov;
 	struct cmsghdr *cmsg;
@@ -279,6 +282,7 @@ protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 
 	if (options) {
 		flowop_options_t *flowops = (flowop_options_t *) options;
+		repeat = flowops->repeat;
 
 		if (FO_SCTP_UNORDERED(flowops)) {
 			sndinfo->snd_flags |= SCTP_UNORDERED;
@@ -331,17 +335,25 @@ protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 
 	msg.msg_controllen = controllen;
 
-	if ((len = sendmsg(p->fd, &msg, 0)) < 0) {
-		uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot sendmsg ");
+	for (i = 0; i < repeat; i++) {
+		if ((len = sendmsg(p->fd, &msg, 0)) < 0) {
+			uperf_log_msg(UPERF_LOG_WARN, errno,
+				"Cannot sendmsg ");
+			return (-1);
+		}
+		total += len;
 	}
 
-	return (len);
+	return (total);
 }
 
 int
 protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 {
 	ssize_t len;
+	ssize_t total = 0;
+	int i;
+	int repeat = 1;
 	struct msghdr msg;
 	struct iovec iov;
 	char cbuf[CMSG_SPACE(sizeof(struct sctp_rcvinfo))];
@@ -350,16 +362,10 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 	if (options) {
 		flowop_options_t *flowops = (flowop_options_t *)options;
 		timeout = flowops->poll_timeout / 1.0e+6;
-	}
-
-	if (timeout > 0) {
-		if (generic_poll(p->fd, timeout, POLLIN) <= 0) {
-			return (-1);
-		}
+		repeat = flowops->repeat;
 	}
 
 	memset(&msg, 0, sizeof(msg));
-	memset(cbuf, 0, sizeof(cbuf));
 
 	iov.iov_base = buffer;
 	iov.iov_len = size;
@@ -367,13 +373,25 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
 	msg.msg_control = cbuf;
-	msg.msg_controllen = sizeof(cbuf);
 
-	if ((len = recvmsg(p->fd, &msg, 0)) < 0) {
-		uperf_log_msg(UPERF_LOG_WARN, errno, "Cannot recvmsg ");
+	for (i = 0; i < repeat; i++) {
+		if (timeout > 0) {
+			if (generic_poll(p->fd, timeout, POLLIN) <= 0) {
+				return (-1);
+			}
+		}
+		memset(cbuf, 0, sizeof(cbuf));
+		msg.msg_controllen = sizeof(cbuf);
+		
+		if ((len = recvmsg(p->fd, &msg, 0)) < 0) {
+			uperf_log_msg(UPERF_LOG_WARN, errno,
+				"Cannot recvmsg ");
+			return (-1);
+		}
+		total += len;
 	}
 
-	return (len);
+	return (total);
 }
 
 static protocol_t *protocol_sctp_accept(protocol_t *p, void *options);
