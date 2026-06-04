@@ -72,6 +72,12 @@
 /* Have sendfilev */
 #undef HAVE_SENDFILEV
 
+/* Have sendmmsg */
+#undef HAVE_SENDMMSG
+
+/* Have recvmmsg */
+#undef HAVE_RECVMMSG
+
 /* Define to 1 if you have the <siginfo.h> header file. */
 #undef HAVE_SIGINFO_H
 
