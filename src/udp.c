@@ -107,6 +107,8 @@ static int
 write_one(int fd, char *buffer, int len, struct sockaddr *to)
 {
 	socklen_t length;
+	struct msghdr msg;
+	struct iovec iov;
 
 	switch (to->sa_family) {
 	case AF_INET:
@@ -117,9 +119,20 @@ write_one(int fd, char *buffer, int len, struct sockaddr *to)
 		break;
 	default:
 		return (-1);
-		break;
 	}
-	return (sendto(fd, buffer, len, 0, to, length));
+
+	iov.iov_base = buffer;
+	iov.iov_len = len;
+
+	msg.msg_name = to;
+	msg.msg_namelen = length;
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = NULL;
+	msg.msg_controllen = 0;
+	msg.msg_flags = 0;
+
+	return (sendmsg(fd, &msg, 0));
 }
 
 static int
