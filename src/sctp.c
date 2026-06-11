@@ -240,8 +240,8 @@ protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 {
 	ssize_t len;
 	ssize_t total = 0;
-	int i;
-	int repeat = 1;
+	uint64_t i;
+	uint64_t repeat = 1;
 	struct msghdr msg;
 	struct iovec iov;
 	struct cmsghdr *cmsg;
@@ -352,8 +352,8 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 {
 	ssize_t len;
 	ssize_t total = 0;
-	int i;
-	int repeat = 1;
+	uint64_t i;
+	uint64_t repeat = 1;
 	struct msghdr msg;
 	struct iovec iov;
 	char cbuf[CMSG_SPACE(sizeof(struct sctp_rcvinfo))];
