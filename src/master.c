@@ -333,10 +333,10 @@ master_poll(uperf_shm_t *shm)
 		return (1);
 	}
 	if (ENABLED_ERROR_STATS(options))  {
-		return (send_command_to_slaves(UPERF_CMD_SEND_STATS, 0));
-	} else {
-		return (0);
+		if (send_command_to_slaves(UPERF_CMD_SEND_STATS, 0) <= 0)
+			return (1);
 	}
+	return (0);
 }
 
 /* Create a control connection to a slave */
