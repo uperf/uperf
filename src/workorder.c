@@ -301,6 +301,7 @@ group_bitswap(group_t *grp)
 			fo->wndsz = BSWAP_64(fo->wndsz);
 			fo->count = BSWAP_64(fo->count);
 			fo->repeat = BSWAP_64(fo->repeat);
+			fo->batch_size = BSWAP_64(fo->batch_size);
 			fo->poll_timeout = BSWAP_64(fo->poll_timeout);
 			fo->encaps_port = BSWAP_32(fo->encaps_port);
 			fo->sctp_rto_min = BSWAP_32(fo->sctp_rto_min);

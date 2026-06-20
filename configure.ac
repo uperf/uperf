@@ -228,6 +228,8 @@ AC_CHECK_FUNCS([strncpy])
 AC_CHECK_FUNCS([strncat])
 AC_CHECK_FUNCS([strlcpy])
 AC_CHECK_FUNCS([strlcat])
+AC_CHECK_FUNCS([sendmmsg])
+AC_CHECK_FUNCS([recvmmsg])
 AC_CHECK_FUNCS([gethrvtime])
 AC_CHECK_FUNCS([gethrtime],[],
 	[AC_CHECK_FUNCS([clock_gettime],[],

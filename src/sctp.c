@@ -49,6 +49,7 @@
 #include "protocol.h"
 #include "generic.h"
 
+#define SCTP_MMSG_STACK_SIZE 16
 
 static void
 set_sctp_options(int fd, int family, flowop_options_t *f)
@@ -240,11 +241,16 @@ protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 {
 	ssize_t len;
 	ssize_t total = 0;
-	uint64_t i;
+	uint64_t i, j;
+	uint64_t batch_size = 1;
+	uint64_t msgs_sent;
+	uint64_t remaining;
 	uint64_t repeat = 1;
 	struct msghdr msg;
+	struct mmsghdr stack_mmsgs[SCTP_MMSG_STACK_SIZE];
 	struct iovec iov;
 	struct cmsghdr *cmsg;
+	struct mmsghdr *mmsgs = NULL;
 	struct sctp_sndinfo *sndinfo;
 	struct sctp_prinfo *prinfo;
 	char cmsgbuf[
@@ -283,6 +289,7 @@ protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 	if (options) {
 		flowop_options_t *flowops = (flowop_options_t *) options;
 		repeat = flowops->repeat;
+		batch_size = flowops->batch_size;
 
 		if (FO_SCTP_UNORDERED(flowops)) {
 			sndinfo->snd_flags |= SCTP_UNORDERED;
@@ -335,14 +342,70 @@ protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 
 	msg.msg_controllen = controllen;
 
-	for (i = 0; i < repeat; i++) {
-		if ((len = sendmsg(p->fd, &msg, 0)) < 0) {
-			uperf_log_msg(UPERF_LOG_WARN, errno,
-				"Cannot sendmsg ");
-			return (-1);
+#ifdef HAVE_SENDMMSG
+	if (batch_size > 1) {
+		if (batch_size <= SCTP_MMSG_STACK_SIZE) {
+			mmsgs = stack_mmsgs;
+		} else {
+			mmsgs = calloc(batch_size, sizeof(*mmsgs));
+
+			if (mmsgs == NULL) {
+				uperf_log_msg(UPERF_LOG_WARN, errno,
+				    "Cannot allocate mmsghdr array");
+				return (-1);
+			}
 		}
-		total += len;
+
+		for (j = 0; j < batch_size; j++) {
+			memset(&mmsgs[j], 0, sizeof(mmsgs[j]));
+			mmsgs[j].msg_hdr = msg;
+		}
 	}
+#endif
+
+	for (i = 0; i < repeat; i++) {
+		if (batch_size <= 1) {
+			if ((len = sendmsg(p->fd, &msg, 0)) < 0) {
+				uperf_log_msg(UPERF_LOG_WARN, errno,
+					"Cannot sendmsg ");
+				return (-1);
+			}
+			total += len;
+			continue;
+		}
+
+#ifdef HAVE_SENDMMSG
+		remaining = batch_size;
+
+		while (remaining > 0) {
+			msgs_sent = sendmmsg(p->fd,
+				&mmsgs[batch_size - remaining],
+				remaining, 0);
+
+			if (msgs_sent < 0) {
+				if (mmsgs != stack_mmsgs)
+					free(mmsgs);
+				uperf_log_msg(UPERF_LOG_WARN, errno,
+				"Cannot sendmmsg ");
+
+				return (-1);
+			}
+
+			remaining -= msgs_sent;
+		}
+
+		total += (ssize_t)size * batch_size;
+#else
+		uperf_log_msg(UPERF_LOG_WARN, errno,
+				"sendmmsg not supported ");
+
+#endif
+	}
+
+#ifdef HAVE_SENDMMSG
+	if (mmsgs != stack_mmsgs)
+		free(mmsgs);
+#endif
 
 	return (total);
 }
@@ -352,17 +415,28 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 {
 	ssize_t len;
 	ssize_t total = 0;
-	uint64_t i;
+	uint64_t i, j;
 	uint64_t repeat = 1;
+	uint64_t batch_size = 1;
+	int msgs_recieved;
 	struct msghdr msg;
+	struct mmsghdr stack_mmsgs[SCTP_MMSG_STACK_SIZE];
 	struct iovec iov;
+	struct iovec stack_iovs[SCTP_MMSG_STACK_SIZE];
+	struct mmsghdr *mmsgs = NULL;
+	struct iovec *iovs = NULL;
 	char cbuf[CMSG_SPACE(sizeof(struct sctp_rcvinfo))];
+	char stack_cbufs[SCTP_MMSG_STACK_SIZE]
+			[CMSG_SPACE(sizeof(struct sctp_rcvinfo))];
+	char (*cbufs)[CMSG_SPACE(sizeof(struct sctp_rcvinfo))] = NULL;
+	char *recvbuf = NULL;
 	int timeout = 0;
 
 	if (options) {
 		flowop_options_t *flowops = (flowop_options_t *)options;
 		timeout = flowops->poll_timeout / 1.0e+6;
 		repeat = flowops->repeat;
+		batch_size = flowops->batch_size;
 	}
 
 	memset(&msg, 0, sizeof(msg));
@@ -374,21 +448,129 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 	msg.msg_iovlen = 1;
 	msg.msg_control = cbuf;
 
-	for (i = 0; i < repeat; i++) {
-		if (timeout > 0) {
-			if (generic_poll(p->fd, timeout, POLLIN) <= 0) {
+	if (batch_size <= 1) {
+		for (i = 0; i < repeat; i++) {
+			if (timeout > 0) {
+				if (generic_poll(p->fd, timeout, POLLIN) <= 0) {
+					return (-1);
+				}
+			}
+			memset(cbuf, 0, sizeof(cbuf));
+			msg.msg_controllen = sizeof(cbuf);
+
+			if ((len = recvmsg(p->fd, &msg, 0)) < 0) {
+				uperf_log_msg(UPERF_LOG_WARN, errno,
+					"Cannot recvmsg ");
+				return (-1);
+			}
+			total += len;
+		}
+	} else {
+#ifdef HAVE_RECVMMSG
+		if (batch_size <= SCTP_MMSG_STACK_SIZE) {
+			mmsgs = stack_mmsgs;
+			iovs = stack_iovs;
+			cbufs = stack_cbufs;
+		} else {
+			mmsgs = calloc(batch_size, sizeof(*mmsgs));
+			iovs = calloc(batch_size, sizeof(*iovs));
+			cbufs = calloc(batch_size,
+				CMSG_SPACE(sizeof(struct sctp_rcvinfo)));
+
+			if (mmsgs == NULL || iovs == NULL || cbufs == NULL) {
+				free(mmsgs);
+				free(iovs);
+				free(cbufs);
+
+				uperf_log_msg(UPERF_LOG_WARN, errno,
+				    "Cannot allocate recvmmsg structures");
 				return (-1);
 			}
 		}
-		memset(cbuf, 0, sizeof(cbuf));
-		msg.msg_controllen = sizeof(cbuf);
-		
-		if ((len = recvmsg(p->fd, &msg, 0)) < 0) {
+
+		recvbuf = malloc(batch_size * size);
+		if (recvbuf == NULL) {
+			if (mmsgs != stack_mmsgs) {
+				free(mmsgs);
+				free(iovs);
+				free(cbufs);
+			}
+
 			uperf_log_msg(UPERF_LOG_WARN, errno,
-				"Cannot recvmsg ");
+			    "Cannot allocate receive buffer");
 			return (-1);
 		}
-		total += len;
+
+		for (i = 0; i < batch_size; i++) {
+			memset(&mmsgs[i], 0, sizeof(mmsgs[i]));
+
+			iovs[i].iov_base = recvbuf + ((size_t)i * size);
+			iovs[i].iov_len = size;
+
+			mmsgs[i].msg_hdr.msg_iov = &iovs[i];
+			mmsgs[i].msg_hdr.msg_iovlen = 1;
+			mmsgs[i].msg_hdr.msg_control = cbufs[i];
+			mmsgs[i].msg_hdr.msg_controllen =
+				CMSG_SPACE(sizeof(struct sctp_rcvinfo));
+		}
+
+		for (i = 0; i < repeat; i++) {
+			if (timeout > 0) {
+				if (generic_poll(p->fd, timeout, POLLIN) <= 0) {
+					free(recvbuf);
+
+					if (mmsgs != stack_mmsgs) {
+						free(mmsgs);
+						free(iovs);
+						free(cbufs);
+					}
+
+					return (-1);
+				}
+			}
+
+			for (j = 0; j < batch_size; j++) {
+				memset(cbufs[j], 0,
+					CMSG_SPACE(sizeof(struct sctp_rcvinfo)));
+
+				mmsgs[j].msg_hdr.msg_controllen =
+					CMSG_SPACE(sizeof(struct sctp_rcvinfo));
+			}
+
+			msgs_recieved = recvmmsg(p->fd, mmsgs, batch_size,
+				0, NULL);
+
+			if (msgs_recieved < 0) {
+				free(recvbuf);
+
+				if (mmsgs != stack_mmsgs) {
+					free(mmsgs);
+					free(iovs);
+					free(cbufs);
+				}
+
+				uperf_log_msg(UPERF_LOG_WARN, errno,
+					"Cannot recvmmsg ");
+
+				return (-1);
+			}
+
+			for (j = 0; j < msgs_recieved; j++) {
+				total += mmsgs[j].msg_len;
+			}
+		}
+
+		free(recvbuf);
+
+		if (mmsgs != stack_mmsgs) {
+			free(mmsgs);
+			free(iovs);
+			free(cbufs);
+		}
+#else
+		uperf_log_msg(UPERF_LOG_WARN, errno,
+				"recvmmsg not supported ");
+#endif
 	}
 
 	return (total);

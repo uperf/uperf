@@ -58,6 +58,7 @@ struct flowop_options {
 	uint64_t	wndsz;		/* SCTP/TCP/UDP Window size */
 	uint64_t	count;		/* Flowop execute Count */
 	uint64_t	repeat;		/* Flowop-internal execute count */
+	uint64_t	batch_size;	/* SCTP/UDP sendmmsg batch size */
 	uint64_t	poll_timeout;	/* In nanoseconds */
 	uint32_t	encaps_port;	/* Port used for UDP encapsulation */
 	uint32_t	bblog;	/* TCP black box logging */
