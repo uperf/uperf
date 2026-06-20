@@ -16,7 +16,7 @@ fi
 serverpid=""
 if pgrep uperf ; then
     echo "uperf server already running; please stop it and try again"
-    exit
+    exit 1
 else
     echo "Starting server - $uperf -s $csocket"
     $uperf -s $csocket &
@@ -28,7 +28,7 @@ h=$host duration=10s $uperf $csocket -m $profile >> log 2>&1
 exitstatus=$?
 
 # kill server
-if [[ serverpid != "" ]] ; then
+if [[ $serverpid != "" ]] ; then
    echo "Killing $serverpid"
    kill -9 $serverpid
 fi
