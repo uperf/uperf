@@ -242,10 +242,10 @@ protocol_sctp_write(protocol_t *p, void *buffer, int size, void *options)
 	ssize_t len;
 	ssize_t total = 0;
 	uint64_t i, j;
-	int repeat = 1;
 	uint64_t batch_size = 1;
 	uint64_t msgs_sent;
 	uint64_t remaining;
+	uint64_t repeat = 1;
 	struct msghdr msg;
 	struct mmsghdr stack_mmsgs[SCTP_MMSG_STACK_SIZE];
 	struct iovec iov;
@@ -416,7 +416,7 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 	ssize_t len;
 	ssize_t total = 0;
 	uint64_t i, j;
-	int repeat = 1;
+	uint64_t repeat = 1;
 	uint64_t batch_size = 1;
 	int msgs_recieved;
 	struct msghdr msg;
