@@ -87,16 +87,29 @@ static int
 read_one(int fd, char *buffer, int len, struct sockaddr_storage *from)
 {
 	int ret;
+	struct msghdr msg;
+	struct iovec iov;
 	socklen_t length = (socklen_t)sizeof(struct sockaddr_storage);
 	/*
 	 * uperf_debug("recvfrom %s:%d\n", inet_ntoa(saddr->sin_addr),
 	 * saddr->sin_port);
 	 */
 
-	ret = recvfrom(fd, buffer, len, 0, (struct sockaddr *)from, &length);
+	iov.iov_base = buffer;
+	iov.iov_len = len;
+
+	msg.msg_name = from;
+	msg.msg_namelen = length;
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = NULL;
+	msg.msg_controllen = 0;
+	msg.msg_flags = 0;
+
+	ret = recvmsg(fd, &msg, 0);
 	if (ret <= 0) {
 		if (errno != EWOULDBLOCK)
-			uperf_log_msg(UPERF_LOG_ERROR, errno, "recvfrom:");
+			uperf_log_msg(UPERF_LOG_ERROR, errno, "recvmsg:");
 		return (-1);
 	}
 
