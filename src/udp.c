@@ -52,6 +52,7 @@
 
 #define	UDP_TIMEOUT	5000
 #define	UDP_HANDSHAKE	"uperf udp handshake"
+#define	UDP_MMSG_STACK_SIZE	16
 
 typedef struct {
 	int		sock;	/* for doing the communication */
@@ -156,51 +157,167 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 	int nleft;
 	int total = 0;
 	int timeout = 0;
-	uint64_t i;
+	ssize_t msgs_received;
+	uint64_t i, j;
 	uint64_t repeat = 1;
+	uint64_t batch_size = 1;
+	size_t remaining, offset;
 	flowop_options_t *fo = (flowop_options_t *)options;
+	struct mmsghdr stack_mmsgs[UDP_MMSG_STACK_SIZE];
+	struct iovec stack_iovs[UDP_MMSG_STACK_SIZE];
+	struct mmsghdr *mmsgs = NULL;
+	struct iovec *iovs = NULL;
+	struct sockaddr_storage from;
+	char *recvbuf = NULL;
 
 	if (fo != NULL) {
 		timeout = (int) fo->poll_timeout/1.0e+6;
 		repeat = fo->repeat;
+		batch_size = fo->batch_size;
 	}
 	/* HACK: Force timeout for UDP */
 	/* if (timeout == 0) */
 		/* timeout = UDP_TIMEOUT; */
 
-	for (i = 0; i < repeat; i++) {
-		nleft = n;
-		if (fo && FO_NONBLOCKING(fo)) {
-			/*
-			 * First try to read, if EWOULDBLOCK, then
-			 * poll for fo->timeout seconds
-			 */
-			ret = read_one(pd->sock, buffer, n, &pd->addr_info);
-			/* Lets fallback to poll/read */
-			if ((ret <= 0) && (errno != EWOULDBLOCK)) {
-				uperf_log_msg(UPERF_LOG_ERROR, errno,
-				    "non-block write");
-				return (ret);
+	if (batch_size <= 1) {
+		for (i = 0; i < repeat; i++) {
+			nleft = n;
+			if (fo && FO_NONBLOCKING(fo)) {
+				/*
+				 * First try to read, if EWOULDBLOCK, then
+				 * poll for fo->timeout seconds
+				 */
+				ret = read_one(pd->sock, buffer, n, &pd->addr_info);
+				/* Lets fallback to poll/read */
+				if ((ret <= 0) && (errno != EWOULDBLOCK)) {
+					uperf_log_msg(UPERF_LOG_ERROR, errno,
+					    "non-block write");
+					return (ret);
+				}
+				nleft = n - ret;
+				if (ret > 0)
+					total += ret;
 			}
-			nleft = n - ret;
-			if (ret > 0)
+			if ((nleft > 0) && (timeout > 0)) {
+				ret = generic_poll(pd->sock, timeout, POLLIN);
+				if (ret <= 0)
+					return (-1); /* ret == 0 means timeout (error); */
+				ret = read_one(pd->sock, buffer, nleft, &pd->addr_info);
+				if (ret < 0)
+					return (ret);
 				total += ret;
+			} else if ((nleft > 0) && (timeout <= 0)) {
+				/* Vanilla read */
+				ret = read_one(pd->sock, buffer, nleft, &pd->addr_info);
+				if (ret < 0)
+					return (ret);
+				total += ret;
+			}
 		}
-		if ((nleft > 0) && (timeout > 0)) {
-			ret = generic_poll(pd->sock, timeout, POLLIN);
-			if (ret <= 0)
-				return (-1); /* ret == 0 means timeout (error); */
-			ret = read_one(pd->sock, buffer, nleft, &pd->addr_info);
-			if (ret < 0)
-				return (ret);
-			total += ret;
-		} else if ((nleft > 0) && (timeout <= 0)) {
-			/* Vanilla read */
-			ret = read_one(pd->sock, buffer, nleft, &pd->addr_info);
-			if (ret < 0)
-				return (ret);
-			total += ret;
+	} else {
+#ifdef HAVE_RECVMMSG
+		if (batch_size <= UDP_MMSG_STACK_SIZE) {
+			mmsgs = stack_mmsgs;
+			iovs = stack_iovs;
+		} else {
+			mmsgs = calloc(batch_size, sizeof(*mmsgs));
+			iovs = calloc(batch_size, sizeof(*iovs));
+
+			if (mmsgs == NULL || iovs == NULL) {
+				free(mmsgs);
+				free(iovs);
+				uperf_log_msg(UPERF_LOG_WARN, errno,
+					"Cannot allocate recvmmsg structures");
+				return (-1);
+			}
 		}
+
+		recvbuf = malloc((size_t)batch_size * n);
+		if (recvbuf == NULL) {
+			if (mmsgs != stack_mmsgs) {
+				free(mmsgs);
+				free(iovs);
+			}
+			uperf_log_msg(UPERF_LOG_WARN, errno,
+				"Cannot allocate receive buffer");
+			return (-1);
+		}
+
+		for (i = 0; i < batch_size; i++) {
+			memset(&mmsgs[i], 0, sizeof(mmsgs[i]));
+
+			iovs[i].iov_base = recvbuf + ((size_t)i * n);
+			iovs[i].iov_len = n;
+
+			mmsgs[i].msg_hdr.msg_iov = &iovs[i];
+			mmsgs[i].msg_hdr.msg_iovlen = 1;
+			mmsgs[i].msg_hdr.msg_name = &from;
+			mmsgs[i].msg_hdr.msg_namelen =
+				(socklen_t)sizeof(from);
+		}
+
+		for (i = 0; i < repeat; i++) {
+			if (timeout > 0) {
+				if (generic_poll(pd->sock, timeout, POLLIN) <= 0) {
+					free(recvbuf);
+					if (mmsgs != stack_mmsgs) {
+						free(mmsgs);
+						free(iovs);
+					}
+					return (-1);
+				}
+			}
+
+			for (j = 0; j < batch_size; j++)
+				mmsgs[j].msg_hdr.msg_namelen =
+					(socklen_t)sizeof(from);
+
+			remaining = batch_size;
+			offset = 0;
+
+			while (remaining > 0) {
+				for (j = offset; j < batch_size; j++)
+					mmsgs[j].msg_hdr.msg_namelen = sizeof(from);
+
+				msgs_received = recvmmsg(pd->sock, mmsgs + offset * sizeof(struct mmsghdr), batch_size,
+				0, NULL);
+
+				if (msgs_received < 0) {
+					if (errno == EINTR)
+						continue;
+
+					free(recvbuf);
+
+					if (mmsgs != stack_mmsgs) {
+						free(mmsgs);
+						free(iovs);
+					}
+					uperf_log_msg(UPERF_LOG_WARN, errno,
+						"Cannot recvmmsg ");
+
+					return (-1);
+				}
+
+				offset += msgs_received;
+				remaining -= msgs_received;
+			}
+
+			for (j = 0; j < msgs_received; j++)
+				total += mmsgs[j].msg_len;
+		}
+
+		free(recvbuf);
+
+		if (mmsgs != stack_mmsgs) {
+			free(mmsgs);
+			free(iovs);
+		}
+#else
+		uperf_log_msg(UPERF_LOG_WARN, errno,
+			"recvmmsg not supported ");
+
+		return (-1);
+#endif
 	}
 
 	return (total);
@@ -218,52 +335,132 @@ protocol_udp_write(protocol_t *p, void *buffer, int n, void *options)
 	size_t nleft;
 	int total = 0;
 	int timeout = 0;
-	uint64_t i;
+	uint64_t i, j;
 	uint64_t repeat = 1;
+	uint64_t batch_size = 1;
+	uint64_t remaining;
+	uint64_t msgs_sent;
 	flowop_options_t *fo = (flowop_options_t *)options;
+	struct msghdr msg;
+	struct iovec iov;
+	struct mmsghdr stack_mmsgs[UDP_MMSG_STACK_SIZE];
+	struct mmsghdr *mmsgs = NULL;
+	struct sockaddr *to = (struct sockaddr *)&pd->addr_info;
+	socklen_t addrlen;
 
 	if (fo != NULL) {
 		timeout = (int) fo->poll_timeout/1.0e+6;
 		repeat = fo->repeat;
+		batch_size = fo->batch_size;
 	}
 
-	for (i = 0; i < repeat; i++) {
-		nleft = n;
+	if (batch_size <= 1) {
+		for (i = 0; i < repeat; i++) {
+			nleft = n;
 
-		if (fo && FO_NONBLOCKING(fo)) {
-			/*
-			 * First try to write, if EWOULDBLOCK, then
-			 * poll for fo->timeout seconds
-			 */
-			ret = write_one(pd->sock, buffer, n,
+			if (fo && FO_NONBLOCKING(fo)) {
+				/*
+				 * First try to write, if EWOULDBLOCK, then
+				 * poll for fo->timeout seconds
+				 */
+				ret = write_one(pd->sock, buffer, n,
+						(struct sockaddr *)&pd->addr_info);
+				if ((ret <= 0) && (errno != EWOULDBLOCK)) {
+					uperf_log_msg(UPERF_LOG_ERROR, errno,
+						"non-block write");
+					return (-1);
+				} else if (ret > 0) {
+					nleft = n - ret;
+					total += ret;
+				}
+			}
+
+			if ((nleft > 0) && (timeout > 0)) {
+				ret = generic_poll(pd->sock, timeout, POLLOUT);
+				if (ret <= 0)
+					return (-1);
+				ret = write_one(pd->sock, buffer, nleft,
+						(struct sockaddr *)&pd->addr_info);
+				if (ret < 0)
+					return (ret);
+				total += ret;
+			} else if ((nleft > 0) && (timeout <= 0)) {
+				/* Vanilla write */
+				ret = write_one(pd->sock, buffer, nleft,
 					(struct sockaddr *)&pd->addr_info);
-			if ((ret <= 0) && (errno != EWOULDBLOCK)) {
-				uperf_log_msg(UPERF_LOG_ERROR, errno,
-				    "non-block write");
-				return (-1);
-			} else if (ret > 0) {
-				nleft = n - ret;
+				if (ret < 0)
+					return (ret);
 				total += ret;
 			}
 		}
-
-		if ((nleft > 0) && (timeout > 0)) {
-			ret = generic_poll(pd->sock, timeout, POLLOUT);
-			if (ret <= 0)
+	} else {
+#ifdef HAVE_SENDMMSG
+		switch (to->sa_family) {
+			case AF_INET:
+				addrlen = (socklen_t)sizeof(struct sockaddr_in);
+				break;
+			case AF_INET6:
+				addrlen = (socklen_t)sizeof(struct sockaddr_in6);
+				break;
+			default:
 				return (-1);
-			ret = write_one(pd->sock, buffer, nleft,
-					(struct sockaddr *)&pd->addr_info);
-			if (ret < 0)
-				return (ret);
-			total += ret;
-		} else if ((nleft > 0) && (timeout <= 0)) {
-			/* Vanilla write */
-			ret = write_one(pd->sock, buffer, nleft,
-				(struct sockaddr *)&pd->addr_info);
-			if (ret < 0)
-				return (ret);
-			total += ret;
 		}
+
+		iov.iov_base = buffer;
+		iov.iov_len = n;
+
+		memset(&msg, 0, sizeof(msg));
+		msg.msg_name = to;
+		msg.msg_namelen = addrlen;
+		msg.msg_iov = &iov;
+		msg.msg_iovlen = 1;
+
+		if (batch_size <= UDP_MMSG_STACK_SIZE) {
+			mmsgs = stack_mmsgs;
+		} else {
+			mmsgs = calloc(batch_size, sizeof(*mmsgs));
+			if (mmsgs == NULL) {
+				uperf_log_msg(UPERF_LOG_WARN, errno,
+					"Cannot allocate mmsghdr array");
+				return (-1);
+			}
+		}
+
+		for (j = 0; j < batch_size; j++) {
+			memset(&mmsgs[j], 0, sizeof(mmsgs[j]));
+			mmsgs[j].msg_hdr = msg;
+		}
+
+		for (i = 0; i < repeat; i++) {
+			remaining = batch_size;
+
+			while (remaining > 0) {
+				msgs_sent = sendmmsg(pd->sock,
+					&mmsgs[batch_size - remaining],
+					remaining, 0);
+
+				if (msgs_sent < 0) {
+					if (mmsgs != stack_mmsgs)
+						free(mmsgs);
+					uperf_log_msg(UPERF_LOG_WARN, errno,
+						"Cannot sendmmsg ");
+					return (-1);
+				}
+
+				remaining -= msgs_sent;
+			}
+
+			total += n * (int)batch_size;
+		}
+
+		if (mmsgs != stack_mmsgs)
+			free(mmsgs);
+#else
+		uperf_log_msg(UPERF_LOG_WARN, errno,
+			"sendmmsg not supported ");
+
+		return (-1);
+#endif
 	}
 
 	return (total);
