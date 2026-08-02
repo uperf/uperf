@@ -341,6 +341,6 @@ protocol_vsock_create(char *host, int port)
 		strlcpy(newp->host, host, MAXHOSTNAME);
 	}
 	newp->port = port;
-	uperf_debug("vsock - Creating VSOCK Protocol to %s:%d\n", host, port);
+	uperf_debug("vsock - Creating VSOCK Protocol to %s:%d\n", newp->host, port);
 	return (newp);
 }

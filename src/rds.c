@@ -390,7 +390,7 @@ protocol_rds_create(char *host, int port)
 	newp->type = PROTOCOL_RDS;
 	newp->_protocol_p = new_rds_p;
 	new_rds_p->refcount = 0;
-	uperf_debug("rds - Creating RDS Protocol to %s:%d\n", host, port);
+	uperf_debug("rds - Creating RDS Protocol to %s:%d\n", newp->host, port);
 	return (newp);
 }
 

@@ -629,6 +629,6 @@ protocol_sctp_create(char *host, int port)
 		(void) strlcpy(newp->host, host, MAXHOSTNAME);
 	}
 	newp->port = port;
-	uperf_debug("sctp - Creating SCTP Protocol to %s:%d\n", host, port);
+	uperf_debug("sctp - Creating SCTP Protocol to %s:%d\n", newp->host, port);
 	return (newp);
 }
