@@ -154,44 +154,56 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 	udp_private_data *pd = (udp_private_data *) p->_protocol_p;
 	int ret;
 	int nleft;
+	int total = 0;
 	int timeout = 0;
+	uint64_t i;
+	uint64_t repeat = 1;
 	flowop_options_t *fo = (flowop_options_t *)options;
 
 	if (fo != NULL) {
 		timeout = (int) fo->poll_timeout/1.0e+6;
+		repeat = fo->repeat;
 	}
 	/* HACK: Force timeout for UDP */
 	/* if (timeout == 0) */
 		/* timeout = UDP_TIMEOUT; */
 
-	nleft = n;
-	if (fo && FO_NONBLOCKING(fo)) {
-		/*
-		 * First try to read, if EWOULDBLOCK, then
-		 * poll for fo->timeout seconds
-		 */
-		ret = read_one(pd->sock, buffer, n, &pd->addr_info);
-		/* Lets fallback to poll/read */
-		if ((ret <= 0) && (errno != EWOULDBLOCK)) {
-			uperf_log_msg(UPERF_LOG_ERROR, errno,
-			    "non-block write");
-			return (ret);
+	for (i = 0; i < repeat; i++) {
+		nleft = n;
+		if (fo && FO_NONBLOCKING(fo)) {
+			/*
+			 * First try to read, if EWOULDBLOCK, then
+			 * poll for fo->timeout seconds
+			 */
+			ret = read_one(pd->sock, buffer, n, &pd->addr_info);
+			/* Lets fallback to poll/read */
+			if ((ret <= 0) && (errno != EWOULDBLOCK)) {
+				uperf_log_msg(UPERF_LOG_ERROR, errno,
+				    "non-block write");
+				return (ret);
+			}
+			nleft = n - ret;
+			if (ret > 0)
+				total += ret;
 		}
-		nleft = n - ret;
+		if ((nleft > 0) && (timeout > 0)) {
+			ret = generic_poll(pd->sock, timeout, POLLIN);
+			if (ret <= 0)
+				return (-1); /* ret == 0 means timeout (error); */
+			ret = read_one(pd->sock, buffer, nleft, &pd->addr_info);
+			if (ret < 0)
+				return (ret);
+			total += ret;
+		} else if ((nleft > 0) && (timeout <= 0)) {
+			/* Vanilla read */
+			ret = read_one(pd->sock, buffer, nleft, &pd->addr_info);
+			if (ret < 0)
+				return (ret);
+			total += ret;
+		}
 	}
-	if ((nleft > 0) && (timeout > 0)) {
-		ret = generic_poll(pd->sock, timeout, POLLIN);
-		if (ret > 0)
-			return (read_one(pd->sock, buffer, nleft, &pd->addr_info));
-		else
-			return (-1); /* ret == 0 means timeout (error); */
-	} else if ((nleft > 0) && (timeout <= 0)) {
-		/* Vanilla read */
-		return (read_one(pd->sock, buffer, nleft, &pd->addr_info));
-	}
-	assert(0); /* Not reached */
 
-	return (UPERF_FAILURE);
+	return (total);
 }
 
 /*
@@ -204,46 +216,57 @@ protocol_udp_write(protocol_t *p, void *buffer, int n, void *options)
 	udp_private_data *pd = (udp_private_data *) p->_protocol_p;
 	int ret;
 	size_t nleft;
+	int total = 0;
 	int timeout = 0;
+	uint64_t i;
+	uint64_t repeat = 1;
 	flowop_options_t *fo = (flowop_options_t *)options;
 
 	if (fo != NULL) {
 		timeout = (int) fo->poll_timeout/1.0e+6;
+		repeat = fo->repeat;
 	}
 
-	nleft = n;
+	for (i = 0; i < repeat; i++) {
+		nleft = n;
 
-	if (fo && FO_NONBLOCKING(fo)) {
-		/*
-		 * First try to write, if EWOULDBLOCK, then
-		 * poll for fo->timeout seconds
-		 */
-		ret = write_one(pd->sock, buffer, n,
+		if (fo && FO_NONBLOCKING(fo)) {
+			/*
+			 * First try to write, if EWOULDBLOCK, then
+			 * poll for fo->timeout seconds
+			 */
+			ret = write_one(pd->sock, buffer, n,
+					(struct sockaddr *)&pd->addr_info);
+			if ((ret <= 0) && (errno != EWOULDBLOCK)) {
+				uperf_log_msg(UPERF_LOG_ERROR, errno,
+				    "non-block write");
+				return (-1);
+			} else if (ret > 0) {
+				nleft = n - ret;
+				total += ret;
+			}
+		}
+
+		if ((nleft > 0) && (timeout > 0)) {
+			ret = generic_poll(pd->sock, timeout, POLLOUT);
+			if (ret <= 0)
+				return (-1);
+			ret = write_one(pd->sock, buffer, nleft,
+					(struct sockaddr *)&pd->addr_info);
+			if (ret < 0)
+				return (ret);
+			total += ret;
+		} else if ((nleft > 0) && (timeout <= 0)) {
+			/* Vanilla write */
+			ret = write_one(pd->sock, buffer, nleft,
 				(struct sockaddr *)&pd->addr_info);
-		if ((ret <= 0) && (errno != EWOULDBLOCK)) {
-			uperf_log_msg(UPERF_LOG_ERROR, errno,
-			    "non-block write");
-			return (-1);
-		} else if (ret > 0) {
-			nleft = n - ret;
+			if (ret < 0)
+				return (ret);
+			total += ret;
 		}
 	}
 
-	if ((nleft > 0) && (timeout > 0)) {
-		ret = generic_poll(pd->sock, timeout, POLLOUT);
-		if (ret > 0)
-			return (write_one(pd->sock, buffer, nleft,
-					(struct sockaddr *)&pd->addr_info));
-		else
-			return (-1);
-	} else if ((nleft > 0) && (timeout <= 0)) {
-		/* Vanilla write */
-		return (write_one(pd->sock, buffer, nleft,
-				(struct sockaddr *)&pd->addr_info));
-	}
-	assert(0);
-
-	return (UPERF_FAILURE);
+	return (total);
 }
 
 /*
