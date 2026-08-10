@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<profile name="test_sctp_batch_size_repeat_options">
+  <group nthreads="1">
+    <transaction iterations="1">
+      <flowop type="connect"
+              options="remotehost=$h protocol=sctp"/>
+    </transaction>
+    <transaction iterations="1">
+      <flowop type="write"
+              options="size=128 count=1 repeat=4 batch_size=1"/>
+      <flowop type="read"
+              options="size=128 count=1 repeat=4 batch_size=1"/>
+    </transaction>
+    <transaction iterations="1">
+      <flowop type="write"
+              options="size=128 count=1 repeat=1 batch_size=4"/>
+      <flowop type="read"
+              options="size=128 count=1 repeat=1 batch_size=4"/>
+    </transaction>
+    <transaction iterations="1">
+      <flowop type="write"
+              options="size=128 count=1 repeat=4 batch_size=4"/>
+      <flowop type="read"
+              options="size=128 count=1 repeat=4 batch_size=4"/>
+    </transaction>
+    <transaction iterations="1">
+      <flowop type="write"
+              options="size=32 count=1 repeat=1 batch_size=32"/>
+      <flowop type="read"
+              options="size=32 count=1 repeat=1 batch_size=32"/>
+    </transaction>
+    <transaction iterations="1">
+      <flowop type="disconnect"/>
+    </transaction>
+  </group>
+</profile>
