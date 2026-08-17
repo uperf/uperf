@@ -17,7 +17,7 @@ endif
 
 if SCTP_C
 TESTS += 01simple_sctp.xml 3proto.xml accept-sctp.xml multi_proto_connect.xml \
-	throughput_sctp.xml 02_2proto1group.xml a.xml
+	throughput_sctp.xml 02_2proto1group.xml a.xml test_sctp_batch_size_repeat_options.xml
 endif
 
 if SSL_C
