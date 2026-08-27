@@ -6,7 +6,7 @@
 	    wndsz=50k  tcp_nodelay"/>
         </transaction>
         <transaction iterations="1">
-            <flowop type="sendfile" options="dir=. nfiles=10"/>
+            <flowop type="sendfile" options="dir=."/>
         </transaction>
         <transaction iterations="1">
             <flowop type="disconnect" />

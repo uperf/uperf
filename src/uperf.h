@@ -115,6 +115,8 @@ typedef enum {
 #define	UPERF_STRAND_BARRIER_BEGIN	6
 #define	UPERF_STRAND_BARRIER_END	7
 
+#define	UPERF_SLAVE_READ_SIZE	64*1024
+
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif /* HAVE_STDINT_H */
