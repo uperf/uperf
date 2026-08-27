@@ -33,8 +33,6 @@
 #define	UPERF_TXN_MASTER	"Txn End"
 #define	UPERF_TXN_SLAVE		"OK"
 
-#define	UPERF_SLAVE_READ_SIZE	64*1024
-
 int
 workorder_num_strands(workorder_t *w)
 {

@@ -71,6 +71,12 @@ add_file(const char *name, const struct stat *s, int flag)
 	file_list_t *fl;
 	if ((flag != FTW_F) || (!S_ISREG(s->st_mode)))
 		return (0);
+	/*
+	 * Receiving side of sendfile reads at most UPERF_SLAVE_READ_SIZE bytes
+	 * -> ignore files larger than this
+	 */
+	if (s->st_size > UPERF_SLAVE_READ_SIZE)
+		return (0);
 	if ((fd = open(name, O_RDONLY)) < 0)
 		return (0);
 	/* printf("found %s\n", name); */
