@@ -71,7 +71,7 @@ static void
 uperf_usage(char *prog)
 {
 	(void) printf("Uperf Version %s\n", UPERF_VERSION);
-	(void) printf("Usage:   %s [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:RS:]\n",
+	(void) printf("Usage:   %s [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:RS:Q:C:]\n",
 	    prog);
 	(void) printf("\t %s [-s] [-hvV]\n\n", prog);
 	(void) printf(

@@ -167,6 +167,9 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 			return (UPERF_SUCCESS);
 		}
 
+		uperf_info("Handle zerocopy receive on queue with index %i on cpu %i\n",
+			options.zc_queue_index, options.zc_cpu);
+
 		page_size = sysconf(_SC_PAGESIZE);
 		if (page_size < 0)
 			return -1;
@@ -216,7 +219,12 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 
 		ret = io_uring_register_ifq(&pd->ring, &reg);
 		if (ret) {
-			ulog(UPERF_LOG_ERROR, -ret, "io_uring_register_ifq()");
+			ulog(UPERF_LOG_ERROR, -ret,
+				"io_uring_register_ifq() failed in an attempt to "
+				"register zerocopy receive on ifindex %d queue %d "
+				"with area size %d ring size %d and %d entries\n",
+				options.zc_ifindex, options.zc_queue_index,
+				AREA_SIZE(page_size), ring_size, rq_entries);
 			errno = -ret;
 			return -1;
 		}
@@ -409,8 +417,6 @@ static int protocol_tcp_zc_recv(protocol_t *p, void *buffer, int size,
 	struct io_uring_zcrx_rqe *rqe;
 	struct io_uring_cqe *cqe;
 	size_t received = 0;
-	uint64_t mask;
-	char *data;
 
 	if (!pd->zc_rx)
 		return generic_recv(p, buffer, size, options);
@@ -434,10 +440,10 @@ static int protocol_tcp_zc_recv(protocol_t *p, void *buffer, int size,
 
 		if (cqe->res < 0)
 			ulog(UPERF_LOG_WARN, cqe->res, "recvzc(): %d", cqe->res);
+		else
+			received += cqe->res;
 
 		rcqe = (struct io_uring_zcrx_cqe *)(cqe + 1);
-
-		received += cqe->res;
 
 		/* processed, return back to the kernel */
 		rqe = &pd->rq_ring.rqes[pd->rq_ring.rq_tail & rq_mask];
