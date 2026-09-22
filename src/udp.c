@@ -52,7 +52,9 @@
 
 #define	UDP_TIMEOUT	5000
 #define	UDP_HANDSHAKE	"uperf udp handshake"
+#if defined(HAVE_RECVMMSG) || defined(HAVE_SENDMMSG)
 #define	UDP_MMSG_STACK_SIZE	16
+#endif
 
 typedef struct {
 	int		sock;	/* for doing the communication */
@@ -163,9 +165,11 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 	uint64_t batch_size = 1;
 	size_t remaining, offset;
 	flowop_options_t *fo = (flowop_options_t *)options;
+#ifdef HAVE_RECVMMSG
 	struct mmsghdr stack_mmsgs[UDP_MMSG_STACK_SIZE];
 	struct iovec stack_iovs[UDP_MMSG_STACK_SIZE];
 	struct mmsghdr *mmsgs = NULL;
+#endif
 	struct iovec *iovs = NULL;
 	struct sockaddr_storage from;
 	char *recvbuf = NULL;
@@ -343,8 +347,10 @@ protocol_udp_write(protocol_t *p, void *buffer, int n, void *options)
 	flowop_options_t *fo = (flowop_options_t *)options;
 	struct msghdr msg;
 	struct iovec iov;
+#ifdef HAVE_SENDMMSG
 	struct mmsghdr stack_mmsgs[UDP_MMSG_STACK_SIZE];
 	struct mmsghdr *mmsgs = NULL;
+#endif
 	struct sockaddr *to = (struct sockaddr *)&pd->addr_info;
 	socklen_t addrlen;
 
