@@ -78,7 +78,7 @@ int
 setup_strand_signal()
 {
 	struct sigaction act;
-	static sigset_t sigmask;
+	sigset_t sigmask;
 
 	/* Block everything except for SIGUSR2 */
 	(void) sigfillset(&sigmask);
@@ -108,7 +108,7 @@ int
 master_setup_signal_handler()
 {
 	struct sigaction act;
-	static sigset_t sigmask;
+	sigset_t sigmask;
 
 	/* Unblock everything except for SIGUSR1 */
 	(void) sigemptyset(&sigmask);
