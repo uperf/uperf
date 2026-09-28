@@ -343,7 +343,7 @@ protocol_udp_write(protocol_t *p, void *buffer, int n, void *options)
 	uint64_t repeat = 1;
 	uint64_t batch_size = 1;
 	uint64_t remaining;
-	uint64_t msgs_sent;
+	ssize_t msgs_sent;
 	flowop_options_t *fo = (flowop_options_t *)options;
 	struct msghdr msg;
 	struct iovec iov;
