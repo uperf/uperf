@@ -415,7 +415,7 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 {
 	ssize_t len;
 	ssize_t total = 0;
-	ssize_t msgs_recieved;
+	ssize_t msgs_received;
 	uint64_t i, j;
 	uint64_t repeat = 1;
 	uint64_t batch_size = 1;
@@ -537,10 +537,10 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 					CMSG_SPACE(sizeof(struct sctp_rcvinfo));
 			}
 
-			msgs_recieved = recvmmsg(p->fd, mmsgs, batch_size,
+			msgs_received = recvmmsg(p->fd, mmsgs, batch_size,
 				0, NULL);
 
-			if (msgs_recieved < 0) {
+			if (msgs_received < 0) {
 				free(recvbuf);
 
 				if (mmsgs != stack_mmsgs) {
@@ -555,7 +555,7 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 				return (-1);
 			}
 
-			for (j = 0; j < msgs_recieved; j++) {
+			for (j = 0; j < msgs_received; j++) {
 				total += mmsgs[j].msg_len;
 			}
 		}
