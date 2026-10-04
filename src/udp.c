@@ -283,8 +283,7 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 				for (j = offset; j < batch_size; j++)
 					mmsgs[j].msg_hdr.msg_namelen = sizeof(from);
 
-				msgs_received = recvmmsg(pd->sock, mmsgs + offset * sizeof(struct mmsghdr), batch_size,
-				0, NULL);
+				msgs_received = recvmmsg(pd->sock, &mmsgs[offset], remaining, 0, NULL);
 
 				if (msgs_received < 0) {
 					if (errno == EINTR)
@@ -306,7 +305,7 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 				remaining -= msgs_received;
 			}
 
-			for (j = 0; j < msgs_received; j++)
+			for (j = 0; j < batch_size; j++)
 				total += mmsgs[j].msg_len;
 		}
 
