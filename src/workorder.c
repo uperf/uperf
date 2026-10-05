@@ -137,8 +137,8 @@ group_max_dto_size(group_t *g)
 
 	for (t = g->tlist; t; t = t->next) {
 		for (f = t->flist; f; f = f->next) {
-			if (f->options.size > count)
-				count = f->options.size;
+			if (f->options.size * f->options.batch_size > count)
+				count = f->options.size * f->options.batch_size;
 		}
 	}
 

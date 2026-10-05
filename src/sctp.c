@@ -429,7 +429,6 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 	char stack_cbufs[SCTP_MMSG_STACK_SIZE]
 			[CMSG_SPACE(sizeof(struct sctp_rcvinfo))];
 	char (*cbufs)[CMSG_SPACE(sizeof(struct sctp_rcvinfo))] = NULL;
-	char *recvbuf = NULL;
 	int timeout = 0;
 
 	if (options) {
@@ -488,23 +487,10 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 			}
 		}
 
-		recvbuf = malloc(batch_size * size);
-		if (recvbuf == NULL) {
-			if (mmsgs != stack_mmsgs) {
-				free(mmsgs);
-				free(iovs);
-				free(cbufs);
-			}
-
-			uperf_log_msg(UPERF_LOG_WARN, errno,
-			    "Cannot allocate receive buffer");
-			return (-1);
-		}
-
 		for (i = 0; i < batch_size; i++) {
 			memset(&mmsgs[i], 0, sizeof(mmsgs[i]));
 
-			iovs[i].iov_base = recvbuf + ((size_t)i * size);
+			iovs[i].iov_base = (char *)buffer + ((size_t)i * size);
 			iovs[i].iov_len = size;
 
 			mmsgs[i].msg_hdr.msg_iov = &iovs[i];
@@ -517,8 +503,6 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 		for (i = 0; i < repeat; i++) {
 			if (timeout > 0) {
 				if (generic_poll(p->fd, timeout, POLLIN) <= 0) {
-					free(recvbuf);
-
 					if (mmsgs != stack_mmsgs) {
 						free(mmsgs);
 						free(iovs);
@@ -541,8 +525,6 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 				0, NULL);
 
 			if (msgs_received < 0) {
-				free(recvbuf);
-
 				if (mmsgs != stack_mmsgs) {
 					free(mmsgs);
 					free(iovs);
@@ -559,8 +541,6 @@ protocol_sctp_read(protocol_t *p, void *buffer, int size, void *options)
 				total += mmsgs[j].msg_len;
 			}
 		}
-
-		free(recvbuf);
 
 		if (mmsgs != stack_mmsgs) {
 			free(mmsgs);
