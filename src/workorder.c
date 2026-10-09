@@ -128,17 +128,21 @@ workorder_num_connections(workorder_t *w)
 
 	return (count);
 }
-int
+size_t
 group_max_dto_size(group_t *g)
 {
-	int count = DEFAULT_BUFFER_SIZE;
+	size_t count = DEFAULT_BUFFER_SIZE;
 	txn_t *t;
 	flowop_t *f;
 
 	for (t = g->tlist; t; t = t->next) {
 		for (f = t->flist; f; f = f->next) {
-			if (f->options.size > count)
-				count = f->options.size;
+			size_t size = FO_RANDOM_SIZE(&f->options) ?
+			    f->options.rand_sz_max : f->options.size;
+
+			size *= f->options.batch_size;
+			if (size > count)
+				count = size;
 		}
 	}
 

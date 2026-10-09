@@ -172,7 +172,6 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 #endif
 	struct iovec *iovs = NULL;
 	struct sockaddr_storage from;
-	char *recvbuf = NULL;
 
 	if (fo != NULL) {
 		timeout = (int) fo->poll_timeout/1.0e+6;
@@ -236,21 +235,10 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 			}
 		}
 
-		recvbuf = malloc((size_t)batch_size * n);
-		if (recvbuf == NULL) {
-			if (mmsgs != stack_mmsgs) {
-				free(mmsgs);
-				free(iovs);
-			}
-			uperf_log_msg(UPERF_LOG_WARN, errno,
-				"Cannot allocate receive buffer");
-			return (-1);
-		}
-
 		for (i = 0; i < batch_size; i++) {
 			memset(&mmsgs[i], 0, sizeof(mmsgs[i]));
 
-			iovs[i].iov_base = recvbuf + ((size_t)i * n);
+			iovs[i].iov_base = (char *)buffer + ((size_t)i * n);
 			iovs[i].iov_len = n;
 
 			mmsgs[i].msg_hdr.msg_iov = &iovs[i];
@@ -263,7 +251,6 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 		for (i = 0; i < repeat; i++) {
 			if (timeout > 0) {
 				if (generic_poll(pd->sock, timeout, POLLIN) <= 0) {
-					free(recvbuf);
 					if (mmsgs != stack_mmsgs) {
 						free(mmsgs);
 						free(iovs);
@@ -289,8 +276,6 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 					if (errno == EINTR)
 						continue;
 
-					free(recvbuf);
-
 					if (mmsgs != stack_mmsgs) {
 						free(mmsgs);
 						free(iovs);
@@ -308,8 +293,6 @@ protocol_udp_read(protocol_t *p, void *buffer, int n, void *options)
 			for (j = 0; j < batch_size; j++)
 				total += mmsgs[j].msg_len;
 		}
-
-		free(recvbuf);
 
 		if (mmsgs != stack_mmsgs) {
 			free(mmsgs);
