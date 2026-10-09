@@ -137,6 +137,7 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 	void *area_ptr;
 	void *ring_ptr;
 	int ret;
+	int idx = flowop_options->tidx;
 
 	ret = io_uring_queue_init(512, &pd->ring, ring_flags);
 	if (ret) {
@@ -148,8 +149,8 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 	if (ret < 0)
 		uperf_log_msg(UPERF_LOG_ERROR, -ret, "register ring");
 
-	set_cpu_affinity(options.zc_cpu);
-	set_iowq_affinity(&pd->ring, options.zc_cpu);
+	set_cpu_affinity(options.zc_cpu[idx]);
+	set_iowq_affinity(&pd->ring, options.zc_cpu[idx]);
 
 	pd->zc_tx = !FO_ZC_SKIP_TX(flowop_options);
 	pd->zc_rx = !FO_ZC_SKIP_RX(flowop_options);
@@ -161,14 +162,14 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 	if (pd->zc_rx) {
 		struct io_uring_sqe *sqe;
 
-		if (!options.zc_ifindex || options.zc_queue_index < 0) {
+		if (!options.zc_ifindex || options.zc_queue_index[idx] < 0) {
 			pd->zc_rx = false;
 			ulog(UPERF_LOG_WARN, 0, "ZC ifindex and queue index not specified, skipping ZC RX");
 			return (UPERF_SUCCESS);
 		}
 
-		uperf_info("Handle zerocopy receive on queue with index %i on cpu %i\n",
-			options.zc_queue_index, options.zc_cpu);
+		uperf_info("Port %i: Handle zerocopy receive on queue with index %i on cpu %i\n",
+			p->port, options.zc_queue_index[idx], options.zc_cpu[idx]);
 
 		page_size = sysconf(_SC_PAGESIZE);
 		if (page_size < 0)
@@ -211,7 +212,7 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 
 		struct io_uring_zcrx_ifq_reg reg = {
 			.if_idx = options.zc_ifindex,
-			.if_rxq = options.zc_queue_index,
+			.if_rxq = options.zc_queue_index[idx],
 			.rq_entries = rq_entries,
 			.area_ptr = (__u64)(unsigned long)&area_reg,
 			.region_ptr = (__u64)(unsigned long)&region_reg,
@@ -220,18 +221,18 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 		ret = io_uring_register_ifq(&pd->ring, &reg);
 		if (ret) {
 			ulog(UPERF_LOG_ERROR, -ret,
-				"io_uring_register_ifq() failed in an attempt to "
+				"Port %i: io_uring_register_ifq() failed in an attempt to "
 				"register zerocopy receive on ifindex %d queue %d "
 				"with area size %d ring size %d and %d entries\n",
-				options.zc_ifindex, options.zc_queue_index,
+				p->port, options.zc_ifindex, options.zc_queue_index[idx],
 				AREA_SIZE(page_size), ring_size, rq_entries);
 			errno = -ret;
 			return -1;
 		}
 
-		uperf_info("Registered zerocopy receive on ifindex %d queue %d "
+		uperf_info("Port %i: Registered zerocopy receive on ifindex %d queue %d "
 			   "with area size %d ring size %d and %d entries\n",
-			   options.zc_ifindex, options.zc_queue_index,
+			   p->port, options.zc_ifindex, options.zc_queue_index[idx],
 			   AREA_SIZE(page_size),
 			   ring_size, rq_entries);
 
@@ -260,6 +261,12 @@ protocol_tcp_zc_listen(protocol_t *p, void *options)
 	flowop_options_t *flowop_options = (flowop_options_t *)options;
 	char msg[128];
 
+	if (flowop_options != NULL) {
+		uperf_debug("tcp_zc: Listening on %s:%d, thread index: %d\n", p->host, p->port, flowop_options->tidx);
+	} else {
+		uperf_debug("tcp_zc: Listening on %s:%d\n", p->host, p->port);
+	}
+
 	/* SO_RCVBUF must be set before bind */
 
 	if (generic_socket(p, AF_INET6, IPPROTO_TCP) != UPERF_SUCCESS) {
@@ -281,7 +288,11 @@ protocol_tcp_zc_connect(protocol_t *p, void *options)
 	flowop_options_t *flowop_options = (flowop_options_t *)options;
 	char msg[128];
 
-	uperf_debug("tcp_zc: Connecting to %s:%d\n", p->host, p->port);
+	if (flowop_options != NULL) {
+		uperf_debug("tcp_zc: Connecting to %s:%d, thread index: %d\n", p->host, p->port, flowop_options->tidx);
+	} else {
+		uperf_debug("tcp_zc: Connecting to %s:%d\n", p->host, p->port);
+	}
 
 	if (name_to_addr(p->host, &serv)) {
 		/* Error is already reported by name_to_addr, so just return */

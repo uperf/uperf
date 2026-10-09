@@ -316,6 +316,7 @@ group_bitswap(group_t *grp)
 			fo->sctp_stream_id = BSWAP_16(fo->sctp_stream_id);
 			fo->sctp_padding = BSWAP_16(fo->sctp_padding);
 			fo->sctp_pr_value = BSWAP_32(fo->sctp_pr_value);
+			fo->tidx = BSWAP_32(fo->tidx);
 		}
 	}
 

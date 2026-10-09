@@ -58,6 +58,8 @@
 #define	IS_MASTER(a)		((a).run_choice & UPERF_MASTER)
 #define	IS_SLAVE(a)		((a).run_choice & UPERF_SLAVE)
 
+#define	MAX_ZC_QUEUES	32
+
 /* options structure - has basic program options */
 typedef struct options {
 	int	master_port;
@@ -73,8 +75,8 @@ typedef struct options {
 	uint64_t interval;	/* collect stats every interval msecs */
 	proto_type_t control_proto;
 	int zc_ifindex;
-	int zc_queue_index;
-	int zc_cpu;
+	int zc_queue_index[MAX_ZC_QUEUES];
+	int zc_cpu[MAX_ZC_QUEUES];
 	unsigned int has_main_thread, main_thread;	/* cpu main thread */
 	unsigned int has_worker_thread, worker_thread;	/* cpu worker thread */	
 }options_t;

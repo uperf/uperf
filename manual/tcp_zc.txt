@@ -28,21 +28,24 @@ needs to be steered to *not* be received at the zero-copy queue.
 
 An example setup could be something like:
 
-Ensure there are at least two queues::
+Ensure there are at least 8 queues::
 
-  ethtool -L eth0 combined 2
+  ethtool -L eth0 combined 8
 
 Enable header/data split::
 
   ethtool -G eth0 tcp-data-split on
 
-Carve out half of the HW Rx queues for zero copy using RSS::
+Carve out all but the first HW Rx queue for zero copy using RSS::
 
   ethtool -X eth0 equal 1
 
 Set up flow steering, bearing in mind that queues are 0-indexed::
 
-  ethtool -N eth0 flow-type tcp4 action 1
+  ethtool -N eth0 flow-type tcp4 dst-port 5000 action 1
+  ethtool -N eth0 flow-type tcp4 dst-port 5001 action 2
+  ethtool -N eth0 flow-type tcp4 dst-port 5002 action 3
+  ethtool -N eth0 flow-type tcp4 dst-port 5003 action 4
 
 Add an additional rule to steer the uperf control traffic to queue 0:
 
