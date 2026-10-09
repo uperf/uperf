@@ -20,6 +20,7 @@
 
 #define	NAMELEN	128
 
+#include <stddef.h>
 #include "uperf.h"
 #include "flowops.h"
 #include "protocol.h"
@@ -156,7 +157,7 @@ int workorder_num_stats(workorder_t *);
 int workorder_num_strands_bytype(workorder_t *, uint32_t);
 int group_max_open_connections(group_t *);
 int workorder_num_connections(workorder_t *);
-int group_max_dto_size(group_t *);
+size_t group_max_dto_size(group_t *);
 void group_free(group_t *);
 group_t* group_clone(group_t *);
 int group_opposite(group_t *);

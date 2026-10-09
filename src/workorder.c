@@ -128,10 +128,10 @@ workorder_num_connections(workorder_t *w)
 
 	return (count);
 }
-int
+size_t
 group_max_dto_size(group_t *g)
 {
-	int count = DEFAULT_BUFFER_SIZE;
+	size_t count = DEFAULT_BUFFER_SIZE;
 	txn_t *t;
 	flowop_t *f;
 
