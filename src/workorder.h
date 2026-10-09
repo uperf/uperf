@@ -35,6 +35,7 @@
 #define	O_SCTP_NODELAY		(1 << 8)
 #define	O_ZC_SKIP_TX		(1 << 9)
 #define	O_ZC_SKIP_RX		(1 << 10)
+#define	O_PORT_PER_THREAD	(1 << 11)
 
 #define	FO_TCP_NODELAY(fo)	((fo)->flag & O_TCP_NODELAY)
 #define	FO_CANFAIL(fo)		((fo)->flag & O_CANFAIL)
@@ -46,6 +47,7 @@
 #define	FO_SCTP_NODELAY(fo)	((fo)->flag & O_SCTP_NODELAY)
 #define	FO_ZC_SKIP_TX(fo)	((fo)->flag & O_ZC_SKIP_TX)
 #define	FO_ZC_SKIP_RX(fo)	((fo)->flag & O_ZC_SKIP_RX)
+#define	FO_PORT_PER_THREAD(fo)	((fo)->flag & O_PORT_PER_THREAD)
 
 #define	CLEAR_FO_NONBLOCKING(f)	((f->flag &= ~O_NONBLOCKING))
 
