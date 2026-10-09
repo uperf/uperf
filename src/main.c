@@ -174,13 +174,25 @@ static int parse_int_list(const char *str, int *out, size_t capacity)
     const char *p = str;
     size_t n = 0;
 
+    if (!str || !out || capacity == 0) {
+        uperf_error("Invalid arguments to parse_int_list\n");
+        return -1;
+    }
+
     while (*p) {
         errno = 0;
         char *end;
         long value = strtol(p, &end, 10);
 
-        if (p == end || errno || value < 0)
+        /* Check for conversion errors */
+        if (p == end) {
+            uperf_error("Invalid integer in list at position %zu: '%s'\n", n, p);
             return -1;
+        }
+        if (errno == ERANGE || value < 0 || value > INT_MAX) {
+            uperf_error("Integer out of range in list: %ld\n", value);
+            return -1;
+        }
 
         if (n >= capacity)
             return -2;

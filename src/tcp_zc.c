@@ -139,6 +139,15 @@ static int init_ring(protocol_t *p, flowop_options_t *flowop_options)
 	int ret;
 	int idx = flowop_options->tidx;
 
+	/* Validate thread index bounds */
+	if (idx < 0 || idx >= MAX_ZC_QUEUES) {
+		ulog(UPERF_LOG_ERROR, 0,
+		    "Thread index %d out of bounds (max: %d)",
+		    idx, MAX_ZC_QUEUES - 1);
+		errno = EINVAL;
+		return -1;
+	}
+
 	ret = io_uring_queue_init(512, &pd->ring, ring_flags);
 	if (ret) {
 		uperf_log_msg(UPERF_LOG_ERROR, -ret, "io_uring init");
