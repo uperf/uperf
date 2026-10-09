@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <strings.h>
 #include <string.h>
+#include <net/if.h>
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -59,6 +60,12 @@ _syscall0(pid_t, gettid)
 #include <hardware_legacy/power.h>
 #endif /* UPERF_ANDROID */
 
+struct cpu_pool global_cpu_pool = {
+    .count = 0,
+    .next_index = 0,
+    .lock = PTHREAD_MUTEX_INITIALIZER
+};
+
 options_t options;
 static options_t *init_options(int argc, char **argv);
 extern workorder_t *parse_app_profile(char *app_profile_name);
@@ -70,7 +77,7 @@ static void
 uperf_usage(char *prog)
 {
 	(void) printf("Uperf Version %s\n", UPERF_VERSION);
-	(void) printf("Usage:   %s [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:RS:]\n",
+	(void) printf("Usage:   %s [-m profile] [-hvV] [-ngtTfkpaeE:X:i:P:RS:Q:C:M:W:]\n",
 	    prog);
 	(void) printf("\t %s [-s] [-hvV]\n\n", prog);
 	(void) printf(
@@ -87,10 +94,15 @@ uperf_usage(char *prog)
 	"\t-e\t\t Collect default CPU counters for flowops [-f assumed]\n"
 	"\t-E <ev1,ev2>\t Collect CPU counters for flowops [-f assumed]\n"
 	"\t-a\t\t Collect all statistics\n"
+	"\t-W <Worker-threads-cpus>\t Set Worker threads cpu affinity\n"
+	"\t-M <Main-thread-cpu>\t Set Main thread cpu affinity\n"
 	"\t-X <file>\t Collect response times\n"
 	"\t-i <interval>\t Collect throughput every <interval>\n"
 	"\t-P <port>\t Set the master port (defaults to 20000)\n"
 	"\t-R\t\t Emit raw (not transformed), time-stamped (ms) statistics\n"
+	"\t-I\t\t Interface to bind ZC receive to\n"
+	"\t-Q\t\t Queue index used for ZC receive\n"
+	"\t-C\t\t CPU to pin ZC send/receive to\n"
 	"\t-v\t\t Verbose\n"
 	"\t-V\t\t Version\n"
 	"\t-h\t\t Print usage\n"
@@ -141,11 +153,101 @@ uperf_version()
 	(void) printf("\nReport bugs to %s\n", UPERF_EMAIL_ALIAS);
 }
 
+int is_cpu_allowed(int cpu_id) {
+    cpu_set_t set;
+    CPU_ZERO(&set);
+
+    /* Gets affinity mask from the calling process (pid 0) */
+    if (sched_getaffinity(0, sizeof(set), &set) == -1) {
+        perror("sched_getaffinity failed");
+        return -1;
+    }
+
+    if (CPU_ISSET(cpu_id, &set)) {
+        return 1;
+    }
+    return 0;
+}
+
+static int parse_int_list(const char *str, int *out, size_t capacity)
+{
+    const char *p = str;
+    size_t n = 0;
+
+    if (!str || !out || capacity == 0) {
+        uperf_error("Invalid arguments to parse_int_list\n");
+        return -1;
+    }
+
+    while (*p) {
+        errno = 0;
+        char *end;
+        long value = strtol(p, &end, 10);
+
+        /* Check for conversion errors */
+        if (p == end) {
+            uperf_error("Invalid integer in list at position %zu: '%s'\n", n, p);
+            return -1;
+        }
+        if (errno == ERANGE || value < 0 || value > INT_MAX) {
+            uperf_error("Integer out of range in list: %ld\n", value);
+            return -1;
+        }
+
+        if (n >= capacity)
+            return -2;
+
+        out[n++] = (int)value;
+        p = end;
+
+        if (*p == ',') {
+            p++;
+        } else if (*p != '\0') {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+void parse_cpu_config(const char *arg) {
+    char *input_copy = strdup(arg);
+    char *token = strtok(input_copy, ",");
+
+    pthread_mutex_lock(&global_cpu_pool.lock);
+
+    while (token != NULL) {
+        int start, end;
+        if (sscanf(token, "%d-%d", &start, &end) == 2) {
+            /* It's a range */
+            for (int i = start; i <= end && global_cpu_pool.count < MAX_CPUS; i++) {
+                global_cpu_pool.cpus[global_cpu_pool.count++] = i;
+            }
+        } else {
+            /* It's a single CPU */
+            if (global_cpu_pool.count < MAX_CPUS) {
+                global_cpu_pool.cpus[global_cpu_pool.count++] = atoi(token);
+            }
+        }
+        token = strtok(NULL, ",");
+    }
+
+    for (int i = 0; i < global_cpu_pool.count; i++) {
+        if (!is_cpu_allowed(global_cpu_pool.cpus[i])) {
+            uperf_warn("CPU %d is not allowed or offline\n",
+                       global_cpu_pool.cpus[i]);
+        }
+    }
+
+    pthread_mutex_unlock(&global_cpu_pool.lock);
+    free(input_copy);
+}
+
 static options_t *
 init_options(int argc, char **argv)
 {
 	int oserver, oclient, ofile;
-	int ch;
+	int ch, i;
 
 	if (argc < 2) {
 		uperf_usage(argv[0]);
@@ -163,7 +265,12 @@ init_options(int argc, char **argv)
 	options.control_proto = PROTOCOL_TCP;
 	oserver = oclient = ofile = 0;
 
-	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:S:RvVh")) != EOF) {
+	for (i = 0; i < MAX_ZC_QUEUES; ++i) {
+		options.zc_queue_index[i] = -1;
+		options.zc_cpu[i] = -1;
+	}
+
+	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:S:RvVh:I:Q:C:W:M:")) != EOF) {
 		switch (ch) {
 #ifdef USE_CPC
 		case 'E':
@@ -287,6 +394,50 @@ init_options(int argc, char **argv)
 			break;
 		case 'R':
 			options.copt |= RAW_STATS;
+			break;
+		case 'I':
+			if (optarg) {
+				options.zc_ifindex = if_nametoindex(optarg);
+				if (!options.zc_ifindex)
+					uperf_fatal("Interface %s not found\n", optarg);
+			}
+			break;
+		case 'Q':
+			if (optarg) {
+				parse_int_list(optarg, options.zc_queue_index, MAX_ZC_QUEUES);
+			}
+			break;
+		case 'C':
+			if (optarg) {
+				parse_int_list(optarg, options.zc_cpu, MAX_ZC_QUEUES);
+			}
+			break;
+		case 'W':
+			if (optarg) {
+				parse_cpu_config(optarg);
+				if (global_cpu_pool.count == 0) {
+				    uperf_fatal("Invalid CPUs worker thread: %s\n", optarg);
+				} else {
+					options.has_worker_thread = 1;
+				}
+			}
+			else {
+				uperf_fatal("Please specify CPU worker thread(s)\n");
+			}
+			break;
+		case 'M':
+			if (optarg) {
+				options.main_thread = (unsigned int) string_to_int(optarg);
+				if (!is_cpu_allowed(options.main_thread)) {
+					uperf_warn("Invalid CPU main thread: %u\n",
+							options.main_thread);
+				} else {
+					options.has_main_thread = 1;
+				}
+			}
+			else {
+				uperf_fatal("Please specify CPU main thread\n");
+			}
 			break;
 		case 'v':
 			uperf_set_log_level(UPERF_VERBOSE);

@@ -26,6 +26,7 @@
 #include <math.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "uperf.h"
 #include "sync.h"
 #include "logging.h"
@@ -182,10 +183,15 @@ txn_execute(strand_t *strand, txn_t *txn)
 int
 group_execute(strand_t *strand, group_t *g)
 {
+	long page_size;
 	int error = 0;
 	txn_t *txn;
 
-	strand->buffer = (char *) calloc(1, group_max_dto_size(g));
+	page_size = sysconf(_SC_PAGESIZE);
+	if (page_size < 0)
+		return -1;
+
+	strand->buffer = (char *) aligned_alloc(page_size, group_max_dto_size(g));
 	if (ENABLED_GROUP_STATS(options))
 		stats_update(GROUP_BEGIN, strand, GROUP_STAT(g), 0, 0);
 	for (txn = g->tlist; txn; txn = txn->next) {

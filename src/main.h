@@ -24,6 +24,8 @@
 #define	 __MAIN_H
 #include <limits.h>			/* PATH_MAX */
 #include <stdio.h>			/* PATH_MAX */
+#include <sched.h>
+#include <pthread.h>
 #include "protocol.h"
 
 #define	FLOWOP_STATS		(1<<0)
@@ -57,6 +59,9 @@
 #define	IS_MASTER(a)		((a).run_choice & UPERF_MASTER)
 #define	IS_SLAVE(a)		((a).run_choice & UPERF_SLAVE)
 
+#define	MAX_CPUS		1024
+#define	MAX_ZC_QUEUES	32
+
 /* options structure - has basic program options */
 typedef struct options {
 	int	master_port;
@@ -71,6 +76,43 @@ typedef struct options {
 	uint32_t copt;	/* Collect options */
 	uint64_t interval;	/* collect stats every interval msecs */
 	proto_type_t control_proto;
+	int zc_ifindex;
+	int zc_queue_index[MAX_ZC_QUEUES];
+	int zc_cpu[MAX_ZC_QUEUES];
+	unsigned int has_main_thread, main_thread;	/* cpu main thread */
+	unsigned int has_worker_thread;	/* cpu worker threads (use get_next_cpu) */
 }options_t;
+
+struct cpu_pool {
+    int cpus[MAX_CPUS];
+    int count;
+    int next_index;
+    pthread_mutex_t lock;
+};
+extern struct cpu_pool global_cpu_pool;
+
+static int
+get_next_cpu() {
+    int assigned_cpu = -1;
+
+    pthread_mutex_lock(&global_cpu_pool.lock);
+    if (global_cpu_pool.next_index < global_cpu_pool.count) {
+        assigned_cpu = global_cpu_pool.cpus[global_cpu_pool.next_index];
+        global_cpu_pool.next_index++;
+    }
+    pthread_mutex_unlock(&global_cpu_pool.lock);
+
+    return assigned_cpu;
+}
+
+static int
+move_to_core(int core_i)
+{
+        cpu_set_t cpus;
+
+        CPU_ZERO(&cpus);
+        CPU_SET(core_i, &cpus);
+        return sched_setaffinity(0, sizeof(cpus), &cpus);
+}
 
 #endif /* __MAIN_H */

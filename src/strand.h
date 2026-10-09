@@ -68,6 +68,7 @@ struct uperf_strand {
 
 	pid_t		pid;
 	pthread_t	tid;	/* actual thread id */
+	int 		tidx;	/* thread index */
 	int 		role;
 	volatile uint32_t	strand_flag;
 	volatile uint32_t	signalled;

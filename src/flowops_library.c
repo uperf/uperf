@@ -171,6 +171,11 @@ flowop_connect(strand_t *sp, flowop_t *fp)
 		return (-1);
 	datap->p_id = fp->p_id;
 
+	// Compute actual thread index
+	flowop_options_t options;
+	memcpy(&options, &fp->options, sizeof(options));
+	options.tidx = sp->tidx;
+
 	error = datap->connect(datap, &fp->options);
 	if (error == UPERF_SUCCESS) {
 		strand_add_connection(sp, datap);
@@ -221,7 +226,12 @@ flowop_accept(strand_t *sp, flowop_t *fp)
 	assert(cntrp != NULL);
 	assert(cntrp->accept != NULL);
 
-	newp = cntrp->accept(cntrp, &fp->options);
+	// Compute actual thread index
+	flowop_options_t options;
+	memcpy(&options, &fp->options, sizeof(options));
+	options.tidx = sp->tidx;
+
+	newp = cntrp->accept(cntrp, &options);
 
 	if (newp == NULL) {
 		return (-1);

@@ -33,6 +33,9 @@
 #define	O_SIZE_RAND		(1 << 6)
 #define	O_SCTP_UNORDERED	(1 << 7)
 #define	O_SCTP_NODELAY		(1 << 8)
+#define	O_ZC_SKIP_TX		(1 << 9)
+#define	O_ZC_SKIP_RX		(1 << 10)
+#define	O_PORT_PER_THREAD	(1 << 11)
 
 #define	FO_TCP_NODELAY(fo)	((fo)->flag & O_TCP_NODELAY)
 #define	FO_CANFAIL(fo)		((fo)->flag & O_CANFAIL)
@@ -42,6 +45,9 @@
 #define	FO_RANDOM_SIZE(fo)	((fo)->flag & O_SIZE_RAND)
 #define	FO_SCTP_UNORDERED(fo)	((fo)->flag & O_SCTP_UNORDERED)
 #define	FO_SCTP_NODELAY(fo)	((fo)->flag & O_SCTP_NODELAY)
+#define	FO_ZC_SKIP_TX(fo)	((fo)->flag & O_ZC_SKIP_TX)
+#define	FO_ZC_SKIP_RX(fo)	((fo)->flag & O_ZC_SKIP_RX)
+#define	FO_PORT_PER_THREAD(fo)	((fo)->flag & O_PORT_PER_THREAD)
 
 #define	CLEAR_FO_NONBLOCKING(f)	((f->flag &= ~O_NONBLOCKING))
 
@@ -76,6 +82,7 @@ struct flowop_options {
 	uint16_t	sctp_stream_id;		/* SCTP stream identifier (SID) */
 	uint16_t	sctp_padding;		/* To be 32-bit aligned */
 	uint32_t	sctp_pr_value;		/* Value for PR-SCTP */
+	uint32_t	tidx;			/* Thread index */
 	char		sctp_pr_policy[8];	/* Method of PR-SCTP */
 	char		cc[32];			/* CC algorithm to be used */
 	char		stack[32];		/* TCP stack to be used */

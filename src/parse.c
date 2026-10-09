@@ -443,6 +443,9 @@ parse_option(char *option, flowop_t *flowop)
 	} else if (strcasecmp(option, "non_blocking") == 0) {
 		flowop->options.flag |= O_NONBLOCKING;
 		return (UPERF_SUCCESS);
+	} else if (strcasecmp(option, "port_per_thread") == 0) {
+		flowop->options.flag |= O_PORT_PER_THREAD;
+		return (UPERF_SUCCESS);
 	}
 #ifdef HAVE_SCTP
 	else if (strcasecmp(option, "sctp_unordered") == 0) {
@@ -450,6 +453,15 @@ parse_option(char *option, flowop_t *flowop)
 		return (UPERF_SUCCESS);
 	} else if (strcasecmp(option, "sctp_nodelay") == 0) {
 		flowop->options.flag |= O_SCTP_NODELAY;
+		return (UPERF_SUCCESS);
+	}
+#endif
+#ifdef HAVE_TCP_ZC
+	else if (strcasecmp(option, "zc_skip_tx") == 0) {
+		flowop->options.flag |= O_ZC_SKIP_TX;
+		return (UPERF_SUCCESS);
+	} else if (strcasecmp(option, "zc_skip_rx") == 0) {
+		flowop->options.flag |= O_ZC_SKIP_RX;
 		return (UPERF_SUCCESS);
 	}
 #endif

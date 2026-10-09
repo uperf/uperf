@@ -75,13 +75,15 @@ create_protocols(uperf_shm_t *shm, int nthr, flowop_t *f,
 	protocol_t *p;
 	int i;
 	int protocol = f->options.protocol;
+	int port_per_thread = FO_PORT_PER_THREAD(&f->options);
 
 	/* If already created, no need to repeat */
 	if (sl[0].port[protocol] > 0)
 		return (UPERF_SUCCESS);
 
-	if (f->options.port != 0) {
+	if (f->options.port != 0 && !port_per_thread) {
 		int port = htons(f->options.port);
+		uperf_info("  Creating shared protocol %s with port %d for threads\n", protocol_to_str(protocol), ntohs(port));
 		p = create_protocol(protocol, " ", ntohs(port), SLAVE);
 		sl[0].port[protocol] = p->listen(p, (void *)&f->options);
 		if (sl[0].port[protocol] <= 0) {
@@ -97,9 +99,22 @@ create_protocols(uperf_shm_t *shm, int nthr, flowop_t *f,
 
 	/* One port per thread */
 	for (i = 0; i < nthr; i++) {
+		int port = ANY_PORT;
+		if (f->options.port != 0 && port_per_thread) {
+				port = htons(f->options.port + i);
+				uperf_info("  Creating protocol %s with port %d for thread %d\n", protocol_to_str(protocol), ntohs(port), i);
+		} else {
+				uperf_info("  Creating protocol %s with auto-assigned port for thread %d\n", protocol_to_str(protocol), i);
+		}
 		strand_t *s = shm_get_strand(shm, i + ssid);
-		p = create_protocol(protocol, " ", ANY_PORT, SLAVE);
-		sl[i].port[protocol] = p->listen(p, (void *)&f->options);
+		p = create_protocol(protocol, " ", port, SLAVE);
+
+		// Compute actual thread index
+		flowop_options_t options;
+		memcpy(&options, &f->options, sizeof(options));
+		options.tidx = i;
+
+		sl[i].port[protocol] = p->listen(p, (void *)&options);
 		if (sl[i].port[protocol] == UPERF_FAILURE) {
 			return (UPERF_FAILURE);
 		}
