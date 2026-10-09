@@ -60,6 +60,12 @@ _syscall0(pid_t, gettid)
 #include <hardware_legacy/power.h>
 #endif /* UPERF_ANDROID */
 
+struct cpu_pool global_cpu_pool = {
+    .count = 0,
+    .next_index = 0,
+    .lock = PTHREAD_MUTEX_INITIALIZER
+};
+
 options_t options;
 static options_t *init_options(int argc, char **argv);
 extern workorder_t *parse_app_profile(char *app_profile_name);
@@ -88,7 +94,7 @@ uperf_usage(char *prog)
 	"\t-e\t\t Collect default CPU counters for flowops [-f assumed]\n"
 	"\t-E <ev1,ev2>\t Collect CPU counters for flowops [-f assumed]\n"
 	"\t-a\t\t Collect all statistics\n"
-	"\t-W <Worker-threads-cpu>\t Set Worker threads cpu affinity\n"
+	"\t-W <Worker-threads-cpus>\t Set Worker threads cpu affinity\n"
 	"\t-M <Main-thread-cpu>\t Set Main thread cpu affinity\n"
 	"\t-X <file>\t Collect response times\n"
 	"\t-i <interval>\t Collect throughput every <interval>\n"
@@ -190,6 +196,39 @@ static int parse_int_list(const char *str, int *out, size_t capacity)
     }
 
     return 0;
+}
+
+void parse_cpu_config(const char *arg) {
+    char *input_copy = strdup(arg);
+    char *token = strtok(input_copy, ",");
+
+    pthread_mutex_lock(&global_cpu_pool.lock);
+
+    while (token != NULL) {
+        int start, end;
+        if (sscanf(token, "%d-%d", &start, &end) == 2) {
+            /* It's a range */
+            for (int i = start; i <= end && global_cpu_pool.count < MAX_CPUS; i++) {
+                global_cpu_pool.cpus[global_cpu_pool.count++] = i;
+            }
+        } else {
+            /* It's a single CPU */
+            if (global_cpu_pool.count < MAX_CPUS) {
+                global_cpu_pool.cpus[global_cpu_pool.count++] = atoi(token);
+            }
+        }
+        token = strtok(NULL, ",");
+    }
+
+    for (int i = 0; i < global_cpu_pool.count; i++) {
+        if (!is_cpu_allowed(global_cpu_pool.cpus[i])) {
+            uperf_warn("CPU %d is not allowed or offline\n",
+                       global_cpu_pool.cpus[i]);
+        }
+    }
+
+    pthread_mutex_unlock(&global_cpu_pool.lock);
+    free(input_copy);
 }
 
 static options_t *
@@ -363,10 +402,9 @@ init_options(int argc, char **argv)
 			break;
 		case 'W':
 			if (optarg) {
-				options.worker_thread = (unsigned int) string_to_int(optarg);
-				if (!is_cpu_allowed(options.worker_thread)) {
-					uperf_warn("Invalid CPU worker thread(s): %u\n",
-							options.worker_thread);
+				parse_cpu_config(optarg);
+				if (global_cpu_pool.count == 0) {
+				    uperf_fatal("Invalid CPUs worker thread: %s\n", optarg);
 				} else {
 					options.has_worker_thread = 1;
 				}
